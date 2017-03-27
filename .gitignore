@@ -1,0 +1,10 @@
+.idea
+npm-debug.log.*
+node_modules
+coverage
+/add
+/core.js
+/index.js
+/proto.js
+/traversals.js
+/statics.js

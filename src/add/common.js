@@ -1,0 +1,17 @@
+import './factories/of'
+import './factories/throw'
+import './factories/fromPromise'
+
+import './operators/catch'
+import './operators/distintUntilChanged'
+import './operators/do'
+import './operators/filter'
+import './operators/map'
+import './operators/mapTo'
+import './operators/startWith'
+import './operators/switchMap'
+import './operators/take'
+import './operators/withLatestFrom'
+import './operators/withValue'
+
+import './statics/merge'
