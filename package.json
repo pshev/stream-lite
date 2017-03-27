@@ -1,16 +1,19 @@
 {
   "name": "stream-lite",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "Minimalistic and modular functional reactive programming library with familiar interface and tiny footprint.",
   "main": "dist/index.js",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "babel --out-dir . --ignore *.test.js src",
-    "test": "mocha src/tests/index.test.js -w --compilers js:babel-register"
+    "commit": "git-cz",
+    "test": "mocha src/tests/index.test.js -w --compilers js:babel-register",
+    "test:single": "mocha src/tests/index.test.js --compilers js:babel-register",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pshev/stream-lite.git"
+    "url": "https://github.com/pshev/stream-lite.git"
   },
   "keywords": [
     "observable",
@@ -29,14 +32,23 @@
     "babel-register": "6.24.0",
     "chai": "3.5.0",
     "chai-spies": "0.7.1",
+    "commitizen": "2.9.6",
+    "cz-conventional-changelog": "2.0.0",
     "mocha": "3.2.0",
     "nyc": "10.1.2",
-    "rimraf": "2.6.1"
+    "rimraf": "2.6.1",
+    "semantic-release": "^6.3.2",
+    "semantic-release-cli": "3.0.3"
   },
   "babel": {
     "presets": [
       "es2015",
       "stage-2"
     ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
   }
 }
