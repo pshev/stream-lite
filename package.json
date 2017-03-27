@@ -7,8 +7,9 @@
     "prebuild": "rimraf dist",
     "build": "babel --out-dir . --ignore *.test.js src",
     "commit": "git-cz",
-    "test": "mocha src/tests/index.test.js -w --compilers js:babel-register",
-    "test:single": "mocha src/tests/index.test.js --compilers js:babel-register",
+    "watch:test": "npm t -- -w",
+    "test": "mocha src/tests/index.test.js --compilers js:babel-register",
+    "cover": "nyc mocha src/tests/index.test.js --compilers js:babel-register && nyc report --reporter=lcov",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
@@ -52,7 +53,7 @@
       "path": "node_modules/cz-conventional-changelog"
     },
     "ghooks": {
-      "pre-commit": "npm run test:single"
+      "pre-commit": "npm run cover"
     }
   }
 }

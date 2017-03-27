@@ -1,4 +1,6 @@
 .idea
 src
 npm-debug.log.*
+.nyc_output
+coverage
 .npmignore
