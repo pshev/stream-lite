@@ -48,4 +48,19 @@ describe('factories', () => {
       expect(producer.start).to.have.been.called.once()
     })
   })
+
+  describe('fromPromise', () => {
+    it("should call subscriber's next callback when promise is fulfilled", (done) => {
+      Stream.fromPromise(Promise.resolve(42)).subscribe(() => {
+        expect(true).to.equal(true)
+        done()
+      })
+    })
+    it("should call subscriber's error callback when promise is rejected", (done) => {
+      Stream.fromPromise(Promise.reject(42)).subscribe(() => {}, error => {
+        expect(true).to.equal(true)
+        done()
+      })
+    })
+  })
 })
