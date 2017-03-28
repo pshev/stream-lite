@@ -158,3 +158,37 @@ describe('factories', () => {
     })
   })
 })
+
+describe('operators', () => {
+  describe('map', () => {
+    it("should complete when source stream completes", (done) => {
+      Stream.of(1,2,3).map(() => 42).subscribe(() => {}, err => {}, done)
+    })
+    it("should error when source stream errors", (done) => {
+      Stream.throw().map(() => 42).subscribe(() => {}, done)
+    })
+    it("should not run the mapping function when source stream errors", (done) => {
+      const spy = chai.spy()
+      Stream.throw().map(spy).subscribe(() => {}, err => {
+        expect(spy).to.not.have.been.called()
+        done()
+      })
+    })
+    it("should run values emitted from source stream through the given transformation function", (done) => {
+      const spy = chai.spy()
+      Stream.of(1,2).map(spy).subscribe(() => {}, err => {}, () => {
+        expect(spy).to.have.been.called.with(1)
+        expect(spy).to.have.been.called.with(2)
+        done()
+      })
+    })
+    it("should emit values coming out of it's transformation function", (done) => {
+      const spy = chai.spy()
+      Stream.of(1,2).map(x => x * 3).subscribe(spy, err => {}, () => {
+        expect(spy).to.have.been.called.with(3)
+        expect(spy).to.have.been.called.with(6)
+        done()
+      })
+    })
+  })
+})
