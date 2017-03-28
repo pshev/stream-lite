@@ -57,9 +57,7 @@ describe('factories', () => {
       })
     })
     it("should complete after emitting the given value", (done) => {
-      Stream.of(42).subscribe(() => {}, err => {}, () => {
-        done()
-      })
+      Stream.of(42).subscribe(() => {}, err => {}, done)
     })
     it("should emit all given values in a sequence", (done) => {
       const spy = chai.spy()
@@ -86,18 +84,77 @@ describe('factories', () => {
     })
   })
 
-  describe('fromPromise', () => {
-    it("should call subscriber's next callback when promise is fulfilled", (done) => {
-      Stream.fromPromise(Promise.resolve(42)).subscribe(() => {
-        expect(true).to.equal(true)
+  describe('empty', () => {
+    it("should immediately complete", (done) => {
+      Stream.empty().subscribe(() => {}, err => {}, done)
+    })
+    it("should not call subscriber's next callback", (done) => {
+      const spy = chai.spy()
+      Stream.empty().subscribe(spy, err => {}, () => {
+        expect(spy).to.not.have.been.called()
         done()
       })
     })
-    it("should call subscriber's error callback when promise is rejected", (done) => {
-      Stream.fromPromise(Promise.reject(42)).subscribe(() => {}, error => {
-        expect(true).to.equal(true)
+  })
+
+  describe('throw', () => {
+    it("should immediately error", (done) => {
+      Stream.throw().subscribe(() => {}, done)
+    })
+    it("should not call subscriber's next callback", (done) => {
+      const spy = chai.spy()
+      Stream.throw().subscribe(spy, () => {
+        expect(spy).to.not.have.been.called()
         done()
       })
+    })
+    it("should not complete", (done) => {
+      const spy = chai.spy()
+      Stream.throw().subscribe(() => {}, () => {}, spy)
+
+      setTimeout(() => {
+        expect(spy).to.not.have.been.called()
+        done()
+      })
+    })
+  })
+
+  describe('never', () => {
+    it("should not next", (done) => {
+      const spy = chai.spy()
+      Stream.never().subscribe(spy)
+
+      setTimeout(() => {
+        expect(spy).to.not.have.been.called()
+        done()
+      })
+    })
+    it("should not error", (done) => {
+      const spy = chai.spy()
+      Stream.never().subscribe(() => {}, spy)
+
+      setTimeout(() => {
+        expect(spy).to.not.have.been.called()
+        done()
+      })
+    })
+    it("should not complete", (done) => {
+      const spy = chai.spy()
+      Stream.never().subscribe(() => {}, () => {}, spy)
+
+      setTimeout(() => {
+        expect(spy).to.not.have.been.called()
+        done()
+      })
+    })
+  })
+
+  describe('fromPromise', () => {
+    it("should call subscriber's next callback when promise is fulfilled", (done) => {
+      Stream.fromPromise(Promise.resolve(42)).subscribe(() => done())
+    })
+    it("should call subscriber's error callback when promise is rejected", (done) => {
+      Stream.fromPromise(Promise.reject(42)).subscribe(() => {}, error => done())
     })
   })
 })
