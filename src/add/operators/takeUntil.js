@@ -6,8 +6,7 @@ proto.takeUntil = function takeUntil(stream) {
 
   stream.subscribe(
     s.complete.bind(s),
-    this.error.bind(this),
-    this.complete.bind(this)
+    this.error.bind(this)
   )
 
   return s
