@@ -49,6 +49,43 @@ describe('factories', () => {
     })
   })
 
+  describe('of', () => {
+    it("should emit a given value", (done) => {
+      Stream.of(42).subscribe(x => {
+        expect(x).to.equal(42)
+        done()
+      })
+    })
+    it("should complete after emitting the given value", (done) => {
+      Stream.of(42).subscribe(() => {}, err => {}, () => {
+        done()
+      })
+    })
+    it("should emit all given values in a sequence", (done) => {
+      const spy = chai.spy()
+      Stream.of(1, 2, 3).subscribe(spy, err => {}, () => {
+        expect(spy).to.have.been.called.with(1)
+        expect(spy).to.have.been.called.with(2)
+        expect(spy).to.have.been.called.with(3)
+        done()
+      })
+    })
+    it("should handle emitting objects, array, and functions", (done) => {
+      const spy = chai.spy()
+
+      const obj = {name: 'Joe'}
+      const arr = [1,2,3]
+      const func = () => 'hello'
+
+      Stream.of(obj, arr, func).subscribe(spy, err => {}, () => {
+        expect(spy).to.have.been.called.with(obj)
+        expect(spy).to.have.been.called.with(arr)
+        expect(spy).to.have.been.called.with(func)
+        done()
+      })
+    })
+  })
+
   describe('fromPromise', () => {
     it("should call subscriber's next callback when promise is fulfilled", (done) => {
       Stream.fromPromise(Promise.resolve(42)).subscribe(() => {
