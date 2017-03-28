@@ -1,5 +1,6 @@
-const deactivationGuard = s =>
+const lastSubRemovedGuard = s =>
   s.subscribers.length === 0 && s.dependents.every(d => !d.shouldEmit)
+const streamCompleteGuard = s => s.subscribers.length === 0
 
 const traverseUp = ({forAll, forRoot, setShouldEmitTo}) => stream => {
   let queue = []
@@ -33,7 +34,7 @@ const traverseUp = ({forAll, forRoot, setShouldEmitTo}) => stream => {
   }
 }
 
-export const traverseUpOnStreamActivation = traverseUp({
+export const traverseUpOnFirstSubscriberAdded = traverseUp({
   forRoot: s => s.producer.start(s),
   forAll:  s => {
     s.shouldEmit = true
@@ -42,9 +43,15 @@ export const traverseUpOnStreamActivation = traverseUp({
   setShouldEmitTo: true
 })
 
-export const traverseUpOnStreamDeactivation = traverseUp({
-  forRoot: s => deactivationGuard(s) && s.producer.stop(),
-  forAll:  s => deactivationGuard(s) && (s.shouldEmit = false),
+export const traverseUpOnLastSubscriberRemoved = traverseUp({
+  forRoot: s => lastSubRemovedGuard(s) && s.producer.stop(),
+  forAll:  s => lastSubRemovedGuard(s) && (s.shouldEmit = false),
+  setShouldEmitTo: false
+})
+
+export const traverseUpOnStreamCompleted = traverseUp({
+  forRoot: s => streamCompleteGuard(s) && s.producer.stop(),
+  forAll:  s => streamCompleteGuard(s) && (s.shouldEmit = false),
   setShouldEmitTo: false
 })
 

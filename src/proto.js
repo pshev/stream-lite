@@ -1,11 +1,11 @@
-import {traverseUpOnStreamActivation, traverseUpOnStreamDeactivation, traverseUpOnStreamError} from './traversals'
+import {traverseUpOnFirstSubscriberAdded, traverseUpOnLastSubscriberRemoved, traverseUpOnStreamCompleted, traverseUpOnStreamError} from './traversals'
 
 const dependenciesMet = stream => stream.dependencies.every(s => s.val !== undefined)
 
 function subscribe(stream, subscriber) {
   stream.subscribers.push(subscriber)
   if (stream.subscribers.length === 1)
-    traverseUpOnStreamActivation(stream)
+    traverseUpOnFirstSubscriberAdded(stream)
   return { unsubscribe: unsubscribe.bind(null, stream, subscriber) }
 }
 
@@ -13,7 +13,7 @@ function unsubscribe(stream, subscriber) {
   stream.subscribers = stream.subscribers.filter(s => s !== subscriber)
 
   if (stream.subscribers.length === 0)
-    traverseUpOnStreamDeactivation(stream)
+    traverseUpOnLastSubscriberRemoved(stream)
 }
 
 export function defaultOnNext(stream, x) {
@@ -33,7 +33,7 @@ export function defaultOnError(stream, error) {
 export function defaultOnComplete(stream) {
   stream.subscribers.forEach(s => s.complete())
   stream.subscribers = []
-  traverseUpOnStreamDeactivation(stream)
+  traverseUpOnStreamCompleted(stream)
   stream.dependents.forEach(d => {
     if (d.dependencies.every(dep => !dep.shouldEmit))
       d.complete()
