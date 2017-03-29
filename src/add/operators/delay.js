@@ -1,10 +1,25 @@
-import proto, {defaultOnNext} from '../../proto'
+import proto, {defaultOnNext, defaultOnComplete} from '../../proto'
 import {baseCreate} from '../../core'
 
 proto.delay = function delay(delay) {
+  let sourceStreamHasCompleted
+  let lastReceivedValue
+  let lastEmittedValue
+
   return baseCreate({
     next: function(x) {
-      setTimeout(() => defaultOnNext(this, x), delay)
+      lastReceivedValue = x
+      setTimeout(() => {
+        lastEmittedValue = x
+        defaultOnNext(this, x)
+        if (sourceStreamHasCompleted)
+          this.complete()
+      }, delay)
+    },
+    complete: function() {
+      sourceStreamHasCompleted = true
+      if (lastReceivedValue === lastEmittedValue)
+        defaultOnComplete(this)
     }
   }, this, 'delay')
 }
