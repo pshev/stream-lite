@@ -1,10 +1,10 @@
 import proto, {defaultOnNext} from '../../proto'
 import {baseCreate} from '../../core'
 
-proto.startWith = function startWith(x) {
+proto.startWith = function startWith(...xs) {
   return baseCreate({
     streamActivated: function() {
-      defaultOnNext(this, x)
+      xs.forEach(x => defaultOnNext(this, x))
     }
   }, this, 'startWith')
 }
