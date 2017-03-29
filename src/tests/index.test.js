@@ -9,7 +9,6 @@ const expect = chai.expect
 
 const isStream = x => x.subscribe && x.next && x.error && x.complete
 const isRootStream = x => isStream(x) && x.dependencies.length === 0
-const isDependentStream = x => isStream(x) && x.dependencies.length > 0
 
 const nx = () => {}
 const err = () => {}
@@ -105,7 +104,8 @@ describe('factories', () => {
         addEventListener: function(eventName, cb) {
           cb(1)
           cb(2)
-        }
+        },
+        removeEventListener: () => {}
       }
 
       Stream.fromEvent(fakeElement, 'fakeEventName').subscribe(next)
@@ -226,6 +226,9 @@ describe('factories', () => {
     it("should call subscriber's next callback when promise is fulfilled", (done) => {
       Stream.fromPromise(Promise.resolve(42)).subscribe(() => done())
     })
+    it("should complete when promise is fulfilled", (done) => {
+      Stream.fromPromise(Promise.resolve(42)).subscribe(nx, err, done)
+    })
     it("should call subscriber's error callback when promise is rejected", (done) => {
       Stream.fromPromise(Promise.reject(42)).subscribe(nx, error => done())
     })
@@ -324,7 +327,7 @@ describe('operators', () => {
   describe('scan', () => {
     it("should run the reducing function on each emitted value from source", (done) => {
       const reducer = chai.spy()
-      Stream.of(1,2).scan(reducer).subscribe(nx, err, () => {
+      Stream.of(1,2).scan(reducer, 0).subscribe(nx, err, () => {
         expect(reducer).to.have.been.called.with(1)
         expect(reducer).to.have.been.called.with(2)
         expect(reducer).to.have.been.called.twice()
@@ -409,16 +412,15 @@ describe('operators', () => {
   describe('delay', () => {
     it("should emit values from source observable only after the given delay", (done) => {
       const next = chai.spy()
-      Stream.fromPromise(Promise.resolve(1)).delay(3).subscribe(next)
+      Stream.of(1).delay(3).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        done()
+      })
 
+      expect(next).to.not.have.been.called()
       setTimeout(() => {
         expect(next).to.not.have.been.called()
       })
-
-      setTimeout(() => {
-        expect(next).to.have.been.called.with(1)
-        done()
-      }, 5)
     })
     it("when source completes, should emit all values received from source stream and only then complete", (done) => {
       const next = chai.spy()
@@ -459,7 +461,7 @@ describe('operators', () => {
     it("should not complete if a stream emitted from source stream completes", (done) => {
       const next = chai.spy()
       const complete = chai.spy()
-      Stream.fromPromise(Promise.resolve(Stream.of(1))).flatten().subscribe(next, err, complete)
+      Stream.never().startWith(Stream.of(1)).flatten().subscribe(next, err, complete)
       setTimeout(() => {
         expect(next).to.have.been.called.with(1)
         expect(complete).to.not.have.been.called()
@@ -486,9 +488,10 @@ describe('operators', () => {
     it("should not complete if a stream returned from the given function completes", (done) => {
       const next = chai.spy()
       const complete = chai.spy()
-      Stream.fromPromise(Promise.resolve(1)).flatMap(x => Stream.of(1)).subscribe(next, err, complete)
+      Stream.never().startWith(1).flatMap(x => Stream.of(1)).subscribe(next, err, complete)
       setTimeout(() => {
         expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.once()
         expect(complete).to.not.have.been.called()
         done()
       })
@@ -522,9 +525,10 @@ describe('operators', () => {
     it("should not complete if a stream returned from the given function completes", (done) => {
       const next = chai.spy()
       const complete = chai.spy()
-      Stream.fromPromise(Promise.resolve(1)).switchMap(x => Stream.of(1)).subscribe(next, err, complete)
+      Stream.never().startWith(1).switchMap(x => Stream.of(1)).subscribe(next, err, complete)
       setTimeout(() => {
         expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.once()
         expect(complete).to.not.have.been.called()
         done()
       })
@@ -687,10 +691,10 @@ describe('operators', () => {
     })
   })
 
-  describe('combine', () => {
+  describe('combine and combineLatest (alias)', () => {
     it("should emit an array of values containing values from all combined streams", (done) => {
       const next = chai.spy()
-      Stream.of(1).combine(Stream.of(2)).subscribe(next, err, () => {
+      Stream.of(1).combineLatest(Stream.of(2)).subscribe(next, err, () => {
         expect(next).to.have.been.called.with([1,2])
         expect(next).to.have.been.called.once()
         done()
@@ -698,7 +702,7 @@ describe('operators', () => {
     })
     it("should also be available as a static method", (done) => {
       const next = chai.spy()
-      Stream.combine(Stream.of(1), Stream.of(2)).subscribe(next, err, () => {
+      Stream.combineLatest(Stream.of(1), Stream.of(2)).subscribe(next, err, () => {
         expect(next).to.have.been.called.with([1,2])
         expect(next).to.have.been.called.once()
         done()
@@ -707,7 +711,7 @@ describe('operators', () => {
     it("should not complete when one of the source streams completes", (done) => {
       const next = chai.spy()
       const complete = chai.spy()
-      Stream.combine(Stream.of(1), Stream.never()).subscribe(next, err, complete)
+      Stream.combineLatest(Stream.of(1), Stream.never()).subscribe(next, err, complete)
 
       setTimeout(() => {
         expect(complete).to.not.have.been.called()
@@ -716,7 +720,7 @@ describe('operators', () => {
     })
     it("should not emit until every source stream emit at least once", (done) => {
       const next = chai.spy()
-      Stream.combine(Stream.of(1), Stream.never(), Stream.of(2)).subscribe(next)
+      Stream.combineLatest(Stream.of(1), Stream.never(), Stream.of(2)).subscribe(next)
 
       setTimeout(() => {
         expect(next).to.not.have.been.called()
