@@ -2,7 +2,30 @@ const lastSubRemovedGuard = s =>
   s.subscribers.length === 0 && s.dependents.every(d => !d.shouldEmit)
 const streamCompleteGuard = s => s.subscribers.length === 0
 
-const traverseUp = ({forAll, forRoot, setShouldEmitTo}) => stream => {
+const traverseUp = ({guard, extraLogicToRun, setShouldEmitTo}) => stream => {
+  guard = guard || (() => true)
+
+  let rootStreamsToStart = []
+
+  // Why not call s.producer.start right inline?
+  // if we have something like this:
+  // Stream.merge(Stream.of(1), Stream.of(2)).subscribe(..)
+  // we want to first mark both 'of' streams with shouldEmit true
+  // and only then let them start producing values
+  // If we can producer.start inline we'd have:
+  // of(1) calls next on merge with 1
+  // of(1) completes and conditionally calls .complete() on all it's dependents
+  // the condition being d.dependencies.every(dep => !dep.shouldEmit)
+  // of(2) however hasn't yet had it's shouldEmit set to true so condition passes
+  // as a result merge stream completes and doesn't emit 2
+  const forRoot = s => setShouldEmitTo === true
+    ? rootStreamsToStart.push(s)
+    : s.producer.stop()
+  const forAll = s => {
+    s.shouldEmit = setShouldEmitTo
+    extraLogicToRun && extraLogicToRun(s)
+  }
+
   let queue = []
   let s = stream
 
@@ -15,13 +38,13 @@ const traverseUp = ({forAll, forRoot, setShouldEmitTo}) => stream => {
 
     if (s.producer) {
       // it's a RootStream
-      forAll(s)
-      forRoot(s)
+      guard(s) && forAll(s)
+      guard(s) && forRoot(s)
       s = queue.shift()
       continue
     }
 
-    forAll(s)
+    guard(s) && forAll(s)
 
     // it's a DependentStream
     s.dependencies
@@ -32,31 +55,27 @@ const traverseUp = ({forAll, forRoot, setShouldEmitTo}) => stream => {
 
     s = queue.shift()
   }
+
+  rootStreamsToStart.forEach(s => s.producer.start(s))
 }
 
 export const traverseUpOnFirstSubscriberAdded = traverseUp({
-  forRoot: s => s.producer.start(s),
-  forAll:  s => {
-    s.shouldEmit = true
+  extraLogicToRun: s => {
     s.streamActivated()
   },
   setShouldEmitTo: true
 })
 
 export const traverseUpOnLastSubscriberRemoved = traverseUp({
-  forRoot: s => lastSubRemovedGuard(s) && s.producer.stop(),
-  forAll:  s => lastSubRemovedGuard(s) && (s.shouldEmit = false),
+  guard: lastSubRemovedGuard,
   setShouldEmitTo: false
 })
 
 export const traverseUpOnStreamCompleted = traverseUp({
-  forRoot: s => streamCompleteGuard(s) && s.producer.stop(),
-  forAll:  s => streamCompleteGuard(s) && (s.shouldEmit = false),
+  guard: streamCompleteGuard,
   setShouldEmitTo: false
 })
 
 export const traverseUpOnStreamError = traverseUp({
-  forRoot: s => s.producer.stop(),
-  forAll:  s => s.shouldEmit = false,
   setShouldEmitTo: false
 })
