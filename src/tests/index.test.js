@@ -97,7 +97,65 @@ describe('factories', () => {
     })
   })
 
-  //TODO: describe('fromEvent', () => {})
+  describe('fromEvent', () => {
+    it("should listen to given element's event's by event name and emit them", () => {
+      const next = chai.spy()
+      //fake element that immediately produces events when a listener is added
+      const fakeElement = {
+        addEventListener: function(eventName, cb) {
+          cb(1)
+          cb(2)
+        }
+      }
+
+      Stream.fromEvent(fakeElement, 'fakeEventName').subscribe(next)
+
+      expect(next).to.have.been.called.with(1)
+      expect(next).to.have.been.called.with(2)
+      expect(next).to.have.been.called.twice()
+    })
+    it("should stop listening to given element's events by event name on complete", (done) => {
+      const next = chai.spy()
+      const removeEventListener = chai.spy()
+      //fake element that immediately produces events when a listener is added
+      const fakeElement = {
+        addEventListener: function(eventName, cb) {
+          cb(1)
+          cb(2)
+        },
+        removeEventListener
+      }
+
+      Stream.fromEvent(fakeElement, 'fakeEventName').take(1).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.not.have.been.called.with(2)
+        expect(next).to.have.been.called.once()
+        expect(removeEventListener).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should stop listening to given element's events by event name on error", (done) => {
+      const next = chai.spy()
+      const removeEventListener = chai.spy()
+      //fake element that immediately produces events when a listener is added
+      const fakeElement = {
+        addEventListener: function(eventName, cb) {
+          cb(1)
+          cb(2)
+        },
+        removeEventListener
+      }
+
+      Stream.fromEvent(fakeElement, 'fakeEventName')
+        .map(x => {throw new Error('mapError')})
+        .subscribe(next, error => {
+          expect(error.message).to.equal('mapError')
+          expect(next).to.not.have.been.called()
+          expect(removeEventListener).to.have.been.called.once()
+          done()
+        })
+    })
+  })
 
   describe('empty', () => {
     it("should immediately complete", (done) => {

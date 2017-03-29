@@ -24,20 +24,30 @@ export function defaultOnNext(stream, x) {
 }
 
 export function defaultOnError(stream, error) {
-  stream.subscribers.forEach(s => s.error(error))
+  // we want to call all subscribers' complete callback when
+  // all streams that have to be deactivated already have been
+  // but we also want to reset stream.subscribers because
+  // traverseUpOnStreamError checks that property
+  const subscribers = [...stream.subscribers]
   stream.subscribers = []
   traverseUpOnStreamError(stream)
   stream.dependents.forEach(d => d.error(error))
+  subscribers.forEach(s => s.error(error))
 }
 
 export function defaultOnComplete(stream) {
-  stream.subscribers.forEach(s => s.complete())
+  // we want to call all subscribers' complete callback when
+  // all streams that have to be deactivated already have been
+  // but we also want to reset stream.subscribers because
+  // traverseUpOnStreamCompleted checks that property
+  const subscribers = [...stream.subscribers]
   stream.subscribers = []
   traverseUpOnStreamCompleted(stream)
   stream.dependents.forEach(d => {
     if (d.dependencies.every(dep => !dep.shouldEmit))
       d.complete()
   })
+  subscribers.forEach(s => s.complete())
 }
 
 export default {
