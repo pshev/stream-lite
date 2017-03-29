@@ -2,8 +2,8 @@ import './create'
 import statics from '../../statics'
 
 statics.of = function of(...xs) {
-  return statics.create({start: consumer => {
-    xs.forEach(i => consumer.next(i))
-    consumer.complete()
+  return statics.create({start: self => {
+    xs.forEach(i => self.next(i))
+    self.complete()
   }}, 'of')
 }
