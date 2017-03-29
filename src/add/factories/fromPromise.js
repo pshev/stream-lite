@@ -5,18 +5,20 @@ statics.fromPromise = function fromPromise(promise) {
   let cancelled = false
 
   const producer = {
-    start: function (consumer) {
+    start: function(self) {
       promise
         .then(x => {
-          if (!cancelled)
-            consumer.next(x)
+          if(!cancelled) {
+            self.next(x)
+            self.complete()
+          }
         })
         .catch(error => {
-          if (!cancelled)
-            consumer.error(error)
+          if(!cancelled)
+            self.error(error)
         })
     },
-    stop: function () {
+    stop: function() {
       cancelled = true
     }
   }
