@@ -3,7 +3,7 @@ import './factories/throw'
 import './factories/fromPromise'
 
 import './operators/catch'
-import './operators/distintUntilChanged'
+import './operators/distinctUntilChanged'
 import './operators/do'
 import './operators/filter'
 import './operators/map'
