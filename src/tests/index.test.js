@@ -87,12 +87,39 @@ describe('factories', () => {
   })
 
   describe('fromArray', () => {
+    it("should complete after emitting the given value", (done) => {
+      Stream.fromArray([1,2]).subscribe(() => {}, err, done)
+    })
     it("should emit all given values in a sequence", () => {
       const next = chai.spy()
-      Stream.fromArray([1,2]).subscribe(next, err)
-      expect(next).to.have.been.called.with(1)
-      expect(next).to.have.been.called.with(2)
-      expect(next).to.have.been.called.twice()
+      Stream.fromArray([1,2]).subscribe(next, err, (done) => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.twice()
+      })
+    })
+    it("should emit all given values in a sequence", (done) => {
+      const next = chai.spy()
+      Stream.fromArray([1,2]).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should handle emitting objects, array, and functions", (done) => {
+      const next = chai.spy()
+
+      const obj = {name: 'Joe'}
+      const arr = [1,2,3]
+      const func = () => 'hello'
+
+      Stream.fromArray([obj, arr, func]).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(obj)
+        expect(next).to.have.been.called.with(arr)
+        expect(next).to.have.been.called.with(func)
+        done()
+      })
     })
   })
 
