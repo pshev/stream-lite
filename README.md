@@ -3,7 +3,7 @@
 
 **The power of streams, without the overhead:**
 
-- Extremely small.
+- [Extremely small](#import-what-you-need).
 - Familiar interface (mostly replicating RxJS's API)
 - Modular. Add as little or as much functionality as you want
 - Lazy streams (only active once subscribed to)
@@ -35,7 +35,7 @@ yarn add stream-lite
 
 The following guide assumes you use ES2015 but you don't have to.
 
-### Import what you need
+### <a id="import-what-you-need"></a> Import what you need
 
 The `stream-lite` module encourages shipping only the scripts that you will actually use. 
 So first you will need to tell `stream-lite` which operators and factories you need.
