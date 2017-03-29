@@ -11,6 +11,9 @@ const isStream = x => x.subscribe && x.next && x.error && x.complete
 const isRootStream = x => isStream(x) && x.dependencies.length === 0
 const isDependentStream = x => isStream(x) && x.dependencies.length > 0
 
+const nx = () => {}
+const err = () => {}
+
 describe('factories', () => {
   describe('create', () => {
     it('should create a root stream when given no arguments', () => {
@@ -24,9 +27,9 @@ describe('factories', () => {
       expect(Stream.create(producer)).to.satisfy(isRootStream)
     })
     it('should not start a stream before anyone subscribes', () => {
-      const startSpy = chai.spy()
+      const start = chai.spy()
       const producer = {
-        start: startSpy,
+        start,
         stop: () => {},
       }
 
@@ -35,9 +38,9 @@ describe('factories', () => {
       expect(producer.start).to.not.have.been.called()
     })
     it('should start a stream when first subscriber is added', () => {
-      const startSpy = chai.spy()
+      const start = chai.spy()
       const producer = {
-        start: startSpy,
+        start,
         stop: () => {},
       }
 
@@ -57,41 +60,53 @@ describe('factories', () => {
       })
     })
     it("should complete after emitting the given value", (done) => {
-      Stream.of(42).subscribe(() => {}, err => {}, done)
+      Stream.of(42).subscribe(() => {}, err, done)
     })
     it("should emit all given values in a sequence", (done) => {
-      const spy = chai.spy()
-      Stream.of(1, 2, 3).subscribe(spy, err => {}, () => {
-        expect(spy).to.have.been.called.with(1)
-        expect(spy).to.have.been.called.with(2)
-        expect(spy).to.have.been.called.with(3)
+      const next = chai.spy()
+      Stream.of(1,2).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.twice()
         done()
       })
     })
     it("should handle emitting objects, array, and functions", (done) => {
-      const spy = chai.spy()
+      const next = chai.spy()
 
       const obj = {name: 'Joe'}
       const arr = [1,2,3]
       const func = () => 'hello'
 
-      Stream.of(obj, arr, func).subscribe(spy, err => {}, () => {
-        expect(spy).to.have.been.called.with(obj)
-        expect(spy).to.have.been.called.with(arr)
-        expect(spy).to.have.been.called.with(func)
+      Stream.of(obj, arr, func).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(obj)
+        expect(next).to.have.been.called.with(arr)
+        expect(next).to.have.been.called.with(func)
         done()
       })
     })
   })
 
+  describe('fromArray', () => {
+    it("should emit all given values in a sequence", () => {
+      const next = chai.spy()
+      Stream.fromArray([1,2]).subscribe(next, err)
+      expect(next).to.have.been.called.with(1)
+      expect(next).to.have.been.called.with(2)
+      expect(next).to.have.been.called.twice()
+    })
+  })
+
+  //TODO: describe('fromEvent', () => {})
+
   describe('empty', () => {
     it("should immediately complete", (done) => {
-      Stream.empty().subscribe(() => {}, err => {}, done)
+      Stream.empty().subscribe(nx, err, done)
     })
     it("should not call subscriber's next callback", (done) => {
-      const spy = chai.spy()
-      Stream.empty().subscribe(spy, err => {}, () => {
-        expect(spy).to.not.have.been.called()
+      const next = chai.spy()
+      Stream.empty().subscribe(next, err, () => {
+        expect(next).to.not.have.been.called()
         done()
       })
     })
@@ -99,21 +114,21 @@ describe('factories', () => {
 
   describe('throw', () => {
     it("should immediately error", (done) => {
-      Stream.throw().subscribe(() => {}, done)
+      Stream.throw().subscribe(nx, done)
     })
     it("should not call subscriber's next callback", (done) => {
-      const spy = chai.spy()
-      Stream.throw().subscribe(spy, () => {
-        expect(spy).to.not.have.been.called()
+      const next = chai.spy()
+      Stream.throw().subscribe(next, () => {
+        expect(next).to.not.have.been.called()
         done()
       })
     })
     it("should not complete", (done) => {
-      const spy = chai.spy()
-      Stream.throw().subscribe(() => {}, () => {}, spy)
+      const complete = chai.spy()
+      Stream.throw().subscribe(nx, err, complete)
 
       setTimeout(() => {
-        expect(spy).to.not.have.been.called()
+        expect(complete).to.not.have.been.called()
         done()
       })
     })
@@ -121,29 +136,29 @@ describe('factories', () => {
 
   describe('never', () => {
     it("should not next", (done) => {
-      const spy = chai.spy()
-      Stream.never().subscribe(spy)
+      const next = chai.spy()
+      Stream.never().subscribe(next)
 
       setTimeout(() => {
-        expect(spy).to.not.have.been.called()
+        expect(next).to.not.have.been.called()
         done()
       })
     })
     it("should not error", (done) => {
-      const spy = chai.spy()
-      Stream.never().subscribe(() => {}, spy)
+      const error = chai.spy()
+      Stream.never().subscribe(nx, error)
 
       setTimeout(() => {
-        expect(spy).to.not.have.been.called()
+        expect(error).to.not.have.been.called()
         done()
       })
     })
     it("should not complete", (done) => {
-      const spy = chai.spy()
-      Stream.never().subscribe(() => {}, () => {}, spy)
+      const complete = chai.spy()
+      Stream.never().subscribe(nx, err, complete)
 
       setTimeout(() => {
-        expect(spy).to.not.have.been.called()
+        expect(complete).to.not.have.been.called()
         done()
       })
     })
@@ -154,7 +169,18 @@ describe('factories', () => {
       Stream.fromPromise(Promise.resolve(42)).subscribe(() => done())
     })
     it("should call subscriber's error callback when promise is rejected", (done) => {
-      Stream.fromPromise(Promise.reject(42)).subscribe(() => {}, error => done())
+      Stream.fromPromise(Promise.reject(42)).subscribe(nx, error => done())
+    })
+    it("should work with the 'catch' operator", (done) => {
+      const next = chai.spy()
+      const error = chai.spy()
+      Stream.fromPromise(Promise.reject(42))
+        .catch(error => Stream.of('caught promise error'))
+        .subscribe(next, error, () => {
+          expect(next).to.have.been.called.with('caught promise error')
+          expect(error).to.not.have.been.called()
+          done()
+        })
     })
   })
 })
@@ -162,33 +188,415 @@ describe('factories', () => {
 describe('operators', () => {
   describe('map', () => {
     it("should complete when source stream completes", (done) => {
-      Stream.of(1,2,3).map(() => 42).subscribe(() => {}, err => {}, done)
+      Stream.of(1,2,3).map(() => 42).subscribe(nx, err, done)
     })
     it("should error when source stream errors", (done) => {
-      Stream.throw().map(() => 42).subscribe(() => {}, done)
+      Stream.throw().map(() => 42).subscribe(nx, done)
     })
     it("should not run the mapping function when source stream errors", (done) => {
-      const spy = chai.spy()
-      Stream.throw().map(spy).subscribe(() => {}, err => {
-        expect(spy).to.not.have.been.called()
+      const mappingFn = chai.spy()
+      Stream.throw().map(mappingFn).subscribe(nx, err => {
+        expect(mappingFn).to.not.have.been.called()
         done()
       })
     })
-    it("should run values emitted from source stream through the given transformation function", (done) => {
-      const spy = chai.spy()
-      Stream.of(1,2).map(spy).subscribe(() => {}, err => {}, () => {
-        expect(spy).to.have.been.called.with(1)
-        expect(spy).to.have.been.called.with(2)
+    it("should run values emitted from source stream through the given mapping function", (done) => {
+      const mappingFn = chai.spy()
+      Stream.of(1,2).map(mappingFn).subscribe(nx, err, () => {
+        expect(mappingFn).to.have.been.called.with(1)
+        expect(mappingFn).to.have.been.called.with(2)
+        expect(mappingFn).to.have.been.called.twice()
         done()
       })
     })
     it("should emit values coming out of it's transformation function", (done) => {
-      const spy = chai.spy()
-      Stream.of(1,2).map(x => x * 3).subscribe(spy, err => {}, () => {
-        expect(spy).to.have.been.called.with(3)
-        expect(spy).to.have.been.called.with(6)
+      const next = chai.spy()
+      Stream.of(1,2).map(x => x * 3).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.twice()
         done()
       })
+    })
+  })
+
+  describe('filter', () => {
+    it("should emit only those values from source stream that pass the provided given function", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4).filter(x => x % 2 === 0).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.with(4)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+  })
+
+  describe('startWith', () => {
+    it("should provide an initial value for a source stream", (done) => {
+      const next = chai.spy()
+      let firstNextValue
+      Stream.of(2,3).startWith(1).subscribe(x => {
+        firstNextValue = firstNextValue || x
+        next(x)
+      }, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.with(3)
+        expect(firstNextValue).to.equal(1)
+        done()
+      })
+    })
+    it("should provide an initial sequence of values for a source stream", (done) => {
+      const next = chai.spy()
+      let firstNextValue
+      Stream.of(3).startWith(1,2).subscribe(x => {
+        firstNextValue = firstNextValue || x
+        next(x)
+      }, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.with(3)
+        expect(firstNextValue).to.equal(1)
+        done()
+      })
+    })
+  })
+
+  describe('scan', () => {
+    it("should run the reducing function on each emitted value from source", (done) => {
+      const reducer = chai.spy()
+      Stream.of(1,2).scan(reducer).subscribe(nx, err, () => {
+        expect(reducer).to.have.been.called.with(1)
+        expect(reducer).to.have.been.called.with(2)
+        expect(reducer).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should emit the values coming out of the given reducing function", (done) => {
+      const next = chai.spy()
+      const add = (x, y) => x + y
+      Stream.of(1,2,3).scan(add, 0).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.exactly(3)
+        done()
+      })
+    })
+  })
+
+  describe('do', () => {
+    it("should execute the given function with each value from source stream", (done) => {
+      const fn = chai.spy()
+      Stream.of(1,2).do(fn).subscribe(nx, err, () => {
+        expect(fn).to.have.been.called.with(1)
+        expect(fn).to.have.been.called.with(2)
+        expect(fn).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should emit all values coming from source stream", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).do(() => {}).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+  })
+
+  describe('mapTo', () => {
+    it("should emit the given value regardless of values emitted from source stream", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).mapTo(42).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(42)
+        expect(next).to.have.been.called.with(42)
+        done()
+      })
+    })
+  })
+
+  describe('distinctUntilChanged', () => {
+    it("should emit a value from source stream if it is different from the last value emitted from source stream", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).distinctUntilChanged().subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        done()
+      })
+    })
+    it("should not emit a value from source stream if it is the same as the last value emitted from source stream", (done) => {
+      const next = chai.spy()
+      Stream.of(1,1,1).distinctUntilChanged().subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+  })
+
+  describe('pluck', () => {
+    it("should read the given property name from a value emitted from source stream and emit the result", (done) => {
+      const next = chai.spy()
+      Stream.of({name: 'Peter'}, {name: 'John'}).pluck('name').subscribe(next, err, () => {
+        expect(next).to.have.been.called.with('Peter')
+        expect(next).to.have.been.called.with('John')
+        done()
+      })
+    })
+  })
+
+  describe('delay', () => {
+    it("should emit values from source observable only after the given delay", (done) => {
+      const next = chai.spy()
+      Stream.fromPromise(Promise.resolve(1)).delay(3).subscribe(next)
+
+      setTimeout(() => {
+        expect(next).to.not.have.been.called()
+      })
+
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(1)
+        done()
+      }, 5)
+    })
+    it("when source completes, should emit all values received from source stream and only then complete", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      const sourceComplete = chai.spy()
+      const source = Stream.of(1,2)
+
+      source.delay(3).subscribe(next, err, complete)
+      source.subscribe(nx, err, sourceComplete)
+
+      setTimeout(() => {
+        expect(next).to.not.have.been.called()
+        expect(complete).to.not.have.been.called()
+        expect(sourceComplete).to.have.been.called()
+      })
+
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(complete).to.have.been.called()
+        done()
+      }, 5)
+    })
+  })
+
+  describe('flatten', () => {
+    it("should emit all values emitted from streams that were emitted from source stream", (done) => {
+      const next = chai.spy()
+      Stream.of(Stream.of(1,2)).flatten().subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        done()
+      })
+    })
+    it("should error if and when a stream emitted from source stream errors", (done) => {
+      Stream.of(Stream.throw()).flatten().subscribe(nx, () => done())
+    })
+    it("should not complete if a stream emitted from source stream completes", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.fromPromise(Promise.resolve(Stream.of(1))).flatten().subscribe(next, err, complete)
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(1)
+        expect(complete).to.not.have.been.called()
+        done()
+      })
+    })
+  })
+
+  describe('flatMap', () => {
+    it("should emit all values from streams that are returned from the given function", (done) => {
+      const next = chai.spy()
+      Stream.of(1, 2).flatMap(x => Stream.of(1, x * 3)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.exactly(4)
+        done()
+      })
+    })
+    it("should error if and when a stream returned from the given function errors", (done) => {
+      Stream.of(1).flatMap(x => Stream.throw()).subscribe(nx, () => done())
+    })
+    it("should not complete if a stream returned from the given function completes", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.fromPromise(Promise.resolve(1)).flatMap(x => Stream.of(1)).subscribe(next, err, complete)
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(1)
+        expect(complete).to.not.have.been.called()
+        done()
+      })
+    })
+  })
+
+  describe('switchMap', () => {
+    it("should emit values from a stream that is returned from the given function", (done) => {
+      const next = chai.spy()
+      Stream.of(1).switchMap(x => Stream.of(1, x * 3)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.exactly(2)
+        done()
+      })
+    })
+    it("should stop emitting values from a stream returned from the given function once it returns another stream", (done) => {
+      // this test would fail if we used flatMap instead
+      const next = chai.spy()
+      Stream.interval(5).switchMap(x => Stream.interval(1)).take(12).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(0)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.not.have.been.called.with(5)
+        done()
+      })
+    })
+    it("should error if and when a stream returned from the given function errors", (done) => {
+      Stream.of(1).switchMap(x => Stream.throw()).subscribe(nx, () => done())
+    })
+    it("should not complete if a stream returned from the given function completes", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.fromPromise(Promise.resolve(1)).switchMap(x => Stream.of(1)).subscribe(next, err, complete)
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(1)
+        expect(complete).to.not.have.been.called()
+        done()
+      })
+    })
+  })
+
+  describe('skip', () => {
+    it("should not emit values from source stream before the number of values emitted is greater than the given number", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3).skip(5).subscribe(next, err, () => {
+        expect(next).to.not.have.been.called()
+        done()
+      })
+    })
+    it("should emit all values from source stream after the number of values emitted is greater than the given number", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4,5).skip(3).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(4)
+        expect(next).to.have.been.called.with(5)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+  })
+
+  describe('take', () => {
+    it("should complete once the number of values emitted is equal to the given number", (done) => {
+      const next = chai.spy()
+      Stream.interval(1).take(2).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(0)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should emit all values from source stream before the number of values emitted is equal to the given number", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).take(5).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+  })
+
+  describe('takeUntil', () => {
+    it("should emit all values from source stream before the given stream emits, then complete", (done) => {
+      const next = chai.spy()
+      Stream.interval(1).takeUntil(Stream.interval(3).take(1)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(0)
+        expect(next).to.not.have.been.called.with(5)
+        done()
+      })
+    })
+    it("should not complete if the given stream completes", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      const subscription = Stream.interval(1).takeUntil(Stream.never()).subscribe(next, err, complete)
+
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(0)
+        expect(complete).to.not.have.been.called()
+        subscription.unsubscribe()
+        done()
+      }, 3)
+    })
+  })
+
+  describe('takeWhile', () => {
+    it("should complete when the given predicate evaluates to false", (done) => {
+      const next = chai.spy()
+      Stream.of(1).takeWhile(x => x !== 1).subscribe(next, err, () => {
+        expect(next).to.not.have.been.called()
+        done()
+      })
+    })
+    it("should emit all given values that pass the given predicate", (done) => {
+      const next = chai.spy()
+      Stream.of(2,4).takeWhile(x => x % 2 === 0).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.with(4)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+  })
+
+  //TODO: describe('merge', () => {})
+
+  //TODO: describe('combine', () => {})
+
+  describe('withValue', () => {
+    it("should emit an array with the value emitted from source and the value returned from the given function", (done) => {
+      const next = chai.spy()
+      Stream.of(1).withValue(x => x + 41).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with([1, 42])
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+  })
+
+  describe('withLatestFrom', () => {
+    it("should emit an array with the value emitted from source and the latest value of the given stream", (done) => {
+      const next = chai.spy()
+      Stream.of(1).withLatestFrom(Stream.of(1,2,3,4,5)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with([1, 5])
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+  })
+
+  describe('catch', () => {
+    it("should catch and replace errors thrown in source streams", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3).map(x => {
+        if (x === 2)
+          throw new Error()
+        return x
+      })
+        .catch(err => Stream.of('number not processed'))
+        .subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.have.been.called.with('number not processed')
+          expect(next).to.not.have.been.called.with(3)
+          expect(next).to.have.been.called.twice()
+          done()
+        })
     })
   })
 })
