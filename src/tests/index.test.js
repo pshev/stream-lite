@@ -613,10 +613,6 @@ describe('operators', () => {
     })
   })
 
-  //TODO: describe('merge', () => {})
-
-  //TODO: describe('combine', () => {})
-
   describe('withValue', () => {
     it("should emit an array with the value emitted from source and the value returned from the given function", (done) => {
       const next = chai.spy()
@@ -640,7 +636,7 @@ describe('operators', () => {
   })
 
   describe('catch', () => {
-    it("should catch and replace errors thrown in source streams", (done) => {
+    it("should catch and replace an error thrown in source stream", (done) => {
       const next = chai.spy()
       Stream.of(1,2,3).map(x => {
         if (x === 2)
@@ -655,6 +651,77 @@ describe('operators', () => {
           expect(next).to.have.been.called.twice()
           done()
         })
+    })
+  })
+
+  describe('merge', () => {
+    it("should emit values coming from all merged streams", (done) => {
+      const next = chai.spy()
+      Stream.of(1).merge(Stream.of(2)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should also be available as a static method", (done) => {
+      const next = chai.spy()
+      Stream.merge(Stream.of(1), Stream.of(2)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should not complete when one of the source streams completes", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.merge(Stream.of(1), Stream.never()).subscribe(next, err, complete)
+
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.once()
+        expect(complete).to.not.have.been.called()
+        done()
+      })
+    })
+  })
+
+  describe('combine', () => {
+    it("should emit an array of values containing values from all combined streams", (done) => {
+      const next = chai.spy()
+      Stream.of(1).combine(Stream.of(2)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with([1,2])
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should also be available as a static method", (done) => {
+      const next = chai.spy()
+      Stream.combine(Stream.of(1), Stream.of(2)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with([1,2])
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should not complete when one of the source streams completes", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.combine(Stream.of(1), Stream.never()).subscribe(next, err, complete)
+
+      setTimeout(() => {
+        expect(complete).to.not.have.been.called()
+        done()
+      })
+    })
+    it("should not emit until every source stream emit at least once", (done) => {
+      const next = chai.spy()
+      Stream.combine(Stream.of(1), Stream.never(), Stream.of(2)).subscribe(next)
+
+      setTimeout(() => {
+        expect(next).to.not.have.been.called()
+        done()
+      })
     })
   })
 })
