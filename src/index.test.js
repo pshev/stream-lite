@@ -395,6 +395,37 @@ describe('operators', () => {
     })
   })
 
+  describe('single', () => {
+    it("should complete", (done) => {
+      Stream.never().startWith(1).single().subscribe(nx, err, done)
+    })
+    it("when no predicate is given should emit only the first value from source", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).single().subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should call the predicate with value and index", (done) => {
+      const predicate = chai.spy()
+      Stream.of(1,2).single(predicate).subscribe(nx, err, () => {
+        expect(predicate).to.have.been.called.with(1, 0)
+        expect(predicate).to.have.been.called.with(2, 1)
+        expect(predicate).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should emit the first value from source to pass the predicate", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4).single(x => x === 3).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+  })
+
   describe('fisrt', () => {
     it("should complete", (done) => {
       Stream.never().startWith(1).first().subscribe(nx, err, done)
@@ -418,16 +449,16 @@ describe('operators', () => {
     })
     it("should emit the first value from source to pass the predicate", (done) => {
       const next = chai.spy()
-      Stream.of(1,2,3,4).first(x => x === 4).subscribe(next, err, () => {
-        expect(next).to.have.been.called.with(4)
+      Stream.of(1,2,3,4).first(x => x === 3).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(3)
         expect(next).to.have.been.called.once()
         done()
       })
     })
     it("should run the given projection function with value and index", (done) => {
       const projectionFn = chai.spy()
-      Stream.of(1,2,3,4).first(x => x === 4, projectionFn).subscribe(nx, err, () => {
-        expect(projectionFn).to.have.been.called.with(4, 3)
+      Stream.of(1,2,3,4).first(x => x === 3, projectionFn).subscribe(nx, err, () => {
+        expect(projectionFn).to.have.been.called.with(3, 2)
         expect(projectionFn).to.have.been.called.once()
         done()
       })
