@@ -115,6 +115,7 @@ Operators marked with 🚩 are also available as statics.
 - [`skip`](https://www.learnrxjs.io/operators/filtering/skip.html)
 - [`skipUntil`](https://www.learnrxjs.io/operators/filtering/skipuntil.html)
 - [`skipWhile`](https://www.learnrxjs.io/operators/filtering/skipwhile.html)
+- [`ignoreElements`](https://www.learnrxjs.io/operators/filtering/ignoreelements.html)
 - [`take`](https://www.learnrxjs.io/operators/filtering/take.html)
 - [`takeUntil`](https://www.learnrxjs.io/operators/filtering/takeuntil.html)
 - [`takeWhile`](https://www.learnrxjs.io/operators/filtering/takewhile.html)

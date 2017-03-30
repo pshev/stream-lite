@@ -808,6 +808,16 @@ describe('operators', () => {
     })
   })
 
+  describe('ignoreElements', () => {
+    it("should emit no values", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3).ignoreElements().subscribe(next, err, () => {
+        expect(next).to.not.have.been.called()
+        done()
+      })
+    })
+  })
+
   describe('take', () => {
     it("should complete once the number of values emitted is equal to the given number", (done) => {
       const next = chai.spy()
