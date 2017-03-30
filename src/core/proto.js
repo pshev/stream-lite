@@ -10,6 +10,8 @@ function subscribe(stream, subscriber) {
 }
 
 function unsubscribe(stream, subscriber) {
+  if (stream.subscribers === 0) return
+
   stream.subscribers = stream.subscribers.filter(s => s !== subscriber)
 
   if (stream.subscribers.length === 0)
@@ -30,7 +32,9 @@ export function defaultOnError(stream, error) {
   // traverseUpOnStreamError checks that property
   const subscribers = [...stream.subscribers]
   stream.subscribers = []
+  // notify up the chain
   traverseUpOnStreamError(stream)
+  // notify down the chain
   stream.dependents.forEach(d => d.error(error))
   subscribers.forEach(s => s.error(error))
 }
@@ -42,7 +46,9 @@ export function defaultOnComplete(stream) {
   // traverseUpOnStreamCompleted checks that property
   const subscribers = [...stream.subscribers]
   stream.subscribers = []
+  // notify up the chain
   traverseUpOnStreamCompleted(stream)
+  // notify down the chain
   stream.dependents.forEach(d => {
     if (d.dependencies.every(dep => !dep.shouldEmit))
       d.complete()
@@ -64,6 +70,7 @@ export default {
     defaultOnComplete(this)
   },
   streamActivated: function() {},
+  streamDeactivated: function() {},
   baseNextGuard: function() {
     return this.shouldEmit === true && dependenciesMet(this)
   }

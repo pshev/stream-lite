@@ -770,7 +770,7 @@ describe('operators', () => {
         expect(complete).to.not.have.been.called()
         subscription.unsubscribe()
         done()
-      }, 3)
+      }, 6)
     })
   })
 
@@ -812,6 +812,9 @@ describe('operators', () => {
         expect(next).to.have.been.called.once()
         done()
       })
+    })
+    it("should error when given stream errors", (done) => {
+      Stream.of(1).withLatestFrom(Stream.throw()).subscribe(nx, () => done())
     })
   })
 

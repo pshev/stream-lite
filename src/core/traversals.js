@@ -2,7 +2,7 @@ const lastSubRemovedGuard = s =>
   s.subscribers.length === 0 && s.dependents.every(d => !d.shouldEmit)
 const streamCompleteGuard = s => s.subscribers.length === 0
 
-const traverseUp = ({guard, extraLogicToRun, setShouldEmitTo}) => stream => {
+const traverseUp = ({guard, setShouldEmitTo}) => stream => {
   guard = guard || (() => true)
 
   let rootStreamsToStart = []
@@ -23,7 +23,9 @@ const traverseUp = ({guard, extraLogicToRun, setShouldEmitTo}) => stream => {
     : s.producer.stop()
   const forAll = s => {
     s.shouldEmit = setShouldEmitTo
-    extraLogicToRun && extraLogicToRun(s)
+    s.shouldEmit === true
+      ? s.streamActivated()
+      : s.streamDeactivated()
   }
 
   let queue = []
@@ -60,7 +62,6 @@ const traverseUp = ({guard, extraLogicToRun, setShouldEmitTo}) => stream => {
 }
 
 export const traverseUpOnFirstSubscriberAdded = traverseUp({
-  extraLogicToRun: s => s.streamActivated(),
   setShouldEmitTo: true
 })
 

@@ -13,6 +13,9 @@ proto.switchMap = function switchMap(fn) {
         defaultOnNext.bind(null, this),
         this.error.bind(this)
       )
+    },
+    streamDeactivated: function() {
+      subscription && subscription.unsubscribe()
     }
   }, this, 'switchMap')
 }

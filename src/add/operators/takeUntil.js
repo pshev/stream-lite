@@ -2,12 +2,17 @@ import proto from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.takeUntil = function takeUntil(stream) {
-  const s = baseCreate({}, this, 'takeUntil')
+  let subscription
 
-  stream.subscribe(
-    s.complete.bind(s),
-    this.error.bind(this)
-  )
-
-  return s
+  return baseCreate({
+    streamActivated: function() {
+      subscription = stream.subscribe(
+        this.complete.bind(this),
+        this.error.bind(this)
+      )
+    },
+    streamDeactivated: function() {
+      subscription && subscription.unsubscribe()
+    }
+  }, this)
 }

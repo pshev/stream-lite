@@ -3,15 +3,21 @@ import {baseCreate} from '../../core'
 
 proto.withLatestFrom = function withLatestFrom(s) {
   let sResult
+  let subscription
 
-  const stream = baseCreate({
+  return baseCreate({
     next: function(x) {
       if (sResult)
         defaultOnNext(this, [x, sResult])
+    },
+    streamActivated: function() {
+      subscription = s.subscribe(
+        x => sResult = x,
+        this.error.bind(this)
+      )
+    },
+    streamDeactivated: function() {
+      subscription && subscription.unsubscribe()
     }
-  }, this, 'withLatestFrom')
-
-  s.subscribe(x => sResult = x, stream.error.bind(stream))
-
-  return stream
+  }, this)
 }
