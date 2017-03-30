@@ -1,4 +1,3 @@
-import './create'
 import {statics} from '../../core'
 
 statics.fromEvent = function fromEvent(element, eventName) {

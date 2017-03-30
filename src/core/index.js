@@ -3,7 +3,13 @@ import {traverseUpOnFirstSubscriberAdded, traverseUpOnLastSubscriberRemoved, tra
 const dependenciesMet = stream => stream.dependencies.every(s => s.val !== undefined)
 
 // additional properties dynamically added onto statics and proto
-export const statics = {}
+export const statics = {
+  create: function(producer = {}, name) {
+    producer.start = producer.start || (() => {})
+    producer.stop = producer.stop || (() => {})
+    return baseCreate({producer}, undefined, name)
+  }
+}
 
 export const proto = {
   subscribe: function(next, error = err => { throw new Error(err) }, complete = () => {}) {

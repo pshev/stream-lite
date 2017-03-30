@@ -1,4 +1,3 @@
-import './factories/create'
 import './factories/empty'
 import './factories/fromArray'
 import './factories/fromEvent'

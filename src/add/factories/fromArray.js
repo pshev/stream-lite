@@ -1,4 +1,3 @@
-import './create'
 import {statics} from '../../core'
 
 statics.fromArray = function fromArray(xs) {

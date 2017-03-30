@@ -1,4 +1,3 @@
-import './create'
 import {statics} from '../../core'
 
 statics.of = function of(...xs) {

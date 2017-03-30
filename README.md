@@ -37,17 +37,25 @@ The following guide assumes you use ES2015 but you don't have to.
 
 ### <a id="import-what-you-need"></a> Import what you need
 
-The `stream-lite` module encourages shipping only the scripts that you will actually use. 
-So first you will need to tell `stream-lite` which operators and factories you need.
+The `stream-lite` module encourages shipping only the scripts that you will actually use. <br/>
+The core library includes only the most bare bones functionality. If you just import it like so:
+```js
+import Stream from 'stream-lite'
+```
+The only factory you will get will be [`create`](#create). 
+The streams that factory produces will have no operators on them and the only methods they'll have will be the basic `next`, `error`, and `complete`.<br/>
+This core is just under **1KB** gzipped.
+
+You will probably want more functionality than that, so you will need to tell `stream-lite` which operators and factories you need. Here are the ways to do that:
 
 ##### Import [commonly used pack](https://github.com/pshev/stream-lite/blob/master/src/add/common.js#L1-L99):
-This pack includes a dozen most common operators and few factories and will only cost you about **1.5KB** gzipped. 😍
+This pack includes a dozen most common operators and a few factories and will only cost you about **1.5KB** gzipped. 😍
 ```js
 import 'stream-lite/add/common' 
 ```
 
 ##### Import only what you need:
-Bring in specific operators and factories to get in complete control over what you include in your scripts. 
+Bring in only the exact operators and factories you will use. 
 ```js
 import 'stream-lite/add/factories/of' 
 import 'stream-lite/add/factories/fromPromise' 
@@ -59,7 +67,7 @@ import 'stream-lite/add/operators/combineLatest'
 ```
 
 ##### Import [everything available](https://github.com/pshev/stream-lite/blob/master/src/add/all.js#L1-L99):
-If for some reason you feel the need the import all available operators and factories, that option is also available.<br/>
+If for some reason you feel the need to import all available operators and factories, that option is also available.<br/>
 This pack will include all `stream-lite` has got: about 40 operators and factories. This will make your app heavier by about **2.4KB** gzipped.
 ```js
 import 'stream-lite/add/all' 
@@ -77,26 +85,26 @@ Stream.of(42).subscribe(x => console.log('hurrah!', x))
 ## API
 
 The vast majority of factories and operators replicate the API of RxJS, so most links will point you to RxJS documentation.<br/>
-There are also some that don't exist in RxJS or ones with a different API - documentation for those you will find below.<br/>
+There are also some that don't exist in RxJS or ones with a different API. Those are marked with an astrix (*) and their documentation you will find below.<br/>
 Operators marked with 🚩 are also available as statics.
 
 #### Factories
-- [`create`](#create)
+- [`create`](#create)*
 - [`of`](https://www.learnrxjs.io/operators/creation/of.html)
 - [`empty`](https://www.learnrxjs.io/operators/creation/empty.html)
 - [`never`](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/never.md)
 - [`throw`](https://www.learnrxjs.io/operators/creation/throw.html)
-- [`fromArray`](#fromArray)
+- [`fromArray`](#fromArray)*
 - [`fromEvent`](https://www.learnrxjs.io/operators/creation/fromevent.html)
 - [`fromPromise`](https://www.learnrxjs.io/operators/creation/frompromise.html)
 - [`interval`](https://www.learnrxjs.io/operators/creation/interval.html)
 
 #### Methods and Operators
-- [`subscribe`](#subscribe)
+- [`subscribe`](#subscribe)*
 - [`map`](https://www.learnrxjs.io/operators/transformation/map.html)
 - [`mapTo`](https://www.learnrxjs.io/operators/transformation/mapto.html)
 - [`filter`](https://www.learnrxjs.io/operators/filtering/filter.html)
-- [`scan`](#scan)
+- [`scan`](#scan)*
 - [`pluck`](https://www.learnrxjs.io/operators/transformation/pluck.html)
 - [`single`](https://www.learnrxjs.io/operators/filtering/single.html)
 - [`first`](https://www.learnrxjs.io/operators/filtering/first.html)
@@ -104,12 +112,12 @@ Operators marked with 🚩 are also available as statics.
 - [`do`](https://www.learnrxjs.io/operators/utility/do.html)
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)
 - [`distinctUntilChanged`](https://www.learnrxjs.io/operators/filtering/distinctuntilchanged.html)
-- [`flatten`](#flatten)
-- [`flatMap`](#flatMap)
+- [`flatten`](#flatten)*
+- [`flatMap`](#flatMap)*
 - [`switchMap`](https://www.learnrxjs.io/operators/transformation/switchmap.html)
 - [`catch`](https://www.learnrxjs.io/operators/error_handling/catch.html)
 - [`merge`](https://www.learnrxjs.io/operators/combination/merge.html) 🚩
-- [`combine`](#combine) 🚩
+- [`combine`](#combine)* 🚩
 - [`combineLatest`](https://www.learnrxjs.io/operators/combination/combinelatest.html) 🚩
 - [`startWith`](https://www.learnrxjs.io/operators/combination/startwith.html)
 - [`skip`](https://www.learnrxjs.io/operators/filtering/skip.html)
@@ -120,7 +128,7 @@ Operators marked with 🚩 are also available as statics.
 - [`takeUntil`](https://www.learnrxjs.io/operators/filtering/takeuntil.html)
 - [`takeWhile`](https://www.learnrxjs.io/operators/filtering/takewhile.html)
 - [`withLatestFrom`](https://www.learnrxjs.io/operators/combination/withlatestfrom.html)
-- [`withValue`](#withValue)
+- [`withValue`](#withValue)*
 
 ## 
 
@@ -131,6 +139,7 @@ Passing a subscription object with the next, error, and complete keys is current
 
 ### <a id="create"></a> create
 
+This is the only thing that is included in the core object exported from `stream-lite`.
 Most use-cases for creating a stream involve calling other factory functions, like `fromEvent` or `fromPromise`, etc.<br/>
 Those are all abstractions on top of the `create` factory. Usually you want to use those.
 However, sometimes you may need more control and the way you achieve that in `stream-lite` is different from `RxJS`.
@@ -184,11 +193,19 @@ Mostly equivalent to calling RxJS's [`scan`](https://www.learnrxjs.io/operators/
 
 ### <a id="flatten"></a> flatten
 
-Unwraps nested streams.<br/>
+Flattens a stream of streams. In the example below, every time the button is clicks a new interval stream will be produced and passed onto to be 'flattened'.
+When `flatten` receives this stream, it will subscribe to it and start emitting it's values. 
+When another click happens and another interval stream is produced - it will subscribe to that as well, now emitting values from both interval streams.
 ```js
-Stream.of(Stream.of(42)).flatten()
-	.subscribe(x => console.log(x)) // logs 42
+Stream.fromEvent(document.getElementById('button'), 'click')
+	.map(click => Stream.interval(1000))
+	.flatten()
+	.subscribe(x => console.log(x))
 ```
+This pattern of having `.map()` followed by `.flatten()` is so common that there is a [`flatMap`](#flatMap) operator combining those two behaviors.<br/>
+Another common requirement is to listen only to the latest stream that was produced, 
+so when a new click produces a new interval stream we stop listening to the old one and subscribe to the new one.<br/>
+If that is the behavior you are looking for - you want to use [`switchMap`](https://www.learnrxjs.io/operators/transformation/switchmap.html).
 
 ### <a id="flatMap"></a> flatMap
 

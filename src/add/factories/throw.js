@@ -1,4 +1,3 @@
-import './create'
 import {statics} from '../../core'
 
 statics['throw'] = function throwOperator(err) {
