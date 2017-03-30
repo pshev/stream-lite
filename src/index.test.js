@@ -730,6 +730,47 @@ describe('operators', () => {
     })
   })
 
+  describe('skipUntil', () => {
+    it("should not emit before given stream emits", (done) => {
+      const next = chai.spy()
+      Stream.interval(1).take(20).skipUntil(Stream.never()).subscribe(next)
+
+      setTimeout(() => {
+        expect(next).to.not.have.been.called()
+        done()
+      }, 5)
+    })
+    it("should start emitting when given stream emits", (done) => {
+      const next = chai.spy()
+      Stream.interval(1).take(20)
+        .skipUntil(Stream.interval(10).take(1))
+        .subscribe(next, err, () => {
+          expect(next).to.have.been.called()
+          expect(next).to.not.have.been.called.with(0)
+          expect(next).to.not.have.been.called.with(1)
+          done()
+        })
+    })
+    it("should not complete when given stream completes", (done) => {
+      const complete = chai.spy()
+      Stream.interval(1).take(20).skipUntil(Stream.empty()).subscribe(nx, err, complete)
+
+      setTimeout(() => {
+        expect(complete).to.not.have.been.called()
+        done()
+      }, 5)
+    })
+    it("should error when given stream errors", (done) => {
+      const error = chai.spy()
+      Stream.interval(1).take(10).skipUntil(Stream.throw('err')).subscribe(nx, error)
+
+      setTimeout(() => {
+        expect(error).to.have.been.called.with('err')
+        done()
+      }, 5)
+    })
+  })
+
   describe('take', () => {
     it("should complete once the number of values emitted is equal to the given number", (done) => {
       const next = chai.spy()
