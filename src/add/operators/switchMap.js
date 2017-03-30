@@ -1,4 +1,4 @@
-import proto, {defaultOnNext} from '../../core/proto'
+import proto, {baseNext} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.switchMap = function switchMap(fn) {
@@ -10,7 +10,7 @@ proto.switchMap = function switchMap(fn) {
       const nestedStream = fn(x)
 
       subscription = nestedStream.subscribe(
-        defaultOnNext.bind(null, this),
+        baseNext.bind(null, this),
         this.error.bind(this)
       )
     },

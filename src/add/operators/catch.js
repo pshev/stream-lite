@@ -1,4 +1,4 @@
-import proto, {defaultOnNext, defaultOnError} from '../../core/proto'
+import proto, {baseNext, baseError} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.catch = function catchOperator(fn) {
@@ -7,8 +7,8 @@ proto.catch = function catchOperator(fn) {
       const nestedStream = fn(error)
 
       nestedStream.subscribe(
-        defaultOnNext.bind(null, this),
-        defaultOnError.bind(null, this),
+        baseNext.bind(null, this),
+        baseError.bind(null, this),
         this.complete.bind(this)
       )
     }

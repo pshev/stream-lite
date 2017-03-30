@@ -1,8 +1,8 @@
-import proto, {defaultOnNext} from '../../core/proto'
+import proto, {baseNext} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.mapTo = function mapTo(x) {
   return baseCreate({
-    next: function() { defaultOnNext(this, x) }
+    next: function() { baseNext(this, x) }
   }, this, 'mapTo')
 }

@@ -1,4 +1,4 @@
-import proto, {defaultOnNext, defaultOnComplete} from '../../core/proto'
+import proto, {baseNext, baseComplete} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.last = function last(predicate, projectionFn = (x => x), defaultValue) {
@@ -15,8 +15,8 @@ proto.last = function last(predicate, projectionFn = (x => x), defaultValue) {
       const x = lastToPassThePredicate
         ? projectionFn(lastToPassThePredicate.value, lastToPassThePredicate.index)
         : defaultValue
-      defaultOnNext(this, x)
-      defaultOnComplete(this)
+      baseNext(this, x)
+      baseComplete(this)
     }
   }, this)
 }

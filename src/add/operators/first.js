@@ -1,4 +1,4 @@
-import proto, {defaultOnNext, defaultOnComplete} from '../../core/proto'
+import proto, {baseNext, baseComplete} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.first = function first(predicate, projectionFn = (x => x), defaultValue) {
@@ -7,14 +7,14 @@ proto.first = function first(predicate, projectionFn = (x => x), defaultValue) {
   return baseCreate({
     next: function(x) {
       if (predicate(x, index)) {
-        defaultOnNext(this, projectionFn(x, index))
-        defaultOnComplete(this)
+        baseNext(this, projectionFn(x, index))
+        baseComplete(this)
       }
       index++
     },
     complete: function() {
-      defaultOnNext(this, defaultValue)
-      defaultOnComplete(this)
+      baseNext(this, defaultValue)
+      baseComplete(this)
     }
   }, this)
 }

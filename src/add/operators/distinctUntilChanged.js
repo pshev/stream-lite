@@ -1,4 +1,4 @@
-import proto, {defaultOnNext} from '../../core/proto'
+import proto, {baseNext} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.distinctUntilChanged = function distinctUntilChanged() {
@@ -6,7 +6,7 @@ proto.distinctUntilChanged = function distinctUntilChanged() {
   return baseCreate({
     next: function(x) {
       if (x !== lastValue) {
-        defaultOnNext(this, x)
+        baseNext(this, x)
         lastValue = x
       }
     }

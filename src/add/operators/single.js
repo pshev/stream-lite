@@ -1,4 +1,4 @@
-import proto, {defaultOnNext} from '../../core/proto'
+import proto, {baseNext} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.single = function single(predicate = (() => true)) {
@@ -6,7 +6,7 @@ proto.single = function single(predicate = (() => true)) {
   return baseCreate({
     next: function(x) {
       if (predicate(x, index)) {
-        defaultOnNext(this, x)
+        baseNext(this, x)
         this.complete()
       }
       index++

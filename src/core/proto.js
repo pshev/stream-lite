@@ -18,14 +18,14 @@ function unsubscribe(stream, subscriber) {
     traverseUpOnLastSubscriberRemoved(stream)
 }
 
-export function defaultOnNext(stream, x) {
+export function baseNext(stream, x) {
   stream.val = x
   stream.subscribers.forEach(s => s.next(x))
   stream.dependents.forEach(s => s.next(x))
   return stream
 }
 
-export function defaultOnError(stream, error) {
+export function baseError(stream, error) {
   // we want to call all subscribers' complete callback when
   // all streams that have to be deactivated already have been
   // but we also want to reset stream.subscribers because
@@ -39,7 +39,7 @@ export function defaultOnError(stream, error) {
   subscribers.forEach(s => s.error(error))
 }
 
-export function defaultOnComplete(stream) {
+export function baseComplete(stream) {
   // we want to call all subscribers' complete callback when
   // all streams that have to be deactivated already have been
   // but we also want to reset stream.subscribers because
@@ -61,13 +61,13 @@ export default {
     return subscribe(this, {next, error, complete})
   },
   next: function(value) {
-    defaultOnNext(this, value)
+    baseNext(this, value)
   },
   error: function(error) {
-    defaultOnError(this, error)
+    baseError(this, error)
   },
   complete: function() {
-    defaultOnComplete(this)
+    baseComplete(this)
   },
   streamActivated: function() {},
   streamDeactivated: function() {},

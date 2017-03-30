@@ -1,4 +1,4 @@
-import proto, {defaultOnNext} from '../../core/proto'
+import proto, {baseNext} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.flatten = function flatten() {
@@ -6,7 +6,7 @@ proto.flatten = function flatten() {
   return baseCreate({
     next: function(nestedStream) {
       subscription = nestedStream.subscribe(
-        defaultOnNext.bind(null, this),
+        baseNext.bind(null, this),
         this.error.bind(this)
       )
     },

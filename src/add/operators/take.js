@@ -1,4 +1,4 @@
-import proto, {defaultOnNext} from '../../core/proto'
+import proto, {baseNext} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.take = function take(numberToTake) {
@@ -7,7 +7,7 @@ proto.take = function take(numberToTake) {
   return baseCreate({
     next: function(x) {
       if (taken < numberToTake) {
-        defaultOnNext(this, x)
+        baseNext(this, x)
 
         taken++
 

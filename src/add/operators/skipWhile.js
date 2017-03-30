@@ -1,4 +1,4 @@
-import proto, {defaultOnNext} from '../../core/proto'
+import proto, {baseNext} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.skipWhile = function skipWhile(predicate) {
@@ -7,10 +7,10 @@ proto.skipWhile = function skipWhile(predicate) {
   return baseCreate({
     next: function(x) {
       if (!skipping)
-        defaultOnNext(this, x)
+        baseNext(this, x)
       else if (predicate(x, index) === false) {
         skipping = false
-        defaultOnNext(this, x)
+        baseNext(this, x)
       }
       index++
     }

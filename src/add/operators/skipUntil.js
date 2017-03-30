@@ -1,4 +1,4 @@
-import proto, {defaultOnNext, defaultOnError} from '../../core/proto'
+import proto, {baseNext, baseError} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.skipUntil = function skipUntil(stream) {
@@ -8,7 +8,7 @@ proto.skipUntil = function skipUntil(stream) {
   return baseCreate({
     next: function(x) {
       if (shouldEmit) {
-        defaultOnNext(this, x)
+        baseNext(this, x)
         subscription.unsubscribe()
       }
     },

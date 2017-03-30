@@ -1,4 +1,4 @@
-import proto, {defaultOnNext} from '../../core/proto'
+import proto, {baseNext} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.skip = function skip(numberToSkip) {
@@ -6,7 +6,7 @@ proto.skip = function skip(numberToSkip) {
   return baseCreate({
     next: function(x) {
       if (skipped === numberToSkip)
-        defaultOnNext(this, x)
+        baseNext(this, x)
       else
         skipped++
     }
