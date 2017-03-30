@@ -1,5 +1,5 @@
 import './create'
-import statics from '../../core/statics'
+import {statics} from '../../core'
 
 statics.of = function of(...xs) {
   return statics.create({start: self => {

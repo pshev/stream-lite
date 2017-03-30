@@ -1,5 +1,5 @@
 import './create'
-import statics from '../../core/statics'
+import {statics} from '../../core'
 
 statics.fromEvent = function fromEvent(element, eventName) {
   const producer = {

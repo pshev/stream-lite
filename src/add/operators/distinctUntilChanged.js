@@ -1,6 +1,6 @@
 import {baseCreate, baseNext, proto} from '../../core'
 
-proto.distinctUntilChanged = function distinctUntilChanged() {
+proto.distinctUntilChanged = function() {
   let lastValue
   return baseCreate({
     next: function(x) {
@@ -9,5 +9,5 @@ proto.distinctUntilChanged = function distinctUntilChanged() {
         lastValue = x
       }
     }
-  }, this, 'distinctUntilChanged')
+  }, this)
 }

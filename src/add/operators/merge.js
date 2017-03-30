@@ -1,7 +1,14 @@
-import {proto} from '../../core'
-import '../statics/merge'
-import statics from '../../core/statics'
+import {baseCreate, proto, statics} from '../../core'
 
-proto.merge = function merge(...streams) {
-  return statics.merge(this, ...streams)
+const merge = (...streams) => baseCreate({
+  dependencies: streams,
+  baseNextGuard: function() {
+    return this.shouldEmit === true
+  }
+})
+
+statics.merge = merge
+
+proto.merge = function(...streams) {
+  return merge(this, ...streams)
 }

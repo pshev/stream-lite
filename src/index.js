@@ -1,1 +1,3 @@
-export default require('./core/statics').default
+import {statics} from './core'
+
+export default statics

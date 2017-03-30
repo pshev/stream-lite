@@ -1,5 +1,5 @@
 import './create'
-import statics from '../../core/statics'
+import {statics} from '../../core'
 
 statics.fromArray = function fromArray(xs) {
   return statics.create({start: self => {

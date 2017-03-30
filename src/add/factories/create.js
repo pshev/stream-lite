@@ -1,5 +1,4 @@
-import {baseCreate} from '../../core'
-import statics from '../../core/statics'
+import {baseCreate, statics} from '../../core'
 
 statics.create = function create(producer = {}, name) {
   producer.start = producer.start || (() => {})

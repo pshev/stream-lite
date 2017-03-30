@@ -1,8 +1,16 @@
-import {proto} from '../../core'
-import '../statics/combine'
-import statics from '../../core/statics'
+import {baseCreate, baseNext, proto, statics} from '../../core'
 
-proto.combine = function combine(...streams) {
+const combine = (...streams) => baseCreate({
+  dependencies: streams,
+  next: function() {
+    baseNext(this, this.dependencies.map(d => d.val))
+  }
+})
+
+statics.combine = combine
+statics.combineLatest = combine
+
+proto.combine = function(...streams) {
   return statics.combine(this, ...streams)
 }
 
