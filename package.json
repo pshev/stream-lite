@@ -10,7 +10,8 @@
     "watch:test": "npm t -- -w",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
     "test": "mocha src/index.test.js --compilers js:babel-register",
-    "cover": "nyc mocha src/index.test.js --compilers js:babel-register && nyc report --reporter=lcov",
+    "cover:produce-report": "npm run cover && nyc report --reporter=lcov",
+    "cover": "nyc --check-coverage --lines 100 mocha src/index.test.js --compilers js:babel-register",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {

@@ -11,7 +11,7 @@ node_js:
 before_script:
   - npm prune
 script:
-  - npm run cover
+  - npm run cover:produce-report
   - npm run build
 after_success:
   - npm run report-coverage
