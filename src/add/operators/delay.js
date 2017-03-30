@@ -1,5 +1,4 @@
-import proto, {baseNext, baseComplete} from '../../core/proto'
-import {baseCreate} from '../../core'
+import {proto, baseNext, baseComplete, baseCreate} from '../../core'
 
 proto.delay = function delay(delay) {
   let sourceStreamHasCompleted

@@ -1,5 +1,4 @@
-import proto, {baseNext} from '../../core/proto'
-import {baseCreate} from '../../core'
+import {proto, baseNext, baseCreate} from '../../core'
 
 proto.startWith = function startWith(...xs) {
   return baseCreate({

@@ -1,4 +1,4 @@
-import proto, {baseNext} from '../../core/proto'
+import {proto, baseNext} from '../../core'
 import {baseCreate} from '../../core'
 
 proto.do = function(fn) {

@@ -1,5 +1,4 @@
-import proto, {baseNext} from '../../core/proto'
-import {baseCreate} from '../../core'
+import {baseCreate, baseNext, proto} from '../../core'
 
 proto.switchMap = function switchMap(fn) {
   let subscription

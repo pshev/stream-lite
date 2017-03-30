@@ -1,5 +1,4 @@
-import proto, {baseNext} from '../../core/proto'
-import {baseCreate} from '../../core'
+import {baseCreate, baseNext, proto} from '../../core'
 
 proto.skip = function skip(numberToSkip) {
   let skipped = 0

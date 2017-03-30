@@ -1,5 +1,4 @@
-import {baseCreate} from '../../core'
-import {baseNext} from '../../core/proto'
+import {baseCreate, baseNext} from '../../core'
 import statics from '../../core/statics'
 
 statics.combine = function combine(...streams) {

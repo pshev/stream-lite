@@ -1,4 +1,4 @@
-import proto from '../../core/proto'
+import {proto} from '../../core'
 import '../statics/merge'
 import statics from '../../core/statics'
 

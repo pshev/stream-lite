@@ -1,5 +1,4 @@
-import proto, {baseNext, baseError} from '../../core/proto'
-import {baseCreate} from '../../core'
+import {baseCreate, proto, baseNext} from '../../core'
 
 proto.skipUntil = function skipUntil(stream) {
   let subscription

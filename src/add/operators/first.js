@@ -1,5 +1,4 @@
-import proto, {baseNext, baseComplete} from '../../core/proto'
-import {baseCreate} from '../../core'
+import {baseCreate, baseNext, baseComplete, proto} from '../../core'
 
 proto.first = function first(predicate, projectionFn = (x => x), defaultValue) {
   predicate = predicate || (() => true)
