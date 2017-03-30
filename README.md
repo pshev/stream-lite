@@ -60,7 +60,7 @@ import 'stream-lite/add/operators/combineLatest'
 
 ##### Import [everything available](https://github.com/pshev/stream-lite/blob/master/src/add/all.js#L1-L99):
 If for some reason you feel the need the import all available operators and factories, that option is also available.<br/>
-This pack will include all `stream-lite` has got: about 40 operators and factories. This will make you app heavier by about **2.4KB** gzipped.
+This pack will include all `stream-lite` has got: about 40 operators and factories. This will make your app heavier by about **2.4KB** gzipped.
 ```js
 import 'stream-lite/add/all' 
 ```
