@@ -12,8 +12,8 @@
 
 [![npm](https://img.shields.io/npm/v/stream-lite.svg?style=flat-square)](http://npm.im/stream-lite)
 [![travis build](https://img.shields.io/travis/pshev/stream-lite.svg?style=flat-square)](https://travis-ci.org/pshev/stream-lite)
+[![dependencies](https://img.shields.io/david/pshev/stream-lite.svg?style=flat-square)](https://david-dm.org/pshev/stream-lite)
 [![codecov coverage](https://img.shields.io/codecov/c/github/pshev/stream-lite.svg?style=flat-square)](https://codecov.io/gh/pshev/stream-lite)
-[![MIT License](https://img.shields.io/npm/l/stream-lite.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square)](https://github.com/semantic-release/semantic-release)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat-square)](http://commitizen.github.io/cz-cli/)
 
@@ -76,7 +76,7 @@ Stream.of(42).subscribe(x => console.log('hurrah!', x))
 
 ## API
 
-The vast majority of factories and operators replicate the API of RxJS, so the links will point you to RxJS documentation.<br/>
+The vast majority of factories and operators replicate the API of RxJS, so most links will point you to RxJS documentation.<br/>
 There are also some that don't exist in RxJS or ones with a different API - documentation for those you will find below.<br/>
 Operators marked with ✔️ are also available as statics.
 
@@ -179,7 +179,9 @@ Mostly equivalent to calling RxJS's [`scan`](https://www.learnrxjs.io/operators/
 ### <a id="flatten"></a> flatten
 
 Unwraps nested streams.<br/>
-`Stream.of(Stream.of(42)).flatten().subscribe(x => console.log(x))` - logs 42.
+```js
+Stream.of(Stream.of(42)).flatten().subscribe(x => console.log(x)) // logs 42
+```
 
 ### <a id="flatMap"></a> flatMap
 
@@ -192,7 +194,9 @@ Simply an alias for [`combineLatest`](https://www.learnrxjs.io/operators/transfo
 ### <a id="withValue"></a> withValue
 
 Allows to emit an extra parameter in addition to one emitted from source stream.<br/>
-`Stream.of(2).withValue(x => x * 2).subscribe(x => console.log(x))` - logs [2, 4].
+```js
+Stream.of(2).withValue(x => x * 2).subscribe(x => console.log(x)) // logs [2, 4]
+```
 
 ## License
 MIT
