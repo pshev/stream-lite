@@ -395,6 +395,52 @@ describe('operators', () => {
     })
   })
 
+  describe('fisrt', () => {
+    it("should complete", (done) => {
+      Stream.never().startWith(1).first().subscribe(nx, err, done)
+    })
+    it("when no predicate is given should emit only the first value from source", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).first().subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should emit the first value from source to pass the predicate", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4).first(x => x === 4).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(4)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should emit run the given projection function with value and index", (done) => {
+      const projectionFn = chai.spy()
+      Stream.of(1,2,3,4).first(x => x === 4, projectionFn).subscribe(nx, err, () => {
+        expect(projectionFn).to.have.been.called.with(4, 3)
+        expect(projectionFn).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should emit the result of the given projection function", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4).first(x => x === 4, (x, i) => `x:${x},i:${i}`).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with('x:4,i:3')
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should emit the given default value when no source value passed the predicate", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4).first(x => x === 7, (x, i) => `x:${x},i:${i}`, 'nothing').subscribe(next, err, () => {
+        expect(next).to.have.been.called.with('nothing')
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+  })
+
   describe('mapTo', () => {
     it("should emit the given value regardless of values emitted from source stream", (done) => {
       const next = chai.spy()
