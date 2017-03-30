@@ -1,4 +1,4 @@
-import proto from '../../proto'
+import proto from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.takeUntil = function takeUntil(stream) {

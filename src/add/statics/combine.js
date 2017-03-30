@@ -1,6 +1,6 @@
 import {baseCreate} from '../../core'
-import {defaultOnNext} from '../../proto'
-import statics from '../../statics'
+import {defaultOnNext} from '../../core/proto'
+import statics from '../../core/statics'
 
 statics.combine = function combine(...streams) {
   return baseCreate({
@@ -10,3 +10,5 @@ statics.combine = function combine(...streams) {
     }
   })
 }
+
+statics.combineLatest = statics.combine

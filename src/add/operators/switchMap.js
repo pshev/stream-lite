@@ -1,4 +1,4 @@
-import proto, {defaultOnNext} from '../../proto'
+import proto, {defaultOnNext} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.switchMap = function switchMap(fn) {

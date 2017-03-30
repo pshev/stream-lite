@@ -1,5 +1,5 @@
 import './create'
-import statics from '../../statics'
+import statics from '../../core/statics'
 
 statics.interval = function interval(step) {
   const producer = {

@@ -1,7 +1,7 @@
 import chai from 'chai'
 import spies from 'chai-spies'
-import '../add/all'
-import Stream from '../'
+import './add/all'
+import Stream from './'
 
 chai.use(spies)
 

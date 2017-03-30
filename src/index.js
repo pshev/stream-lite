@@ -1,1 +1,1 @@
-export default require('./statics').default
+export default require('./core/statics').default

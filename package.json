@@ -2,15 +2,15 @@
   "name": "stream-lite",
   "version": "0.0.0-development",
   "description": "Minimalistic and modular functional reactive programming library with familiar interface and tiny footprint.",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "rimraf dist && rimraf add && rimraf core",
     "build": "babel --out-dir . --ignore *.test.js src",
     "commit": "git-cz",
     "watch:test": "npm t -- -w",
     "report-coverage": "cat ./coverage/lcov.info | codecov",
-    "test": "mocha src/tests/index.test.js --compilers js:babel-register",
-    "cover": "nyc mocha src/tests/index.test.js --compilers js:babel-register && nyc report --reporter=lcov",
+    "test": "mocha src/index.test.js --compilers js:babel-register",
+    "cover": "nyc mocha src/index.test.js --compilers js:babel-register && nyc report --reporter=lcov",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
@@ -19,7 +19,9 @@
   },
   "keywords": [
     "observable",
-    "stream"
+    "observables",
+    "stream",
+    "streams"
   ],
   "author": "Peter Shev <piotrsevcenco@gmail.com> (http://petershev.com/)",
   "license": "MIT",

@@ -1,4 +1,4 @@
-import proto, {defaultOnNext, defaultOnError} from '../../proto'
+import proto, {defaultOnNext, defaultOnError} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.catch = function catchOperator(fn) {

@@ -1,5 +1,5 @@
 import './create'
-import statics from '../../statics'
+import statics from '../../core/statics'
 
 statics.fromPromise = function fromPromise(promise) {
   let cancelled = false

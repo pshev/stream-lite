@@ -1,4 +1,4 @@
-import proto, {defaultOnNext, defaultOnComplete} from '../../proto'
+import proto, {defaultOnNext, defaultOnComplete} from '../../core/proto'
 import {baseCreate} from '../../core'
 
 proto.delay = function delay(delay) {

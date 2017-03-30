@@ -30,7 +30,3 @@ import './operators/takeUntil'
 import './operators/takeWhile'
 import './operators/withLatestFrom'
 import './operators/withValue'
-
-import './statics/combine'
-import './statics/merge'
-import './statics/combineLatest'

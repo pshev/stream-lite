@@ -4,10 +4,8 @@ npm-debug.log.*
 node_modules
 coverage
 /add
-/core.js
+/core
 /index.js
-/proto.js
-/traversals.js
-/statics.js
 qq
 .temp/
+dist/

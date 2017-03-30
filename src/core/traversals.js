@@ -60,9 +60,7 @@ const traverseUp = ({guard, extraLogicToRun, setShouldEmitTo}) => stream => {
 }
 
 export const traverseUpOnFirstSubscriberAdded = traverseUp({
-  extraLogicToRun: s => {
-    s.streamActivated()
-  },
+  extraLogicToRun: s => s.streamActivated(),
   setShouldEmitTo: true
 })
 

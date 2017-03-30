@@ -41,14 +41,14 @@ The `stream-lite` module encourages shipping only the scripts that you will actu
 So first you will need to tell `stream-lite` which operators and factories you need.
 
 ##### Import [everything available](https://github.com/pshev/stream-lite/blob/master/src/add/all.js#L1-L99):
-![size](https://img.shields.io/badge/gzip%20size-2KB-brightgreen.svg?style=flat-square)
+![size](https://img.shields.io/badge/gzip%20size-~2.1KB-brightgreen.svg?style=flat-square)
 ```js
 // adds more than 30 operators and factories
 import 'stream-lite/add/all' 
 ```
 
 ##### Import [commonly used pack](https://github.com/pshev/stream-lite/blob/master/src/add/common.js#L1-L99):
-![size](https://img.shields.io/badge/gzip%20size-1.26KB-brightgreen.svg?style=flat-square)
+![size](https://img.shields.io/badge/gzip%20size-~1.4KB-brightgreen.svg?style=flat-square)
 ```js
 // adds ~15 most common operators and factories
 import 'stream-lite/add/common' 
@@ -78,7 +78,7 @@ Stream.of(42).subscribe(x => console.log('hurrah!', x))
 
 The vast majority of factories and operators replicate the API of RxJS, so most links will point you to RxJS documentation.<br/>
 There are also some that don't exist in RxJS or ones with a different API - documentation for those you will find below.<br/>
-Operators marked with ✔️ are also available as statics.
+Operators marked with 🚩 are also available as statics.
 
 #### Factories
 - [`create`](#create)
@@ -105,9 +105,9 @@ Operators marked with ✔️ are also available as statics.
 - [`flatMap`](#flatMap)
 - [`switchMap`](https://www.learnrxjs.io/operators/transformation/switchmap.html)
 - [`catch`](https://www.learnrxjs.io/operators/error_handling/catch.html)
-- [`merge`](https://www.learnrxjs.io/operators/combination/merge.html) ✔️
-- [`combine`](#combine) ✔️
-- [`combineLatest`](https://www.learnrxjs.io/operators/combination/combinelatest.html) ✔️
+- [`merge`](https://www.learnrxjs.io/operators/combination/merge.html) 🚩
+- [`combine`](#combine) 🚩
+- [`combineLatest`](https://www.learnrxjs.io/operators/combination/combinelatest.html) 🚩
 - [`startWith`](https://www.learnrxjs.io/operators/combination/startwith.html)
 - [`skip`](https://www.learnrxjs.io/operators/filtering/skip.html)
 - [`take`](https://www.learnrxjs.io/operators/filtering/take.html)
@@ -180,7 +180,8 @@ Mostly equivalent to calling RxJS's [`scan`](https://www.learnrxjs.io/operators/
 
 Unwraps nested streams.<br/>
 ```js
-Stream.of(Stream.of(42)).flatten().subscribe(x => console.log(x)) // logs 42
+Stream.of(Stream.of(42)).flatten()
+	.subscribe(x => console.log(x)) // logs 42
 ```
 
 ### <a id="flatMap"></a> flatMap
@@ -195,7 +196,8 @@ Simply an alias for [`combineLatest`](https://www.learnrxjs.io/operators/transfo
 
 Allows to emit an extra parameter in addition to one emitted from source stream.<br/>
 ```js
-Stream.of(2).withValue(x => x * 2).subscribe(x => console.log(x)) // logs [2, 4]
+Stream.of(4).withValue(x => x / 2)
+	.subscribe(x => console.log(x)) // logs [4, 2]
 ```
 
 ## License
