@@ -6,7 +6,7 @@ proto.first = function first(predicate, projectionFn = (x => x), defaultValue) {
   let index = 0
   return baseCreate({
     next: function(x) {
-      if (predicate(x)) {
+      if (predicate(x, index)) {
         defaultOnNext(this, projectionFn(x, index))
         defaultOnComplete(this)
       }

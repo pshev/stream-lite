@@ -7,7 +7,7 @@ proto.last = function last(predicate, projectionFn = (x => x), defaultValue) {
   let lastToPassThePredicate
   return baseCreate({
     next: function(x) {
-      if (predicate(x))
+      if (predicate(x, index))
         lastToPassThePredicate = { value: x, index }
       index++
     },

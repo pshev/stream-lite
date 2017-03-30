@@ -407,6 +407,15 @@ describe('operators', () => {
         done()
       })
     })
+    it("should call the predicate with value and index", (done) => {
+      const predicate = chai.spy()
+      Stream.of(1,2).first(predicate).subscribe(nx, err, () => {
+        expect(predicate).to.have.been.called.with(1, 0)
+        expect(predicate).to.have.been.called.with(2, 1)
+        expect(predicate).to.have.been.called.twice()
+        done()
+      })
+    })
     it("should emit the first value from source to pass the predicate", (done) => {
       const next = chai.spy()
       Stream.of(1,2,3,4).first(x => x === 4).subscribe(next, err, () => {
@@ -458,6 +467,15 @@ describe('operators', () => {
       Stream.of(1,2).last().subscribe(next, err, () => {
         expect(next).to.have.been.called.with(2)
         expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should call the predicate with value and index", (done) => {
+      const predicate = chai.spy()
+      Stream.of(1,2).last(predicate).subscribe(nx, err, () => {
+        expect(predicate).to.have.been.called.with(1, 0)
+        expect(predicate).to.have.been.called.with(2, 1)
+        expect(predicate).to.have.been.called.twice()
         done()
       })
     })
