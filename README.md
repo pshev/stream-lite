@@ -7,7 +7,7 @@
 - Familiar interface (mostly replicating RxJS's API)
 - Modular. Add as little or as much functionality as you want
 - Lazy streams (only active once subscribed to)
-- More than 30 operators and factories available
+- More than 35 operators and factories available
 - 100% test coverage
 
 [![npm](https://img.shields.io/npm/v/stream-lite.svg?style=flat-square)](http://npm.im/stream-lite)
@@ -40,21 +40,14 @@ The following guide assumes you use ES2015 but you don't have to.
 The `stream-lite` module encourages shipping only the scripts that you will actually use. 
 So first you will need to tell `stream-lite` which operators and factories you need.
 
-##### Import [everything available](https://github.com/pshev/stream-lite/blob/master/src/add/all.js#L1-L99):
-![size](https://img.shields.io/badge/gzip%20size-~2.1KB-brightgreen.svg?style=flat-square)
-```js
-// adds more than 30 operators and factories
-import 'stream-lite/add/all' 
-```
-
 ##### Import [commonly used pack](https://github.com/pshev/stream-lite/blob/master/src/add/common.js#L1-L99):
-![size](https://img.shields.io/badge/gzip%20size-~1.4KB-brightgreen.svg?style=flat-square)
+This pack includes a dozen most common operators and few factories and will only cost you about **1.5KB** gzipped. 😍
 ```js
-// adds ~15 most common operators and factories
 import 'stream-lite/add/common' 
 ```
 
 ##### Import only what you need:
+Bring in specific operators and factories to get in complete control over what you include in your scripts. 
 ```js
 import 'stream-lite/add/factories/of' 
 import 'stream-lite/add/factories/fromPromise' 
@@ -63,6 +56,13 @@ import 'stream-lite/add/operators/map'
 import 'stream-lite/add/operators/filter'
 import 'stream-lite/add/operators/switchMap' 
 import 'stream-lite/add/operators/combineLatest' 
+```
+
+##### Import [everything available](https://github.com/pshev/stream-lite/blob/master/src/add/all.js#L1-L99):
+If for some reason you feel the need the import all available operators and factories, that option is also available.<br/>
+This pack will include all `stream-lite` has got: about 40 operators and factories. This will make you app heavier by about **2.4KB** gzipped.
+```js
+import 'stream-lite/add/all' 
 ```
 
 ### Usage
