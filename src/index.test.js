@@ -415,7 +415,7 @@ describe('operators', () => {
         done()
       })
     })
-    it("should emit run the given projection function with value and index", (done) => {
+    it("should run the given projection function with value and index", (done) => {
       const projectionFn = chai.spy()
       Stream.of(1,2,3,4).first(x => x === 4, projectionFn).subscribe(nx, err, () => {
         expect(projectionFn).to.have.been.called.with(4, 3)
@@ -434,6 +434,60 @@ describe('operators', () => {
     it("should emit the given default value when no source value passed the predicate", (done) => {
       const next = chai.spy()
       Stream.of(1,2,3,4).first(x => x === 7, (x, i) => `x:${x},i:${i}`, 'nothing').subscribe(next, err, () => {
+        expect(next).to.have.been.called.with('nothing')
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+  })
+
+  describe('last', () => {
+    it("should not complete until source stream completes", (done) => {
+      const complete = chai.spy()
+      Stream.never().startWith(1).last().subscribe(nx, err, complete)
+      setTimeout(() => {
+        expect(complete).to.not.have.been.called()
+        done()
+      })
+    })
+    it("should complete when source stream completes", (done) => {
+      Stream.of(1,2).last().subscribe(nx, err, done)
+    })
+    it("when no predicate is given should emit only the last value from source", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).last().subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should emit the last value from source to pass the predicate", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4).last(x => x === 2).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should run the given projection function with value and index", (done) => {
+      const projectionFn = chai.spy()
+      Stream.of(1,2,3,4).last(x => x === 2, projectionFn).subscribe(nx, err, () => {
+        expect(projectionFn).to.have.been.called.with(2, 1)
+        expect(projectionFn).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should emit the result of the given projection function", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4).last(x => x === 2, (x, i) => `x:${x},i:${i}`).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with('x:2,i:1')
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should emit the given default value when no source value passed the predicate", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4).last(x => x === 7, (x, i) => `x:${x},i:${i}`, 'nothing').subscribe(next, err, () => {
         expect(next).to.have.been.called.with('nothing')
         expect(next).to.have.been.called.once()
         done()
