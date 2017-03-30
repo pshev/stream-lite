@@ -98,6 +98,8 @@ Operators marked with 🚩 are also available as statics.
 - [`filter`](https://www.learnrxjs.io/operators/filtering/filter.html)
 - [`scan`](#scan)
 - [`pluck`](https://www.learnrxjs.io/operators/transformation/pluck.html)
+- [`first`](https://www.learnrxjs.io/operators/filtering/first.html)
+- [`last`](https://www.learnrxjs.io/operators/filtering/last.html)
 - [`do`](https://www.learnrxjs.io/operators/utility/do.html)
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)
 - [`distinctUntilChanged`](https://www.learnrxjs.io/operators/filtering/distinctuntilchanged.html)
