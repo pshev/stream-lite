@@ -1,25 +1,25 @@
 const streamCompleteGuard = s => s.subscribers.length === 0
-const lastSubRemovedGuard = s => s.subscribers.length === 0 && s.dependents.every(d => !d.shouldEmit)
+const lastSubRemovedGuard = s => s.subscribers.length === 0 && s.dependents.every(d => !d.active)
 
 export const traverseUpOnFirstSubscriberAdded = traverseUp({
-  setShouldEmitTo: true
+  setActiveTo: true
 })
 
 export const traverseUpOnLastSubscriberRemoved = traverseUp({
   guard: lastSubRemovedGuard,
-  setShouldEmitTo: false
+  setActiveTo: false
 })
 
 export const traverseUpOnStreamCompleted = traverseUp({
   guard: streamCompleteGuard,
-  setShouldEmitTo: false
+  setActiveTo: false
 })
 
 export const traverseUpOnStreamError = traverseUp({
-  setShouldEmitTo: false
+  setActiveTo: false
 })
 
-function traverseUp({guard, setShouldEmitTo}) {
+function traverseUp({guard, setActiveTo}) {
   return function(stream) {
     guard = guard || (() => true)
 
@@ -28,22 +28,20 @@ function traverseUp({guard, setShouldEmitTo}) {
     // Why not call s.producer.start right inline?
     // if we have something like this:
     // Stream.merge(Stream.of(1), Stream.of(2)).subscribe(..)
-    // we want to first mark both 'of' streams with shouldEmit true
+    // we want to first mark both 'of' streams as active
     // and only then let them start producing values
     // If we can producer.start inline we'd have:
     // of(1) calls next on merge with 1
     // of(1) completes and conditionally calls .complete() on all it's dependents
-    // the condition being d.dependencies.every(dep => !dep.shouldEmit)
-    // of(2) however hasn't yet had it's shouldEmit set to true so condition passes
+    // the condition being d.dependencies.every(dep => !dep.active)
+    // of(2) however hasn't yet had it's active flag set to true so condition passes
     // as a result merge stream completes and doesn't emit 2
-    const forRoot = s => setShouldEmitTo === true
+    const forRoot = s => setActiveTo === true
       ? rootStreamsToStart.push(s)
       : s.producer.stop()
     const forAll = s => {
-      s.shouldEmit = setShouldEmitTo
-      s.shouldEmit === true
-        ? s.streamActivated()
-        : s.streamDeactivated()
+      s.active = setActiveTo
+      s.active ? s.streamActivated() : s.streamDeactivated()
     }
 
     let queue = []
@@ -51,7 +49,7 @@ function traverseUp({guard, setShouldEmitTo}) {
 
     while (s) {
 
-      if (s.shouldEmit === setShouldEmitTo) {
+      if (s.active === setActiveTo) {
         s = queue.shift()
         continue
       }
@@ -69,7 +67,7 @@ function traverseUp({guard, setShouldEmitTo}) {
       // it's a DependentStream
       s.dependencies
         .forEach(d => {
-          if (d.shouldEmit === !setShouldEmitTo && queue.indexOf(d) === -1)
+          if (d.active === !setActiveTo && queue.indexOf(d) === -1)
             queue.push(d)
         })
 

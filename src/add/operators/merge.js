@@ -3,7 +3,7 @@ import {baseCreate, proto, statics} from '../../core'
 const merge = (...streams) => baseCreate({
   dependencies: streams,
   baseNextGuard: function() {
-    return this.shouldEmit === true
+    return this.active === true
   }
 })
 

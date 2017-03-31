@@ -27,12 +27,12 @@ export const proto = {
   streamActivated: function() {},
   streamDeactivated: function() {},
   baseNextGuard: function() {
-    return this.shouldEmit === true && dependenciesMet(this)
+    return this.active === true && dependenciesMet(this)
   }
 }
 
 const baseProps = props => Object.assign({}, {
-  shouldEmit: false,
+  active: false,
   dependencies: [],
   dependents: [],
   subscribers: []
@@ -92,7 +92,7 @@ export function baseComplete(stream) {
   traverseUpOnStreamCompleted(stream)
   // notify down the chain
   stream.dependents.forEach(d => {
-    if (d.dependencies.every(dep => !dep.shouldEmit))
+    if (d.dependencies.every(dep => !dep.active))
       d.complete()
   })
   subscribers.forEach(s => s.complete())
