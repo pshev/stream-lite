@@ -15,20 +15,12 @@ export const proto = {
   subscribe: function(next, error = err => { throw new Error(err) }, complete = () => {}) {
     return subscribe(this, {next, error, complete})
   },
-  next: function(value) {
-    baseNext(this, value)
-  },
-  error: function(error) {
-    baseError(this, error)
-  },
-  complete: function() {
-    baseComplete(this)
-  },
+  next: function(value) { baseNext(this, value) },
+  error: function(error) { baseError(this, error) },
+  complete: function() { baseComplete(this) },
+  nextGuard: function() { return baseNextGuard(this) },
   streamActivated: function() {},
-  streamDeactivated: function() {},
-  baseNextGuard: function() {
-    return this.active === true && dependenciesMet(this)
-  }
+  streamDeactivated: function() {}
 }
 
 const baseProps = props => Object.assign({}, {
@@ -46,12 +38,12 @@ export function baseCreate(props, dependency, name = 'anonymous') {
   const nextFn = stream.next
 
   stream.next = function(...args) {
-    if (!stream.baseNextGuard()) return
-
-    try {
-      nextFn.apply(stream, args)
-    } catch (error) {
-      stream.error(error)
+    if (stream.nextGuard()) {
+      try {
+        nextFn.apply(stream, args)
+      } catch (error) {
+        stream.error(error)
+      }
     }
   }
 
@@ -96,6 +88,10 @@ export function baseComplete(stream) {
       d.complete()
   })
   subscribers.forEach(s => s.complete())
+}
+
+function baseNextGuard(stream) {
+  return stream.active === true && dependenciesMet(stream)
 }
 
 function subscribe(stream, subscriber) {
