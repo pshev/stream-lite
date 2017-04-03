@@ -109,6 +109,7 @@ Operators marked with 🚩 are also available as statics.
 - [`single`](https://www.learnrxjs.io/operators/filtering/single.html)
 - [`first`](https://www.learnrxjs.io/operators/filtering/first.html)
 - [`last`](https://www.learnrxjs.io/operators/filtering/last.html)
+- [`every`](https://www.learnrxjs.io/operators/conditional/every.html)
 - [`do`](https://www.learnrxjs.io/operators/utility/do.html)
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)
 - [`distinctUntilChanged`](https://www.learnrxjs.io/operators/filtering/distinctuntilchanged.html)

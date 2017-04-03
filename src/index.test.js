@@ -544,6 +544,63 @@ describe('operators', () => {
     })
   })
 
+  describe('every', () => {
+    it("should complete when source stream completes", (done) => {
+      Stream.of(1).every(x => x < 10).subscribe(nx, err, done)
+    })
+    it("should call the predicate with value and index", (done) => {
+      const predicate = chai.spy()
+      Stream.of(1,2).every((x, i) => {
+        predicate(x, i)
+        return x < 10
+      }).subscribe(nx, err, () => {
+        expect(predicate).to.have.been.called.with(1, 0)
+        expect(predicate).to.have.been.called.with(2, 1)
+        expect(predicate).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should not emit source stream values", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3).every(x => x < 10).subscribe(next, err, () => {
+        expect(next).to.not.have.been.called.with(1)
+        expect(next).to.not.have.been.called.with(2)
+        expect(next).to.not.have.been.called.with(3)
+        done()
+      })
+    })
+    it("should emit false and complete when value fails the predicate", (done) => {
+      const next = chai.spy()
+      const predicate = chai.spy()
+      Stream.of(1,2,3,4,5).every((x) => {
+        predicate(x)
+        return x === 1
+      }).subscribe(next, err, () => {
+        expect(predicate).to.have.been.called.with(1)
+        expect(predicate).to.have.been.called.with(2)
+        expect(predicate).to.have.been.called.twice()
+        expect(next).to.have.been.called.with(false)
+        done()
+      })
+    })
+    it("should emit true if all values passed the predicate on completion", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3).every(x => x < 10).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(true)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should emit true if source stream completes without emitting anything", (done) => {
+      const next = chai.spy()
+      Stream.empty().every(x => x < 10).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(true)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+  })
+
   describe('mapTo', () => {
     it("should emit the given value regardless of values emitted from source stream", (done) => {
       const next = chai.spy()
