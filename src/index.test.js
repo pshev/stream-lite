@@ -743,14 +743,21 @@ describe('operators', () => {
     })
     it("should stop emitting values from a stream returned from the given function once it returns another stream", (done) => {
       // this test would fail if we used flatMap instead
-      const next = chai.spy()
-      Stream.interval(5).switchMap(x => Stream.interval(1)).take(12).subscribe(next, err, () => {
-        expect(next).to.have.been.called.with(0)
-        expect(next).to.have.been.called.with(1)
-        expect(next).to.have.been.called.with(2)
-        expect(next).to.not.have.been.called.with(5)
-        done()
-      })
+      const nestedStream1 = Stream.create({start: self => self.next(1)})
+      const nestedStream2 = Stream.create({start: self => self.next(2)})
+
+      Stream.of(1,2)
+        .switchMap(x => x === 1 ? nestedStream1 : nestedStream2)
+        .subscribe(x => {
+          if (x === 1) {
+            expect(nestedStream1.subscribers.length).to.equal(1)
+            expect(nestedStream2.subscribers.length).to.equal(0)
+          }
+          if (x === 2) {
+            expect(nestedStream1.subscribers.length).to.equal(0)
+            expect(nestedStream2.subscribers.length).to.equal(1)
+          }
+        }, err, done)
     })
     it("should error if and when a stream returned from the given function errors", (done) => {
       Stream.of(1).switchMap(x => Stream.throw()).subscribe(nx, () => done())
@@ -790,41 +797,35 @@ describe('operators', () => {
   describe('skipUntil', () => {
     it("should not emit before given stream emits", (done) => {
       const next = chai.spy()
-      Stream.interval(1).take(20).skipUntil(Stream.never()).subscribe(next)
-
-      setTimeout(() => {
+      Stream.of(1,2,3).skipUntil(Stream.never()).subscribe(next, err, () => {
         expect(next).to.not.have.been.called()
         done()
-      }, 5)
+      })
     })
     it("should start emitting when given stream emits", (done) => {
       const next = chai.spy()
-      Stream.interval(1).take(20)
-        .skipUntil(Stream.interval(10).take(1))
+      Stream.merge(Stream.of(1,2), Stream.interval(10).take(1))
+        .skipUntil(Stream.interval(1).take(1))
         .subscribe(next, err, () => {
-          expect(next).to.have.been.called()
-          expect(next).to.not.have.been.called.with(0)
+          expect(next).to.have.been.called.with(0)
           expect(next).to.not.have.been.called.with(1)
+          expect(next).to.not.have.been.called.with(2)
           done()
         })
     })
     it("should not complete when given stream completes", (done) => {
       const complete = chai.spy()
-      Stream.interval(1).take(20).skipUntil(Stream.empty()).subscribe(nx, err, complete)
+      Stream.never().skipUntil(Stream.empty()).subscribe(nx, err, complete)
 
       setTimeout(() => {
         expect(complete).to.not.have.been.called()
         done()
-      }, 5)
+      })
     })
-    it("should error when given stream errors", (done) => {
+    it("should error when given stream errors", () => {
       const error = chai.spy()
-      Stream.interval(1).take(10).skipUntil(Stream.throw('err')).subscribe(nx, error)
-
-      setTimeout(() => {
-        expect(error).to.have.been.called.with('err')
-        done()
-      }, 5)
+      Stream.never().skipUntil(Stream.throw('err')).subscribe(nx, error)
+      expect(error).to.have.been.called.with('err')
     })
   })
 
@@ -878,9 +879,9 @@ describe('operators', () => {
   describe('take', () => {
     it("should complete once the number of values emitted is equal to the given number", (done) => {
       const next = chai.spy()
-      Stream.interval(1).take(2).subscribe(next, err, () => {
-        expect(next).to.have.been.called.with(0)
+      Stream.of(1,2,3).take(2).subscribe(next, err, () => {
         expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
         expect(next).to.have.been.called.twice()
         done()
       })
@@ -899,23 +900,25 @@ describe('operators', () => {
   describe('takeUntil', () => {
     it("should emit all values from source stream before the given stream emits, then complete", (done) => {
       const next = chai.spy()
-      Stream.interval(1).takeUntil(Stream.interval(3).take(1)).subscribe(next, err, () => {
-        expect(next).to.have.been.called.with(0)
-        expect(next).to.not.have.been.called.with(5)
+      Stream.never().startWith(1,2).takeUntil(Stream.interval(1).take(1)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.twice()
         done()
       })
     })
-    it("should not complete if the given stream completes", (done) => {
+    it("should not complete if the given stream doesn't emit", (done) => {
       const next = chai.spy()
       const complete = chai.spy()
-      const subscription = Stream.interval(1).takeUntil(Stream.never()).subscribe(next, err, complete)
+      const subscription = Stream.never().startWith(1,2).takeUntil(Stream.never()).subscribe(next, err, complete)
 
       setTimeout(() => {
-        expect(next).to.have.been.called.with(0)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
         expect(complete).to.not.have.been.called()
         subscription.unsubscribe()
         done()
-      }, 6)
+      })
     })
   })
 
@@ -1053,3 +1056,5 @@ describe('operators', () => {
     })
   })
 })
+
+
