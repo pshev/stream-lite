@@ -692,6 +692,37 @@ describe('operators', () => {
     })
   })
 
+  describe('partition', () => {
+    it("should return an array of two streams", () => {
+      const result = Stream.of(1,2,3,4).partition(x => x % 2 === 0)
+      expect(Array.isArray(result)).to.equal(true)
+      expect(result[0]).to.satisfy(isStream)
+      expect(result[1]).to.satisfy(isStream)
+    })
+    it("only values passing the predicate should be emitted on the first stream returned", (done) => {
+      const next = chai.spy()
+      const [firstStream] = Stream.of(1,2,3,4).partition(x => x % 2 === 0)
+
+      firstStream.subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.with(4)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("only values failing the predicate should be emitted on the second stream returned", (done) => {
+      const next = chai.spy()
+      const [_, secondStream] = Stream.of(1,2,3,4).partition(x => x % 2 === 0)
+
+      secondStream.subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+  })
+
   describe('delay', () => {
     it("should emit values from source observable only after the given delay", (done) => {
       const next = chai.spy()

@@ -122,6 +122,7 @@ Operators marked with 🚩 are also available as statics.
 - [`flatMap`](#flatMap)*
 - [`switchMap`](https://www.learnrxjs.io/operators/transformation/switchmap.html)
 - [`catch`](https://www.learnrxjs.io/operators/error_handling/catch.html)
+- [`partition`](https://www.learnrxjs.io/operators/transformation/partition.html)
 - [`concat`](https://www.learnrxjs.io/operators/combination/concat.html) 🚩
 - [`merge`](https://www.learnrxjs.io/operators/combination/merge.html) 🚩
 - [`combine`](#combine)* 🚩
