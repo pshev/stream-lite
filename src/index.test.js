@@ -123,6 +123,41 @@ describe('factories', () => {
     })
   })
 
+  describe('interval', () => {
+    it("should emit many values in a sequence", (done) => {
+      const next = chai.spy()
+      Stream.interval(1).take(2).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(0)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+  })
+
+  describe('timer', () => {
+    it("should complete when no second argument is given", (done) => {
+      Stream.timer(1).subscribe(() => {}, err, done)
+    })
+    it("should only emit 0 when no second argument is given", (done) => {
+      const next = chai.spy()
+      Stream.timer(1).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(0)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should emit many values when the seconds argument is given", (done) => {
+      const next = chai.spy()
+      Stream.timer(1, 1).take(2).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(0)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+  })
+
   describe('range', () => {
     it("should complete", (done) => {
       Stream.range(1).subscribe(nx, err, done)
@@ -819,8 +854,8 @@ describe('operators', () => {
     })
     it("should start emitting when given stream emits", (done) => {
       const next = chai.spy()
-      Stream.merge(Stream.of(1,2), Stream.interval(10).take(1))
-        .skipUntil(Stream.interval(1).take(1))
+      Stream.merge(Stream.of(1,2), Stream.timer(10))
+        .skipUntil(Stream.timer(1))
         .subscribe(next, err, () => {
           expect(next).to.have.been.called.with(0)
           expect(next).to.not.have.been.called.with(1)
@@ -915,7 +950,7 @@ describe('operators', () => {
   describe('takeUntil', () => {
     it("should emit all values from source stream before the given stream emits, then complete", (done) => {
       const next = chai.spy()
-      Stream.never().startWith(1,2).takeUntil(Stream.interval(1).take(1)).subscribe(next, err, () => {
+      Stream.never().startWith(1,2).takeUntil(Stream.timer(1)).subscribe(next, err, () => {
         expect(next).to.have.been.called.with(1)
         expect(next).to.have.been.called.with(2)
         expect(next).to.have.been.called.twice()
