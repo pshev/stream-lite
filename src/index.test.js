@@ -785,9 +785,32 @@ describe('operators', () => {
   })
 
   describe('flatMap', () => {
+    it("should call the mapping function with value and index", (done) => {
+      const mappingFunction = chai.spy()
+      Stream.of(1,2).flatMap((...args) => {
+        mappingFunction(args)
+        return Stream.of(42)
+      }).subscribe(nx, err, () => {
+        expect(mappingFunction).to.have.been.called.with([1, 0])
+        expect(mappingFunction).to.have.been.called.with([2, 1])
+        expect(mappingFunction).to.have.been.called.twice()
+        done()
+      })
+    })
     it("should emit all values from streams that are returned from the given function", (done) => {
       const next = chai.spy()
       Stream.of(1, 2).flatMap(x => Stream.of(1, x * 3)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.exactly(4)
+        done()
+      })
+    })
+    it("should emit all values from produced nested stream even if source completes", (done) => {
+      const next = chai.spy()
+      Stream.of(1, 2).flatMap(x => Stream.of(1, x * 3).delay(5)).subscribe(next, err, () => {
         expect(next).to.have.been.called.with(1)
         expect(next).to.have.been.called.with(3)
         expect(next).to.have.been.called.with(1)
@@ -810,9 +833,43 @@ describe('operators', () => {
         done()
       })
     })
+    it("should handle promises", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).flatMap(x => Promise.resolve(x * 3)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should call the given resultSelector with outerValue, innerValue, outerIndex, and innerIndex", (done) => {
+      const resultSelector = chai.spy()
+      Stream.of(1,2)
+        .flatMap(x => Stream.of(4,5), (...args) => resultSelector(args))
+        .subscribe(nx, err, () => {
+          expect(resultSelector).to.have.been.called.with([1, 4, 0, 0])
+          expect(resultSelector).to.have.been.called.with([1, 5, 0, 1])
+          expect(resultSelector).to.have.been.called.with([2, 4, 1, 0])
+          expect(resultSelector).to.have.been.called.with([2, 5, 1, 1])
+          expect(resultSelector).to.have.been.called.exactly(4)
+          done()
+        })
+    })
   })
 
   describe('switchMap', () => {
+    it("should call the mapping function with value and index", (done) => {
+      const mappingFunction = chai.spy()
+      Stream.of(1,2).switchMap((...args) => {
+        mappingFunction(args)
+        return Stream.of(42)
+      }).subscribe(nx, err, () => {
+        expect(mappingFunction).to.have.been.called.with([1, 0])
+        expect(mappingFunction).to.have.been.called.with([2, 1])
+        expect(mappingFunction).to.have.been.called.twice()
+        done()
+      })
+    })
     it("should emit values from a stream that is returned from the given function", (done) => {
       const next = chai.spy()
       Stream.of(1).switchMap(x => Stream.of(1, x * 3)).subscribe(next, err, () => {
@@ -822,10 +879,24 @@ describe('operators', () => {
         done()
       })
     })
+    it("should emit all values from produced nested stream even if source completes", (done) => {
+      const next = chai.spy()
+      Stream.of(1, 2).switchMap(x => Stream.of(1, x * 3).delay(5)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
     it("should stop emitting values from a stream returned from the given function once it returns another stream", (done) => {
       // this test would fail if we used flatMap instead
       const nestedStream1 = Stream.create({start: self => self.next(1)})
-      const nestedStream2 = Stream.create({start: self => self.next(2)})
+      const nestedStream2 = Stream.create({
+        start: self => {
+          self.next(2)
+          self.complete()
+        }
+      })
 
       Stream.of(1,2)
         .switchMap(x => x === 1 ? nestedStream1 : nestedStream2)
@@ -853,6 +924,27 @@ describe('operators', () => {
         expect(complete).to.not.have.been.called()
         done()
       })
+    })
+    it("should handle promises", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).switchMap(x => Promise.resolve(x * 3)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should call the given resultSelector with outerValue, innerValue, outerIndex, and innerIndex", (done) => {
+      const resultSelector = chai.spy()
+      Stream.of(1,2)
+        .switchMap(x => Stream.of(4,5), (...args) => resultSelector(args))
+        .subscribe(nx, err, () => {
+          expect(resultSelector).to.have.been.called.with([1, 4, 0, 0])
+          expect(resultSelector).to.have.been.called.with([1, 5, 0, 1])
+          expect(resultSelector).to.have.been.called.with([2, 4, 1, 0])
+          expect(resultSelector).to.have.been.called.with([2, 5, 1, 1])
+          expect(resultSelector).to.have.been.called.exactly(4)
+          done()
+        })
     })
   })
 
@@ -1172,5 +1264,3 @@ describe('operators', () => {
     })
   })
 })
-
-

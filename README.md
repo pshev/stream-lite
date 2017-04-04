@@ -118,7 +118,7 @@ Operators marked with 🚩 are also available as statics.
 - [`do`](https://www.learnrxjs.io/operators/utility/do.html)
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)
 - [`distinctUntilChanged`](https://www.learnrxjs.io/operators/filtering/distinctuntilchanged.html)
-- [`flatten`](#flatten)*
+- [`mergeMap`](#flatMap)*
 - [`flatMap`](#flatMap)*
 - [`switchMap`](https://www.learnrxjs.io/operators/transformation/switchmap.html)
 - [`catch`](https://www.learnrxjs.io/operators/error_handling/catch.html)
@@ -199,25 +199,11 @@ Equivalent to calling RxJS's [`from`](https://www.learnrxjs.io/operators/creatio
 
 Mostly equivalent to calling RxJS's [`scan`](https://www.learnrxjs.io/operators/transformation/scan.html) except currently it requires an initial value parameter.
 
-### <a id="flatten"></a> flatten
-
-Flattens a stream of streams. In the example below, every time the button is clicks a new interval stream will be produced and passed onto to be 'flattened'.
-When `flatten` receives this stream, it will subscribe to it and start emitting it's values. 
-When another click happens and another interval stream is produced - it will subscribe to that as well, now emitting values from both interval streams.
-```js
-Stream.fromEvent(document.getElementById('button'), 'click')
-	.map(click => Stream.interval(1000))
-	.flatten()
-	.subscribe(x => console.log(x))
-```
-This pattern of having `.map()` followed by `.flatten()` is so common that there is a [`flatMap`](#flatMap) operator combining those two behaviors.<br/>
-Another common requirement is to listen only to the latest stream that was produced, 
-so when a new click produces a new interval stream we stop listening to the old one and subscribe to the new one.<br/>
-If that is the behavior you are looking for - you want to use [`switchMap`](https://www.learnrxjs.io/operators/transformation/switchmap.html).
-
 ### <a id="flatMap"></a> flatMap
 
-Equivalent to calling `map` and then `flatten`.
+Alias: `mergeMap`.
+
+Equivalent to RxJS's [`flatMap`](https://www.learnrxjs.io/operators/transformation/mergemap.html) without the support for an optional 3rd parameter `concurrent`.
 
 ### <a id="combine"></a> combine
 

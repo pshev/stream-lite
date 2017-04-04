@@ -1,20 +1,47 @@
-import {baseCreate, baseNext, proto} from '../../core'
+import {baseCreate, baseNext, baseComplete, proto, statics} from '../../core'
 
-proto.switchMap = function switchMap(fn) {
+proto.switchMap = function switchMap(fn, resultSelector) {
+  resultSelector = resultSelector || ((valueFromSource, valueFromNestedStream) => valueFromNestedStream)
   let subscription
+  let outerIndex = 0
+  let sourceStreamHasCompleted
+  let nestedStreamHasCompleted
+
   return baseCreate({
-    next: function(x) {
+    next: function(outerValue) {
+
       subscription && subscription.unsubscribe()
 
-      const nestedStream = fn(x)
+      const nested = fn(outerValue, outerIndex)
+      const nestedStream = nested.then ? statics.fromPromise(nested) : nested
 
-      subscription = nestedStream.subscribe(
-        baseNext.bind(null, this),
-        this.error.bind(this)
-      )
+      subscription = subscribeToNested.call(this, nestedStream, outerValue, outerIndex)
+
+      outerIndex++
     },
     streamDeactivated: function() {
       subscription && subscription.unsubscribe()
+    },
+    complete: function() {
+      sourceStreamHasCompleted = true
+      if (nestedStreamHasCompleted)
+        baseComplete(this)
     }
-  }, this, 'switchMap')
+  }, this)
+
+  function subscribeToNested(nestedStream, outerValue, outerIndex) {
+    let innerIndex = 0
+    return nestedStream.subscribe(
+      innerValue => {
+        baseNext(this, resultSelector(outerValue, innerValue, outerIndex, innerIndex))
+        innerIndex++
+      },
+      this.error.bind(this),
+      () => {
+        nestedStreamHasCompleted = true
+        if (sourceStreamHasCompleted)
+          this.complete()
+      }
+    )
+  }
 }
