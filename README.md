@@ -1,5 +1,9 @@
-# stream-lite
-<h2>An extremely small, and simple<br />functional reactive programming library</h2>
+<p align="center" style="margin-top: 15px">
+	<img alt="stream-lite" title="Stream lite" src="https://cldup.com/xAiADa194J.png" width="550">
+</p>
+<p align="center">Extremely small, and simple reactive programming library.</p>
+
+--- 
 
 **The power of streams, without the overhead:**
 
