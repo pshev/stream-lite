@@ -1,5 +1,5 @@
 <p align="center" style="margin-top: 15px">
-	<img alt="stream-lite" title="Stream lite" src="https://cldup.com/xAiADa194J.png" width="550">
+	<img alt="stream-lite" title="Stream lite" src="https://cldup.com/KjEcd2jTaI.png" width="550">
 </p>
 <p align="center">Extremely small, and simple reactive programming library.</p>
 
@@ -122,6 +122,7 @@ Operators marked with 🚩 are also available as statics.
 - [`flatMap`](#flatMap)*
 - [`switchMap`](https://www.learnrxjs.io/operators/transformation/switchmap.html)
 - [`catch`](https://www.learnrxjs.io/operators/error_handling/catch.html)
+- [`concat`](https://www.learnrxjs.io/operators/combination/concat.html) 🚩
 - [`merge`](https://www.learnrxjs.io/operators/combination/merge.html) 🚩
 - [`combine`](#combine)* 🚩
 - [`combineLatest`](https://www.learnrxjs.io/operators/combination/combinelatest.html) 🚩

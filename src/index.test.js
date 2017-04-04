@@ -1033,6 +1033,41 @@ describe('operators', () => {
     })
   })
 
+  describe('concat', () => {
+    it("should complete when all sources stream complete", (done) => {
+      Stream.of(1).concat(Stream.of(2)).subscribe(nx, err, done)
+    })
+    it("should also be available as a static method", (done) => {
+      Stream.concat(Stream.of(1), Stream.of(2)).subscribe(nx, err, done)
+    })
+    it("should emit values from all given streams in a sequence", (done) => {
+      const next = chai.spy()
+      Stream.concat(Stream.of(1), Stream.of(2)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should subscribe to next stream only after previous stream has completed", (done) => {
+      const stream1 = Stream.of(1)
+      const stream2 = Stream.of(2)
+
+      Stream.concat(stream1, stream2)
+        .subscribe(x => {
+          if (x === 1) {
+            expect(stream1.subscribers.length).to.equal(1)
+            expect(stream2.subscribers.length).to.equal(0)
+          }
+          if (x === 2) {
+            expect(stream1.subscribers.length).to.equal(0)
+            expect(stream2.subscribers.length).to.equal(1)
+          }
+        }, err, done)
+    })
+
+  })
+
   describe('combine and combineLatest (alias)', () => {
     it("should emit an array of values containing values from all combined streams", (done) => {
       const next = chai.spy()
