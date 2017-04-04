@@ -98,6 +98,7 @@ Operators marked with 🚩 are also available as statics.
 - [`fromEvent`](https://www.learnrxjs.io/operators/creation/fromevent.html)
 - [`fromPromise`](https://www.learnrxjs.io/operators/creation/frompromise.html)
 - [`interval`](https://www.learnrxjs.io/operators/creation/interval.html)
+- [`range`](https://www.learnrxjs.io/operators/creation/range.html)
 
 #### Methods and Operators
 - [`subscribe`](#subscribe)*

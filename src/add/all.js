@@ -5,6 +5,7 @@ import './factories/fromPromise'
 import './factories/interval'
 import './factories/never'
 import './factories/of'
+import './factories/range'
 import './factories/throw'
 
 import './operators/catch'

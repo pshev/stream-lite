@@ -123,6 +123,21 @@ describe('factories', () => {
     })
   })
 
+  describe('range', () => {
+    it("should complete", (done) => {
+      Stream.range(1).subscribe(nx, err, done)
+    })
+    it("should generate and emit range values in a sequence", (done) => {
+      const next = chai.spy()
+      Stream.range(5,2).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(5)
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+  })
+
   describe('fromEvent', () => {
     it("should listen to given element's event's by event name and emit them", () => {
       const next = chai.spy()
