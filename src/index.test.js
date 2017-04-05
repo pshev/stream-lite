@@ -760,30 +760,6 @@ describe('operators', () => {
     })
   })
 
-  describe('flatten', () => {
-    it("should emit all values emitted from streams that were emitted from source stream", (done) => {
-      const next = chai.spy()
-      Stream.of(Stream.of(1,2)).flatten().subscribe(next, err, () => {
-        expect(next).to.have.been.called.with(1)
-        expect(next).to.have.been.called.with(2)
-        done()
-      })
-    })
-    it("should error if and when a stream emitted from source stream errors", (done) => {
-      Stream.of(Stream.throw()).flatten().subscribe(nx, () => done())
-    })
-    it("should not complete if a stream emitted from source stream completes", (done) => {
-      const next = chai.spy()
-      const complete = chai.spy()
-      Stream.never().startWith(Stream.of(1)).flatten().subscribe(next, err, complete)
-      setTimeout(() => {
-        expect(next).to.have.been.called.with(1)
-        expect(complete).to.not.have.been.called()
-        done()
-      })
-    })
-  })
-
   describe('flatMap', () => {
     it("should call the mapping function with value and index", (done) => {
       const mappingFunction = chai.spy()
