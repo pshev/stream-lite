@@ -9,6 +9,9 @@ proto.single = function single(predicate = (() => true)) {
         this.complete()
       }
       index++
+    },
+    streamDeactivated: function() {
+      index = 0
     }
   }, this)
 }

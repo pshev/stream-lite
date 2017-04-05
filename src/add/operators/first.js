@@ -14,6 +14,9 @@ proto.first = function first(predicate, projectionFn = (x => x), defaultValue) {
     complete: function() {
       baseNext(this, defaultValue)
       baseComplete(this)
+    },
+    streamDeactivated: function() {
+      index = 0
     }
   }, this)
 }

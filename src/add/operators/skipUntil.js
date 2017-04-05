@@ -19,6 +19,8 @@ proto.skipUntil = function skipUntil(stream) {
     },
     streamDeactivated: function() {
       subscription && subscription.unsubscribe()
+      shouldEmit = false
+      subscription = undefined
     }
   }, this)
 }

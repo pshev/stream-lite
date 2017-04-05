@@ -16,6 +16,10 @@ proto.last = function last(predicate, projectionFn = (x => x), defaultValue) {
         : defaultValue
       baseNext(this, x)
       baseComplete(this)
+    },
+    streamDeactivated: function() {
+      index = 0
+      lastToPassThePredicate = null
     }
   }, this)
 }

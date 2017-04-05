@@ -8,6 +8,9 @@ proto.skip = function skip(numberToSkip) {
         baseNext(this, x)
       else
         skipped++
+    },
+    streamDeactivated: function() {
+      skipped = 0
     }
   }, this, 'skip')
 }

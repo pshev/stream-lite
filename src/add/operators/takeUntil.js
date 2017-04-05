@@ -13,6 +13,7 @@ proto.takeUntil = function takeUntil(stream) {
     },
     streamDeactivated: function() {
       subscription && subscription.unsubscribe()
+      subscription = undefined
     }
   }, this)
 }

@@ -18,6 +18,8 @@ proto.withLatestFrom = function withLatestFrom(s) {
     },
     streamDeactivated: function() {
       subscription && subscription.unsubscribe()
+      sResult = undefined
+      subscription = undefined
     }
   }, this)
 }

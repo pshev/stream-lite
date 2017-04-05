@@ -9,6 +9,7 @@ statics.fromEvent = function fromEvent(element, eventName) {
     },
     stop: function() {
       element.removeEventListener(eventName, this.cb)
+      this.cb = null
     }
   }
   return statics.create(producer, 'fromEvent')

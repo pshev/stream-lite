@@ -1,26 +1,36 @@
-import {statics} from '../../core'
+import {statics, baseCreate} from '../../core'
 
 statics.fromPromise = function fromPromise(promise) {
-  let cancelled = false
-
   const producer = {
+    cancelled: false,
     start: function(self) {
+      if (!promise.then) {
+        self.next(promise)
+        self.complete()
+        return
+      }
+
       promise
         .then(x => {
-          if(!cancelled) {
+          if(!this.cancelled) {
             self.next(x)
             self.complete()
           }
-        })
-        .catch(error => {
-          if(!cancelled)
+        },
+        error => {
+          if(!this.cancelled)
             self.error(error)
         })
     },
     stop: function() {
-      cancelled = true
+      this.cancelled = true
     }
   }
 
-  return statics.create(producer, 'fromPromise')
+  return baseCreate({
+    producer,
+    streamActivated: function() {
+      this.producer.cancelled = false
+    }
+  }, undefined, 'fromPromise')
 }

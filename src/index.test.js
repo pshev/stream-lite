@@ -13,6 +13,7 @@ const isRootStream = x => isStream(x) && x.dependencies.length === 0
 const nx = () => {}
 const err = () => {}
 
+
 describe('factories', () => {
   describe('create', () => {
     it('should create a root stream when given no arguments', () => {
@@ -133,6 +134,19 @@ describe('factories', () => {
         done()
       })
     })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = Stream.interval(1).take(2)
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(0)
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.not.have.been.called.with(2)
+          done()
+        }))
+    })
   })
 
   describe('timer', () => {
@@ -155,6 +169,19 @@ describe('factories', () => {
         expect(next).to.have.been.called.twice()
         done()
       })
+    })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = Stream.timer(1, 1).take(2)
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(0)
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.not.have.been.called.with(2)
+          done()
+        }))
     })
   })
 
@@ -309,6 +336,13 @@ describe('factories', () => {
     it("should call subscriber's error callback when promise is rejected", (done) => {
       Stream.fromPromise(Promise.reject(42)).subscribe(nx, error => done())
     })
+    it("should simply pass along anything that is not a promise", (done) => {
+      const next = chai.spy()
+      Stream.fromPromise(42).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(42)
+        done()
+      })
+    })
     it("should work with the 'catch' operator", (done) => {
       const next = chai.spy()
       const error = chai.spy()
@@ -319,6 +353,19 @@ describe('factories', () => {
           expect(error).to.not.have.been.called()
           done()
         })
+    })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = Stream.fromPromise(Promise.resolve(1))
+
+      stream.subscribe(next, err, () => {
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.have.been.called.twice()
+          done()
+        })
+      })
     })
   })
 })
@@ -474,6 +521,22 @@ describe('operators', () => {
         done()
       })
     })
+    it("should handle re-subscription", (done) => {
+      const predicate = chai.spy()
+
+      const stream = Stream.of(1,2,3).single((x, i) => {
+        predicate(i)
+        return x === 2
+      })
+
+      stream.subscribe(nx, err, () =>
+        stream.subscribe(nx, err, () => {
+          expect(predicate).to.have.been.called.with(0)
+          expect(predicate).to.have.been.called.with(1)
+          expect(predicate).to.not.have.been.called.with(2)
+          done()
+        }))
+    })
   })
 
   describe('first', () => {
@@ -528,6 +591,22 @@ describe('operators', () => {
         expect(next).to.have.been.called.once()
         done()
       })
+    })
+    it("should handle re-subscription", (done) => {
+      const predicate = chai.spy()
+
+      const stream = Stream.of(1,2,3).first((x, i) => {
+        predicate(i)
+        return x === 2
+      })
+
+      stream.subscribe(nx, err, () =>
+        stream.subscribe(nx, err, () => {
+          expect(predicate).to.have.been.called.with(0)
+          expect(predicate).to.have.been.called.with(1)
+          expect(predicate).to.not.have.been.called.with(2)
+          done()
+        }))
     })
   })
 
@@ -592,6 +671,23 @@ describe('operators', () => {
         done()
       })
     })
+    it("should handle re-subscription", (done) => {
+      const predicate = chai.spy()
+
+      const stream = Stream.of(1,2,3).last((x, i) => {
+        predicate(i)
+        return x === 2
+      })
+
+      stream.subscribe(nx, err, () =>
+        stream.subscribe(nx, err, () => {
+          expect(predicate).to.have.been.called.with(0)
+          expect(predicate).to.have.been.called.with(1)
+          expect(predicate).to.have.been.called.with(2)
+          expect(predicate).to.not.have.been.called.with(3)
+          done()
+        }))
+    })
   })
 
   describe('every', () => {
@@ -649,6 +745,22 @@ describe('operators', () => {
         done()
       })
     })
+    it("should handle re-subscription", (done) => {
+      const predicate = chai.spy()
+
+      const stream = Stream.of(1,2,3).every((x, i) => {
+        predicate(i)
+        return x === 1
+      })
+
+      stream.subscribe(nx, err, () =>
+        stream.subscribe(nx, err, () => {
+          expect(predicate).to.have.been.called.with(0)
+          expect(predicate).to.have.been.called.with(1)
+          expect(predicate).to.not.have.been.called.with(2)
+          done()
+        }))
+    })
   })
 
   describe('mapTo', () => {
@@ -678,6 +790,18 @@ describe('operators', () => {
         expect(next).to.have.been.called.once()
         done()
       })
+    })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = Stream.of(1,1).distinctUntilChanged()
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.have.been.called.twice()
+          done()
+        }))
     })
   })
 
@@ -1091,6 +1215,18 @@ describe('operators', () => {
         done()
       })
     })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = Stream.of(1,2).skip(1)
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(2)
+          expect(next).to.not.have.been.called.with(1)
+          done()
+        }))
+    })
   })
 
   describe('skipUntil', () => {
@@ -1125,6 +1261,19 @@ describe('operators', () => {
       const error = chai.spy()
       Stream.never().skipUntil(Stream.throw('err')).subscribe(nx, error)
       expect(error).to.have.been.called.with('err')
+    })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = Stream.merge(Stream.of(1,2), Stream.timer(10)).skipUntil(Stream.timer(1))
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(0)
+          expect(next).to.not.have.been.called.with(1)
+          expect(next).to.not.have.been.called.with(2)
+          done()
+        }))
     })
   })
 
@@ -1163,6 +1312,30 @@ describe('operators', () => {
         done()
       })
     })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+      const predicate = chai.spy()
+
+      const stream = Stream.of(1,2,3,4,5).skipWhile((x, i) => {
+        predicate(i)
+        return x < 4
+      })
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(4)
+          expect(next).to.have.been.called.with(5)
+          expect(next).to.not.have.been.called.with(1)
+          expect(next).to.not.have.been.called.with(2)
+          expect(next).to.not.have.been.called.with(3)
+          expect(predicate).to.have.been.called.with(0)
+          expect(predicate).to.have.been.called.with(1)
+          expect(predicate).to.have.been.called.with(2)
+          expect(predicate).to.have.been.called.with(3)
+          expect(predicate).to.not.have.been.called.with(4)
+          done()
+        }))
+    })
   })
 
   describe('ignoreElements', () => {
@@ -1193,6 +1366,20 @@ describe('operators', () => {
         expect(next).to.have.been.called.twice()
         done()
       })
+    })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = Stream.of(1,2,3).take(2)
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.have.been.called.with(2)
+          expect(next).to.not.have.been.called.with(3)
+          expect(next).to.have.been.called.exactly(4)
+          done()
+        }))
     })
   })
 

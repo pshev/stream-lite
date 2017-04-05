@@ -15,6 +15,9 @@ proto.take = function take(numberToTake) {
           this.complete()
         }
       }
+    },
+    streamDeactivated: function() {
+      taken = 0
     }
   }, this, 'take')
 }

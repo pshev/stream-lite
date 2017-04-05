@@ -12,6 +12,10 @@ proto.skipWhile = function skipWhile(predicate) {
         baseNext(this, x)
       }
       index++
+    },
+    streamDeactivated: function() {
+      index = 0
+      skipping = true
     }
   }, this)
 }

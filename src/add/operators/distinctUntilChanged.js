@@ -8,6 +8,9 @@ proto.distinctUntilChanged = function() {
         baseNext(this, x)
         lastValue = x
       }
+    },
+    streamDeactivated: function() {
+      lastValue = undefined
     }
   }, this)
 }

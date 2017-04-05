@@ -15,6 +15,8 @@ statics.timer = function timer(initialDelay, step) {
     },
     stop: function() {
       clearInterval(this.id)
+      this.id = 0
+      this.counter = 0
     }
   }
   return statics.create(producer)
