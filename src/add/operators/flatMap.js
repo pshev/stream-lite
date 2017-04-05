@@ -16,6 +16,10 @@ proto.flatMap = function flatMap(fn, resultSelector) {
     },
     streamDeactivated: function() {
       subscriptions.forEach(s => s.unsubscribe())
+      outerIndex = 0
+      subscriptions = []
+      sourceStreamHasCompleted = false
+      numberOfCompletedNestedStreams = 0
     },
     complete: function() {
       sourceStreamHasCompleted = true

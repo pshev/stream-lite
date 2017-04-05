@@ -15,6 +15,10 @@ proto.switchMap = function switchMap(fn, resultSelector) {
     },
     streamDeactivated: function() {
       subscription && subscription.unsubscribe()
+      subscription = null
+      outerIndex = 0
+      sourceStreamHasCompleted = false
+      nestedStreamHasCompleted = false
     },
     complete: function() {
       sourceStreamHasCompleted = true

@@ -1029,6 +1029,51 @@ describe('operators', () => {
     })
   })
 
+  describe('concatMapTo', () => {
+    it("should emit all values from streams that is given", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).concatMapTo(Stream.of(2,3)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.exactly(4)
+        done()
+      })
+    })
+    it("should emit all values from produced nested stream even if source completes", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).concatMapTo(Stream.of(2,3).delay(5)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.exactly(4)
+        done()
+      })
+    })
+    it("should error if and when a stream returned from the given function errors", (done) => {
+      Stream.of(1).concatMapTo(x => Stream.throw()).subscribe(nx, () => done())
+    })
+    it("should handle promises", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).concatMapTo(Promise.resolve(3)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should call the given resultSelector with outerValue, innerValue, outerIndex, and innerIndex", (done) => {
+      const resultSelector = chai.spy()
+      Stream.of(1,2)
+        .concatMapTo(Stream.of(4,5), (...args) => resultSelector(args))
+        .subscribe(nx, err, () => {
+          expect(resultSelector).to.have.been.called.with([1, 4, 0, 0])
+          expect(resultSelector).to.have.been.called.with([1, 5, 0, 1])
+          expect(resultSelector).to.have.been.called.with([2, 4, 1, 0])
+          expect(resultSelector).to.have.been.called.with([2, 5, 1, 1])
+          expect(resultSelector).to.have.been.called.exactly(4)
+          done()
+        })
+    })
+  })
+
   describe('skip', () => {
     it("should not emit values from source stream before the number of values emitted is greater than the given number", (done) => {
       const next = chai.spy()
