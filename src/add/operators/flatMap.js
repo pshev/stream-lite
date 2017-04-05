@@ -2,21 +2,16 @@ import '../factories/fromPromise'
 import {baseCreate, baseNext, baseComplete, proto, statics} from '../../core'
 
 proto.flatMap = function flatMap(fn, resultSelector) {
-  resultSelector = resultSelector || ((valueFromSource, valueFromNestedStream) => valueFromNestedStream)
+  resultSelector = resultSelector || ((outerValue, innerValue) => innerValue)
   let outerIndex = 0
   let subscriptions = []
   let sourceStreamHasCompleted
   let numberOfCompletedNestedStreams = 0
+  const toStream = s => s.then ? statics.fromPromise(s) : s
 
   return baseCreate({
     next: function(outerValue) {
-      const nested = fn(outerValue, outerIndex)
-      const nestedStream = nested.then ? statics.fromPromise(nested) : nested
-
-      const subscription = subscribeToNested.call(this, nestedStream, outerValue, outerIndex)
-
-      outerIndex++
-
+      const subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})
       subscriptions.push(subscription)
     },
     streamDeactivated: function() {
@@ -26,24 +21,20 @@ proto.flatMap = function flatMap(fn, resultSelector) {
       sourceStreamHasCompleted = true
       if (numberOfCompletedNestedStreams === subscriptions.length)
         baseComplete(this)
+    },
+    subscribeToInner: function({outerValue, outerIndex}) {
+      let innerIndex = 0
+      return toStream(fn(outerValue, outerIndex)).subscribe(
+        innerValue => baseNext(this, resultSelector(outerValue, innerValue, outerIndex, innerIndex++)),
+        this.error.bind(this),
+        this.innerStreamComplete.bind(this)
+      )
+    },
+    innerStreamComplete: function() {
+      numberOfCompletedNestedStreams++
+      sourceStreamHasCompleted && this.complete()
     }
   }, this)
-
-  function subscribeToNested(nestedStream, outerValue, outerIndex) {
-    let innerIndex = 0
-    return nestedStream.subscribe(
-      innerValue => {
-        baseNext(this, resultSelector(outerValue, innerValue, outerIndex, innerIndex))
-        innerIndex++
-      },
-      this.error.bind(this),
-      () => {
-        numberOfCompletedNestedStreams++
-        if (sourceStreamHasCompleted)
-          this.complete()
-      }
-    )
-  }
 }
 
 proto.mergeMap = proto.flatMap

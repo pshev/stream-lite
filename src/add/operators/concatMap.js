@@ -1,27 +1,33 @@
+import '../factories/fromPromise'
 import {baseCreate, baseNext, baseComplete, proto, statics} from '../../core'
 
-proto.switchMap = function switchMap(fn, resultSelector) {
+proto.concatMap = function concatMap(fn, resultSelector) {
   resultSelector = resultSelector || ((outerValue, innerValue) => innerValue)
-  let subscription
   let outerIndex = 0
+  let subscription
+  let streamsToCreate = []
+  let innerStreamIsCurrentlyEmitting = false
   let sourceStreamHasCompleted
-  let nestedStreamHasCompleted
   const toStream = s => s.then ? statics.fromPromise(s) : s
 
   return baseCreate({
     next: function(outerValue) {
-      subscription && subscription.unsubscribe()
-      subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})
+      if (innerStreamIsCurrentlyEmitting)
+        streamsToCreate.push({outerValue, outerIndex: outerIndex++})
+      else
+        subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})
     },
     streamDeactivated: function() {
       subscription && subscription.unsubscribe()
     },
     complete: function() {
       sourceStreamHasCompleted = true
-      nestedStreamHasCompleted && baseComplete(this)
+      if (!innerStreamIsCurrentlyEmitting && streamsToCreate.length === 0)
+        baseComplete(this)
     },
     subscribeToInner: function({outerValue, outerIndex}) {
       let innerIndex = 0
+      innerStreamIsCurrentlyEmitting = true
       return toStream(fn(outerValue, outerIndex)).subscribe(
         innerValue => baseNext(this, resultSelector(outerValue, innerValue, outerIndex, innerIndex++)),
         this.error.bind(this),
@@ -29,8 +35,12 @@ proto.switchMap = function switchMap(fn, resultSelector) {
       )
     },
     innerStreamComplete: function() {
-      nestedStreamHasCompleted = true
-      sourceStreamHasCompleted && this.complete()
+      innerStreamIsCurrentlyEmitting = false
+
+      if (streamsToCreate.length === 0)
+        sourceStreamHasCompleted && baseComplete(this)
+      else
+        subscription = this.subscribeToInner(streamsToCreate.shift())
     }
   }, this)
 }

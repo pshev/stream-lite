@@ -833,6 +833,111 @@ describe('operators', () => {
     })
   })
 
+  describe('concatMap', () => {
+    it("should call the mapping function with value and index", (done) => {
+      const mappingFunction = chai.spy()
+      Stream.of(1,2).concatMap((...args) => {
+        mappingFunction(...args)
+        return Stream.of(42)
+      }).subscribe(nx, err, () => {
+        expect(mappingFunction).to.have.been.called.with(1, 0)
+        expect(mappingFunction).to.have.been.called.with(2, 1)
+        expect(mappingFunction).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should emit all values from streams that are returned from the given function", (done) => {
+      const next = chai.spy()
+      Stream.of(1, 2).concatMap(x => Stream.of(1, x * 3)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.exactly(4)
+        done()
+      })
+    })
+    it("should emit all values from produced nested stream even if source completes", (done) => {
+      const next = chai.spy()
+      Stream.of(1, 2).concatMap(x => Stream.of(1, x * 3).delay(5)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.exactly(4)
+        done()
+      })
+    })
+    it("should error if and when a stream returned from the given function errors", (done) => {
+      Stream.of(1).concatMap(x => Stream.throw()).subscribe(nx, () => done())
+    })
+    it("should handle promises", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).concatMap(x => Promise.resolve(x * 3)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.with(6)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should call the given resultSelector with outerValue, innerValue, outerIndex, and innerIndex", (done) => {
+      const resultSelector = chai.spy()
+      Stream.of(1,2)
+        .concatMap(x => Stream.of(4,5), (...args) => resultSelector(args))
+        .subscribe(nx, err, () => {
+          expect(resultSelector).to.have.been.called.with([1, 4, 0, 0])
+          expect(resultSelector).to.have.been.called.with([1, 5, 0, 1])
+          expect(resultSelector).to.have.been.called.with([2, 4, 1, 0])
+          expect(resultSelector).to.have.been.called.with([2, 5, 1, 1])
+          expect(resultSelector).to.have.been.called.exactly(4)
+          done()
+        })
+    })
+    it("should emit values from produced nested stream in strict order", (done) => {
+      const resultSelector = chai.spy()
+      let numberOfTimesNextCalled = 0
+      Stream.of(1,2,3)
+        .concatMap(x => {
+          if (x === 1)
+            return Stream.of(1).delay(5)
+          if (x === 2)
+            return Stream.of(2).delay(1)
+          if (x === 3)
+            return Stream.of(3)
+        }, (outerValue, innerValue, outerIndex, innerIndex) => {
+          resultSelector([outerValue, innerValue, outerIndex, innerIndex])
+          return innerValue
+        })
+        .subscribe((x) => {
+          numberOfTimesNextCalled++
+          expect(x).to.equal(numberOfTimesNextCalled)
+        }, err, () => {
+          expect(resultSelector).to.have.been.called.with([1, 1, 0, 0])
+          expect(resultSelector).to.have.been.called.with([2, 2, 1, 0])
+          expect(resultSelector).to.have.been.called.with([3, 3, 2, 0])
+          expect(resultSelector).to.have.been.called.exactly(3)
+          done()
+        })
+    })
+    it("should subscribe to next stream only after previous stream has completed", (done) => {
+      const stream1 = Stream.of(1)
+      const stream2 = Stream.of(2)
+
+      Stream.of(1,2)
+        .concatMap(x => x === 1 ? stream1: stream2)
+        .subscribe(x => {
+          if (x === 1) {
+            expect(stream1.subscribers.length).to.equal(1)
+            expect(stream2.subscribers.length).to.equal(0)
+          }
+          if (x === 2) {
+            expect(stream1.subscribers.length).to.equal(0)
+            expect(stream2.subscribers.length).to.equal(1)
+          }
+        }, err, done)
+    })
+  })
+
   describe('switchMap', () => {
     it("should call the mapping function with value and index", (done) => {
       const mappingFunction = chai.spy()

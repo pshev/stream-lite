@@ -118,6 +118,7 @@ Operators marked with 🚩 are also available as statics.
 - [`do`](https://www.learnrxjs.io/operators/utility/do.html)
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)
 - [`distinctUntilChanged`](https://www.learnrxjs.io/operators/filtering/distinctuntilchanged.html)
+- [`concatMap`](https://www.learnrxjs.io/operators/transformation/concatmap.html)
 - [`mergeMap`](#flatMap)*
 - [`flatMap`](#flatMap)*
 - [`switchMap`](https://www.learnrxjs.io/operators/transformation/switchmap.html)
