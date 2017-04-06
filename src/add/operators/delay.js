@@ -2,14 +2,14 @@ import {proto, baseNext, baseComplete, baseCreate} from '../../core'
 
 proto.delay = function delay(delay) {
   let sourceStreamHasCompleted
-  let lastReceivedValue
-  let lastEmittedValue
+  let numberOfValuesReceived = 0
+  let numberOfValuesEmitted = 0
 
   return baseCreate({
     next(x) {
-      lastReceivedValue = x
+      numberOfValuesReceived++
       setTimeout(() => {
-        lastEmittedValue = x
+        numberOfValuesEmitted++
         baseNext(this, x)
         if (sourceStreamHasCompleted)
           this.complete()
@@ -17,13 +17,13 @@ proto.delay = function delay(delay) {
     },
     complete() {
       sourceStreamHasCompleted = true
-      if (lastReceivedValue === lastEmittedValue)
+      if (numberOfValuesReceived === numberOfValuesEmitted)
         baseComplete(this)
     },
     stop() {
       sourceStreamHasCompleted = false
-      lastReceivedValue = undefined
-      lastEmittedValue = undefined
+      numberOfValuesReceived = 0
+      numberOfValuesEmitted = 0
     }
   }, this, 'delay')
 }

@@ -864,7 +864,7 @@ describe('operators', () => {
       const next = chai.spy()
       const complete = chai.spy()
       const sourceComplete = chai.spy()
-      const source = Stream.of(1,2)
+      const source = Stream.of(1,1,2,1)
 
       source.delay(3).subscribe(next, err, complete)
       source.subscribe(nx, err, sourceComplete)
