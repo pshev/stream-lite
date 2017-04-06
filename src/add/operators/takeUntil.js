@@ -5,13 +5,13 @@ proto.takeUntil = function takeUntil(stream) {
   let subscription
 
   return baseCreate({
-    streamActivated: function() {
+    start: function() {
       subscription = stream.subscribe(
         this.complete.bind(this),
         this.error.bind(this)
       )
     },
-    streamDeactivated: function() {
+    stop: function() {
       subscription && subscription.unsubscribe()
       subscription = undefined
     }

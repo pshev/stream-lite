@@ -10,7 +10,7 @@ proto.single = function single(predicate = (() => true)) {
       }
       index++
     },
-    streamDeactivated: function() {
+    stop: function() {
       index = 0
     }
   }, this)

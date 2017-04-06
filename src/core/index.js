@@ -19,8 +19,8 @@ export const proto = {
   error: function(error) { baseError(this, error) },
   complete: function() { baseComplete(this) },
   nextGuard: function() { return baseNextGuard(this) },
-  streamActivated: function() {},
-  streamDeactivated: function() {}
+  start: function() {},
+  stop: function() {}
 }
 
 const baseProps = props => Object.assign({}, {

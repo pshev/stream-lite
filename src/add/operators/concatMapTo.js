@@ -17,7 +17,7 @@ proto.concatMapTo = function concatMapTo(innerStream, resultSelector) {
       else
         subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})
     },
-    streamDeactivated: function() {
+    stop: function() {
       subscription && subscription.unsubscribe()
       outerIndex = 0
       subscription = null

@@ -29,7 +29,7 @@ statics.fromPromise = function fromPromise(promise) {
 
   return baseCreate({
     producer,
-    streamActivated: function() {
+    start: function() {
       this.producer.cancelled = false
     }
   }, undefined, 'fromPromise')

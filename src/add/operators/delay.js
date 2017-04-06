@@ -20,7 +20,7 @@ proto.delay = function delay(delay) {
       if (lastReceivedValue === lastEmittedValue)
         baseComplete(this)
     },
-    streamDeactivated: function() {
+    stop: function() {
       sourceStreamHasCompleted = false
       lastReceivedValue = undefined
       lastEmittedValue = undefined

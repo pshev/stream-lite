@@ -14,7 +14,7 @@ proto.flatMap = function flatMap(fn, resultSelector) {
       const subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})
       subscriptions.push(subscription)
     },
-    streamDeactivated: function() {
+    stop: function() {
       subscriptions.forEach(s => s.unsubscribe())
       outerIndex = 0
       subscriptions = []

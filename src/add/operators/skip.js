@@ -9,7 +9,7 @@ proto.skip = function skip(numberToSkip) {
       else
         skipped++
     },
-    streamDeactivated: function() {
+    stop: function() {
       skipped = 0
     }
   }, this, 'skip')

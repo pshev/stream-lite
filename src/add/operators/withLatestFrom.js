@@ -10,13 +10,13 @@ proto.withLatestFrom = function withLatestFrom(s) {
       if (sResult)
         baseNext(this, [x, sResult])
     },
-    streamActivated: function() {
+    start: function() {
       subscription = s.subscribe(
         x => sResult = x,
         this.error.bind(this)
       )
     },
-    streamDeactivated: function() {
+    stop: function() {
       subscription && subscription.unsubscribe()
       sResult = undefined
       subscription = undefined

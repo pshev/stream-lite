@@ -14,7 +14,7 @@ proto.every = function every(predicate = (() => true)) {
       baseNext(this, true)
       baseComplete(this)
     },
-    streamDeactivated: function() {
+    stop: function() {
       index = 0
     }
   }, this)
