@@ -1,4 +1,4 @@
-import {statics, baseCreate} from '../../core'
+import {statics} from '../../core'
 
 statics.fromPromise = function fromPromise(promise) {
   const producer = {
