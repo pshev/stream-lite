@@ -4,6 +4,8 @@ statics.fromPromise = function fromPromise(promise) {
   const producer = {
     cancelled: false,
     start: function(self) {
+      this.cancelled = false
+
       if (!promise.then) {
         self.next(promise)
         self.complete()
@@ -27,10 +29,5 @@ statics.fromPromise = function fromPromise(promise) {
     }
   }
 
-  return baseCreate({
-    producer,
-    start: function() {
-      this.producer.cancelled = false
-    }
-  }, undefined, 'fromPromise')
+  return statics.create(producer, 'fromPromise')
 }
