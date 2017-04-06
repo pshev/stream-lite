@@ -2,7 +2,7 @@ import {baseCreate, baseNext, proto} from '../../core'
 
 proto.filter = function filter(f) {
   return baseCreate({
-    next: function(x) {
+    next(x) {
       if (f(x))
         baseNext(this, x)
     }

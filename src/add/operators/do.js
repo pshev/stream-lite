@@ -3,7 +3,7 @@ import {baseCreate} from '../../core'
 
 proto.do = function(fn) {
   return baseCreate({
-    next: function(x) {
+    next(x) {
       fn(x)
       baseNext(this, x)
     }

@@ -3,13 +3,13 @@ import {baseCreate, baseNext, proto} from '../../core'
 proto.distinctUntilChanged = function() {
   let lastValue
   return baseCreate({
-    next: function(x) {
+    next(x) {
       if (x !== lastValue) {
         baseNext(this, x)
         lastValue = x
       }
     },
-    stop: function() {
+    stop() {
       lastValue = undefined
     }
   }, this)

@@ -5,7 +5,7 @@ proto.take = function take(numberToTake) {
   let taken = 0
 
   return baseCreate({
-    next: function(x) {
+    next(x) {
       if (taken < numberToTake) {
         baseNext(this, x)
 
@@ -16,7 +16,7 @@ proto.take = function take(numberToTake) {
         }
       }
     },
-    stop: function() {
+    stop() {
       taken = 0
     }
   }, this, 'take')

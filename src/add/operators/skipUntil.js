@@ -5,19 +5,19 @@ proto.skipUntil = function skipUntil(stream) {
   let shouldEmit = false
 
   return baseCreate({
-    next: function(x) {
+    next(x) {
       if (shouldEmit) {
         baseNext(this, x)
         subscription.unsubscribe()
       }
     },
-    start: function() {
+    start() {
       subscription = stream.subscribe(
         () => shouldEmit = true,
         this.error.bind(this)
       )
     },
-    stop: function() {
+    stop() {
       subscription && subscription.unsubscribe()
       shouldEmit = false
       subscription = undefined

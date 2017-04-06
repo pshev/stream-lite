@@ -3,7 +3,7 @@ import {baseCreate} from '../../core'
 
 proto.map = function(f) {
   return baseCreate({
-    next: function(x) {
+    next(x) {
       baseNext(this, f(x))
     }
   }, this, 'map')

@@ -6,7 +6,7 @@ proto.delay = function delay(delay) {
   let lastEmittedValue
 
   return baseCreate({
-    next: function(x) {
+    next(x) {
       lastReceivedValue = x
       setTimeout(() => {
         lastEmittedValue = x
@@ -15,12 +15,12 @@ proto.delay = function delay(delay) {
           this.complete()
       }, delay)
     },
-    complete: function() {
+    complete() {
       sourceStreamHasCompleted = true
       if (lastReceivedValue === lastEmittedValue)
         baseComplete(this)
     },
-    stop: function() {
+    stop() {
       sourceStreamHasCompleted = false
       lastReceivedValue = undefined
       lastEmittedValue = undefined

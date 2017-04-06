@@ -4,7 +4,7 @@ const dependenciesMet = stream => stream.dependencies.every(s => s.val !== undef
 
 // additional properties dynamically added onto statics and proto
 export const statics = {
-  create: function(producer = {}, name) {
+  create(producer = {}, name) {
     producer.start = producer.start || (() => {})
     producer.stop = producer.stop || (() => {})
     return baseCreate({producer}, undefined, name)
@@ -12,15 +12,15 @@ export const statics = {
 }
 
 export const proto = {
-  subscribe: function(next, error = err => { throw new Error(err) }, complete = () => {}) {
+  subscribe(next, error = err => { throw new Error(err) }, complete = () => {}) {
     return subscribe(this, {next, error, complete})
   },
-  next: function(value) { baseNext(this, value) },
-  error: function(error) { baseError(this, error) },
-  complete: function() { baseComplete(this) },
-  nextGuard: function() { return baseNextGuard(this) },
-  start: function() {},
-  stop: function() {}
+  next(value) { baseNext(this, value) },
+  error(error) { baseError(this, error) },
+  complete() { baseComplete(this) },
+  nextGuard() { return baseNextGuard(this) },
+  start() {},
+  stop() {}
 }
 
 const baseProps = props => Object.assign({}, {

@@ -2,7 +2,7 @@ import {baseCreate, baseNext, proto, statics} from '../../core'
 
 const combine = (...streams) => baseCreate({
   dependencies: streams,
-  next: function() {
+  next() {
     baseNext(this, this.dependencies.map(d => d.val))
   }
 })

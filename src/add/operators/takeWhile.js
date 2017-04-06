@@ -3,7 +3,7 @@ import {baseCreate} from '../../core'
 
 proto.takeWhile = function takeWhile(predicate) {
   return baseCreate({
-    next: function(x) {
+    next(x) {
       if (predicate(x))
         baseNext(this, x)
       else

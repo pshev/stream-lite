@@ -11,13 +11,13 @@ proto.concatMapTo = function concatMapTo(innerStream, resultSelector) {
   const toStream = s => s.then ? statics.fromPromise(s) : s
 
   return baseCreate({
-    next: function(outerValue) {
+    next(outerValue) {
       if (innerStreamIsCurrentlyEmitting)
         outerEmissionsToHandle.push({outerValue, outerIndex: outerIndex++})
       else
         subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})
     },
-    stop: function() {
+    stop() {
       subscription && subscription.unsubscribe()
       outerIndex = 0
       subscription = null
@@ -25,12 +25,12 @@ proto.concatMapTo = function concatMapTo(innerStream, resultSelector) {
       innerStreamIsCurrentlyEmitting = false
       sourceStreamHasCompleted = false
     },
-    complete: function() {
+    complete() {
       sourceStreamHasCompleted = true
       if (!innerStreamIsCurrentlyEmitting && outerEmissionsToHandle.length === 0)
         baseComplete(this)
     },
-    subscribeToInner: function({outerValue, outerIndex}) {
+    subscribeToInner({outerValue, outerIndex}) {
       let innerIndex = 0
       innerStreamIsCurrentlyEmitting = true
       return toStream(innerStream).subscribe(
@@ -39,7 +39,7 @@ proto.concatMapTo = function concatMapTo(innerStream, resultSelector) {
         this.innerStreamComplete.bind(this)
       )
     },
-    innerStreamComplete: function() {
+    innerStreamComplete() {
       innerStreamIsCurrentlyEmitting = false
 
       if (outerEmissionsToHandle.length === 0)

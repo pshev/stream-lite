@@ -4,10 +4,10 @@ statics.interval = function interval(step) {
   const producer = {
     counter: 0,
     id: 0,
-    start: function(consumer) {
+    start(consumer) {
       this.id = setInterval(() => consumer.next(this.counter++), step)
     },
-    stop: function() {
+    stop() {
       clearInterval(this.id)
       this.id = 0
       this.counter = 0

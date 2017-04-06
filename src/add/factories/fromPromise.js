@@ -3,7 +3,7 @@ import {statics, baseCreate} from '../../core'
 statics.fromPromise = function fromPromise(promise) {
   const producer = {
     cancelled: false,
-    start: function(self) {
+    start(self) {
       this.cancelled = false
 
       if (!promise.then) {
@@ -24,7 +24,7 @@ statics.fromPromise = function fromPromise(promise) {
             self.error(error)
         })
     },
-    stop: function() {
+    stop() {
       this.cancelled = true
     }
   }

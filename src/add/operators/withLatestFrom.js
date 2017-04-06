@@ -6,17 +6,17 @@ proto.withLatestFrom = function withLatestFrom(s) {
   let subscription
 
   return baseCreate({
-    next: function(x) {
+    next(x) {
       if (sResult)
         baseNext(this, [x, sResult])
     },
-    start: function() {
+    start() {
       subscription = s.subscribe(
         x => sResult = x,
         this.error.bind(this)
       )
     },
-    stop: function() {
+    stop() {
       subscription && subscription.unsubscribe()
       sResult = undefined
       subscription = undefined

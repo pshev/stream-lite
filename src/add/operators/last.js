@@ -5,19 +5,19 @@ proto.last = function last(predicate, projectionFn = (x => x), defaultValue) {
   let index = 0
   let lastToPassThePredicate
   return baseCreate({
-    next: function(x) {
+    next(x) {
       if (predicate(x, index))
         lastToPassThePredicate = { value: x, index }
       index++
     },
-    complete: function() {
+    complete() {
       const x = lastToPassThePredicate
         ? projectionFn(lastToPassThePredicate.value, lastToPassThePredicate.index)
         : defaultValue
       baseNext(this, x)
       baseComplete(this)
     },
-    stop: function() {
+    stop() {
       index = 0
       lastToPassThePredicate = null
     }

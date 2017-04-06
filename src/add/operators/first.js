@@ -4,18 +4,18 @@ proto.first = function first(predicate, projectionFn = (x => x), defaultValue) {
   predicate = predicate || (() => true)
   let index = 0
   return baseCreate({
-    next: function(x) {
+    next(x) {
       if (predicate(x, index)) {
         baseNext(this, projectionFn(x, index))
         baseComplete(this)
       }
       index++
     },
-    complete: function() {
+    complete() {
       baseNext(this, defaultValue)
       baseComplete(this)
     },
-    stop: function() {
+    stop() {
       index = 0
     }
   }, this)

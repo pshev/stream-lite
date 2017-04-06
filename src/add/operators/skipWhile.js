@@ -4,7 +4,7 @@ proto.skipWhile = function skipWhile(predicate) {
   let index = 0
   let skipping = true
   return baseCreate({
-    next: function(x) {
+    next(x) {
       if (!skipping)
         baseNext(this, x)
       else if (predicate(x, index) === false) {
@@ -13,7 +13,7 @@ proto.skipWhile = function skipWhile(predicate) {
       }
       index++
     },
-    stop: function() {
+    stop() {
       index = 0
       skipping = true
     }

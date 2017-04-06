@@ -4,7 +4,7 @@ statics.timer = function timer(initialDelay, step) {
   const producer = {
     counter: 1,
     id: null,
-    start: function(consumer) {
+    start(consumer) {
       setTimeout(() => {
         consumer.next(0)
         if (step)
@@ -13,7 +13,7 @@ statics.timer = function timer(initialDelay, step) {
           consumer.complete()
       }, initialDelay)
     },
-    stop: function() {
+    stop() {
       clearInterval(this.id)
       this.id = 0
       this.counter = 0

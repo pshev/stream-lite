@@ -9,22 +9,22 @@ proto.switchMap = function switchMap(fn, resultSelector) {
   const toStream = s => s.then ? statics.fromPromise(s) : s
 
   return baseCreate({
-    next: function(outerValue) {
+    next(outerValue) {
       subscription && subscription.unsubscribe()
       subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})
     },
-    stop: function() {
+    stop() {
       subscription && subscription.unsubscribe()
       subscription = null
       outerIndex = 0
       sourceStreamHasCompleted = false
       nestedStreamHasCompleted = false
     },
-    complete: function() {
+    complete() {
       sourceStreamHasCompleted = true
       nestedStreamHasCompleted && baseComplete(this)
     },
-    subscribeToInner: function({outerValue, outerIndex}) {
+    subscribeToInner({outerValue, outerIndex}) {
       let innerIndex = 0
       return toStream(fn(outerValue, outerIndex)).subscribe(
         innerValue => baseNext(this, resultSelector(outerValue, innerValue, outerIndex, innerIndex++)),
@@ -32,7 +32,7 @@ proto.switchMap = function switchMap(fn, resultSelector) {
         this.innerStreamComplete.bind(this)
       )
     },
-    innerStreamComplete: function() {
+    innerStreamComplete() {
       nestedStreamHasCompleted = true
       sourceStreamHasCompleted && this.complete()
     }

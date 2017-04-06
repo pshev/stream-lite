@@ -10,23 +10,23 @@ proto.flatMap = function flatMap(fn, resultSelector) {
   const toStream = s => s.then ? statics.fromPromise(s) : s
 
   return baseCreate({
-    next: function(outerValue) {
+    next(outerValue) {
       const subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})
       subscriptions.push(subscription)
     },
-    stop: function() {
+    stop() {
       subscriptions.forEach(s => s.unsubscribe())
       outerIndex = 0
       subscriptions = []
       sourceStreamHasCompleted = false
       numberOfCompletedNestedStreams = 0
     },
-    complete: function() {
+    complete() {
       sourceStreamHasCompleted = true
       if (numberOfCompletedNestedStreams === subscriptions.length)
         baseComplete(this)
     },
-    subscribeToInner: function({outerValue, outerIndex}) {
+    subscribeToInner({outerValue, outerIndex}) {
       let innerIndex = 0
       return toStream(fn(outerValue, outerIndex)).subscribe(
         innerValue => baseNext(this, resultSelector(outerValue, innerValue, outerIndex, innerIndex++)),
@@ -34,7 +34,7 @@ proto.flatMap = function flatMap(fn, resultSelector) {
         this.innerStreamComplete.bind(this)
       )
     },
-    innerStreamComplete: function() {
+    innerStreamComplete() {
       numberOfCompletedNestedStreams++
       sourceStreamHasCompleted && this.complete()
     }

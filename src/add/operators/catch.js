@@ -3,7 +3,7 @@ import {baseCreate} from '../../core'
 
 proto.catch = function catchOperator(fn) {
   return baseCreate({
-    error: function(error) {
+    error(error) {
       const nestedStream = fn(error)
 
       nestedStream.subscribe(

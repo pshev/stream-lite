@@ -3,7 +3,7 @@ import {baseCreate, baseComplete, proto, statics} from '../../core'
 const concat = (...streams) => {
   let subscription
   return baseCreate({
-    complete: function() {
+    complete() {
       if (streams.length === 0)
         baseComplete(this)
       else
@@ -13,10 +13,10 @@ const concat = (...streams) => {
           this.complete.bind(this)
         )
     },
-    start: function() {
+    start() {
       this.complete()
     },
-    stop: function() {
+    stop() {
       subscription && subscription.unsubscribe()
     }
   })
