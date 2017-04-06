@@ -378,6 +378,9 @@ describe('operators', () => {
     it("should error when source stream errors", (done) => {
       Stream.throw().map(() => 42).subscribe(nx, done)
     })
+    it("should error when mapping function errors", (done) => {
+      Stream.of(1).map(() => { throw new Error() }).subscribe(nx, () => done())
+    })
     it("should not run the mapping function when source stream errors", (done) => {
       const mappingFn = chai.spy()
       Stream.throw().map(mappingFn).subscribe(nx, err => {
@@ -414,6 +417,9 @@ describe('operators', () => {
         expect(next).to.have.been.called.twice()
         done()
       })
+    })
+    it("should error when filtering function errors", (done) => {
+      Stream.of(1).filter(() => { throw new Error() }).subscribe(nx, () => done())
     })
   })
 
@@ -560,6 +566,14 @@ describe('operators', () => {
         done()
       })
     })
+    it("should error if the given predicate errors", (done) => {
+      Stream.of(1).first(x => {throw new Error()}).subscribe(nx, () => done())
+    })
+    it("should error when resultSelector function errors", (done) => {
+      Stream.of(1,2)
+        .first(x => x === 1, () => { throw new Error() })
+        .subscribe(nx, () => done())
+    })
     it("should emit the first value from source to pass the predicate", (done) => {
       const next = chai.spy()
       Stream.of(1,2,3,4).first(x => x === 3).subscribe(next, err, () => {
@@ -638,6 +652,14 @@ describe('operators', () => {
         expect(predicate).to.have.been.called.twice()
         done()
       })
+    })
+    it("should error if the given predicate errors", (done) => {
+      Stream.of(1).last(x => {throw new Error()}).subscribe(nx, () => done())
+    })
+    it("should error when resultSelector function errors", (done) => {
+      Stream.of(1,2)
+        .last(x => x === 1, () => { throw new Error() })
+        .subscribe(nx, () => done())
     })
     it("should emit the last value from source to pass the predicate", (done) => {
       const next = chai.spy()
@@ -922,6 +944,14 @@ describe('operators', () => {
     it("should error if and when a stream returned from the given function errors", (done) => {
       Stream.of(1).flatMap(x => Stream.throw()).subscribe(nx, () => done())
     })
+    it("should error if the given function errors", (done) => {
+      Stream.of(1).flatMap(x => {throw new Error()}).subscribe(nx, () => done())
+    })
+    it("should error when resultSelector function errors", (done) => {
+      Stream.of(1,2)
+        .flatMap(x => Stream.of(4,5).delay(1), () => { throw new Error() })
+        .subscribe(nx, () => done())
+    })
     it("should not complete if a stream returned from the given function completes", (done) => {
       const next = chai.spy()
       const complete = chai.spy()
@@ -994,6 +1024,14 @@ describe('operators', () => {
     })
     it("should error if and when a stream returned from the given function errors", (done) => {
       Stream.of(1).concatMap(x => Stream.throw()).subscribe(nx, () => done())
+    })
+    it("should error if the given function errors", (done) => {
+      Stream.of(1).concatMap(x => {throw new Error()}).subscribe(nx, () => done())
+    })
+    it("should error when resultSelector function errors", (done) => {
+      Stream.of(1,2)
+        .concatMap(x => Stream.of(4,5).delay(1), () => { throw new Error() })
+        .subscribe(nx, () => done())
     })
     it("should handle promises", (done) => {
       const next = chai.spy()
@@ -1116,8 +1154,16 @@ describe('operators', () => {
           }
         }, err, done)
     })
-    it("should error if and when a stream returned from the given function errors", (done) => {
+    it("should error if a stream returned from the given function errors", (done) => {
       Stream.of(1).switchMap(x => Stream.throw()).subscribe(nx, () => done())
+    })
+    it("should error if the given function errors", (done) => {
+      Stream.of(1).switchMap(x => {throw new Error()}).subscribe(nx, () => done())
+    })
+    it("should error when resultSelector function errors", (done) => {
+      Stream.of(1,2)
+        .switchMap(x => Stream.of(4,5).delay(1), () => { throw new Error() })
+        .subscribe(nx, () => done())
     })
     it("should not complete if a stream returned from the given function completes", (done) => {
       const next = chai.spy()
@@ -1172,8 +1218,13 @@ describe('operators', () => {
         done()
       })
     })
-    it("should error if and when a stream returned from the given function errors", (done) => {
-      Stream.of(1).concatMapTo(x => Stream.throw()).subscribe(nx, () => done())
+    it("should error if the given stream errors", (done) => {
+      Stream.of(1).concatMapTo(Stream.throw()).subscribe(nx, () => done())
+    })
+    it("should error when resultSelector function errors", (done) => {
+      Stream.of(1,2)
+        .concatMapTo(Stream.of(4,5).delay(1), () => { throw new Error() })
+        .subscribe(nx, () => done())
     })
     it("should handle promises", (done) => {
       const next = chai.spy()

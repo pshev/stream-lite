@@ -34,10 +34,19 @@ proto.concatMap = function concatMap(fn, resultSelector) {
       let innerIndex = 0
       innerStreamIsCurrentlyEmitting = true
       return toStream(fn(outerValue, outerIndex)).subscribe(
-        innerValue => baseNext(this, resultSelector(outerValue, innerValue, outerIndex, innerIndex++)),
+        innerValue => this.tryNext(resultSelector.bind(this, outerValue, innerValue, outerIndex, innerIndex++)),
         this.error.bind(this),
         this.innerStreamComplete.bind(this)
       )
+    },
+    tryNext(fn) {
+      let result
+      try {
+        result = fn()
+      } catch (e) {
+        this.error(e)
+      }
+      baseNext(this, result)
     },
     innerStreamComplete() {
       innerStreamIsCurrentlyEmitting = false

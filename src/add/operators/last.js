@@ -12,7 +12,7 @@ proto.last = function last(predicate, projectionFn = (x => x), defaultValue) {
     },
     complete() {
       const x = lastToPassThePredicate
-        ? projectionFn(lastToPassThePredicate.value, lastToPassThePredicate.index)
+        ? this.tryGetResult(projectionFn.bind(this, lastToPassThePredicate.value, lastToPassThePredicate.index))
         : defaultValue
       baseNext(this, x)
       baseComplete(this)
@@ -20,6 +20,13 @@ proto.last = function last(predicate, projectionFn = (x => x), defaultValue) {
     stop() {
       index = 0
       lastToPassThePredicate = null
+    },
+    tryGetResult(fn) {
+      try {
+        return fn()
+      } catch (e) {
+        this.error(e)
+      }
     }
   }, this)
 }

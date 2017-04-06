@@ -34,7 +34,7 @@ proto.concatMapTo = function concatMapTo(innerStream, resultSelector) {
       let innerIndex = 0
       innerStreamIsCurrentlyEmitting = true
       return toStream(innerStream).subscribe(
-        innerValue => baseNext(this, resultSelector(outerValue, innerValue, outerIndex, innerIndex++)),
+        innerValue => this.tryNext(resultSelector.bind(this, outerValue, innerValue, outerIndex, innerIndex++)),
         this.error.bind(this),
         this.innerStreamComplete.bind(this)
       )
@@ -46,6 +46,15 @@ proto.concatMapTo = function concatMapTo(innerStream, resultSelector) {
         sourceStreamHasCompleted && baseComplete(this)
       else
         subscription = this.subscribeToInner(outerEmissionsToHandle.shift())
+    },
+    tryNext(fn) {
+      let result
+      try {
+        result = fn()
+      } catch (e) {
+        this.error(e)
+      }
+      baseNext(this, result)
     }
   }, this)
 }

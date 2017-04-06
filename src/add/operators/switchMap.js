@@ -27,7 +27,7 @@ proto.switchMap = function switchMap(fn, resultSelector) {
     subscribeToInner({outerValue, outerIndex}) {
       let innerIndex = 0
       return toStream(fn(outerValue, outerIndex)).subscribe(
-        innerValue => baseNext(this, resultSelector(outerValue, innerValue, outerIndex, innerIndex++)),
+        innerValue => this.tryNext(resultSelector.bind(this, outerValue, innerValue, outerIndex, innerIndex++)),
         this.error.bind(this),
         this.innerStreamComplete.bind(this)
       )
@@ -35,6 +35,15 @@ proto.switchMap = function switchMap(fn, resultSelector) {
     innerStreamComplete() {
       nestedStreamHasCompleted = true
       sourceStreamHasCompleted && this.complete()
+    },
+    tryNext(fn) {
+      let result
+      try {
+        result = fn()
+      } catch (e) {
+        this.error(e)
+      }
+      baseNext(this, result)
     }
   }, this)
 }

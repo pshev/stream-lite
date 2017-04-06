@@ -40,7 +40,7 @@ export function baseCreate(props, dependency, name = 'anonymous') {
   stream.next = function(...args) {
     if (stream.nextGuard()) {
       try {
-        nextFn.apply(stream, args)
+        nextFn.call(stream, ...args)
       } catch (error) {
         stream.error(error)
       }
