@@ -209,7 +209,7 @@ Equivalent to RxJS's [`flatMap`](https://www.learnrxjs.io/operators/transformati
 
 ### <a id="combine"></a> combine
 
-Simply an alias for [`combineLatest`](https://www.learnrxjs.io/operators/transformation/scan.html).
+Simply an alias for [`combineLatest`](https://www.learnrxjs.io/operators/combination/combinelatest.html).
 
 ### <a id="withValue"></a> withValue
 
