@@ -42,7 +42,10 @@ export function baseCreate(props, dependency, name = 'anonymous') {
       try {
         nextFn.call(stream, ...args)
       } catch (error) {
-        stream.error(error)
+        if (stream.active)
+          stream.error(error)
+        else
+          throw error
       }
     }
   }
