@@ -367,6 +367,13 @@ describe('factories', () => {
         })
       })
     })
+    it("should be able to explicitly resolve to undefined", (done) => {
+      const next = chai.spy()
+      Stream.fromPromise(Promise.resolve(undefined)).map(x => x).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(undefined)
+        done()
+      })
+    })
   })
 })
 
@@ -1531,6 +1538,12 @@ describe('operators', () => {
         expect(next).to.have.been.called.twice()
         done()
       })
+    })
+    it("should not wait for all dependency stream to emit", (done) => {
+      const next = chai.spy()
+      Stream.never().merge(Stream.of(1)).subscribe(next)
+      expect(next).to.have.been.called.with(1)
+      done()
     })
     it("should also be available as a static method", (done) => {
       const next = chai.spy()

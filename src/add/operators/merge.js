@@ -1,11 +1,6 @@
 import {baseCreate, proto, statics} from '../../core'
 
-const merge = (...streams) => baseCreate({
-  dependencies: streams,
-  nextGuard() {
-    return this.active === true
-  }
-})
+const merge = (...streams) => baseCreate({ dependencies: streams })
 
 statics.merge = merge
 

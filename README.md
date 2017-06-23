@@ -12,7 +12,6 @@
 - Modular. Add as little or as much functionality as you want
 - Lazy streams (only active once subscribed to)
 - More than 40 operators and factories available
-- 100% test coverage
 
 [![npm](https://img.shields.io/npm/v/stream-lite.svg?style=flat-square)](http://npm.im/stream-lite)
 [![travis build](https://img.shields.io/travis/pshev/stream-lite.svg?style=flat-square)](https://travis-ci.org/pshev/stream-lite)

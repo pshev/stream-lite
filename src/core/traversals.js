@@ -29,7 +29,7 @@ function traverseUp({guard, setActiveTo}) {
     while (s) {
       if (guard(s)) {
         s.active = setActiveTo
-        s.active ? s.start() : s.stop()
+        s.active ? (s.hasEmitted = false, s.start()) : s.stop()
         if (s.producer)
           s.active
             ? rootStreamsToStart.push(s) //why not call start inline? see below.

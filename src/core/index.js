@@ -1,7 +1,5 @@
 import {traverseUpOnFirstSubscriberAdded, traverseUpOnLastSubscriberRemoved, traverseUpOnStreamCompleted, traverseUpOnStreamError} from './traversals'
 
-const dependenciesMet = stream => stream.dependencies.every(s => s.val !== undefined)
-
 // additional properties dynamically added onto statics and proto
 export const statics = {
   create(producer = {}, name) {
@@ -25,6 +23,7 @@ export const proto = {
 
 const baseProps = props => Object.assign({}, {
   active: false,
+  hasEmitted: false,
   dependencies: [],
   dependents: [],
   subscribers: []
@@ -40,6 +39,7 @@ export function baseCreate(props, dependency, name = 'anonymous') {
   stream.next = function(...args) {
     if (stream.nextGuard()) {
       try {
+        stream.hasEmitted = true
         nextFn.call(stream, ...args)
       } catch (error) {
         if (stream.active)
@@ -93,8 +93,8 @@ export function baseComplete(stream) {
   subscribers.forEach(s => s.complete())
 }
 
-function baseNextGuard(stream) {
-  return stream.active === true && dependenciesMet(stream)
+export function baseNextGuard(stream) {
+  return stream.active === true
 }
 
 function subscribe(stream, subscriber) {
