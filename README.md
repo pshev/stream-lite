@@ -117,6 +117,7 @@ Operators marked with 🚩 are also available as statics.
 - [`do`](https://www.learnrxjs.io/operators/utility/do.html)
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)
 - [`debounceTime`](https://www.learnrxjs.io/operators/filtering/debouncetime.html)
+- [`throttleTime`](https://www.learnrxjs.io/operators/filtering/throttletime.html)
 - [`distinctUntilChanged`](https://www.learnrxjs.io/operators/filtering/distinctuntilchanged.html)
 - [`mergeMap`](#flatMap)*
 - [`flatMap`](#flatMap)*

@@ -951,6 +951,43 @@ describe('operators', () => {
     })
   })
 
+  describe('throttleTime', () => {
+    it("should emit the first value immediately", () => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.never().startWith(5).throttleTime(1).subscribe(next, err, complete)
+      expect(next).to.have.been.called.with(5)
+      expect(complete).to.not.have.been.called()
+    })
+    it("when source completes, should complete immediately without emitting a value", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3).throttleTime(9999).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.not.have.been.called.with(2)
+        expect(next).to.not.have.been.called.with(3)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should emit the last value every interval", (done) => {
+      const next = chai.spy()
+      Stream.merge(
+        Stream.of(1,2,3),
+        Stream.of(4).delay(10),
+        Stream.of(5).delay(11),
+        Stream.of(6).delay(12),
+        Stream.of(7).delay(40)
+      ).throttleTime(5).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.not.have.been.called.with(2)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.not.have.been.called.with(5)
+        expect(next).to.have.been.called.with(6)
+        done()
+      })
+    })
+  })
+
   describe('flatMap', () => {
     it("should call the mapping function with value and index", (done) => {
       const mappingFunction = chai.spy()
