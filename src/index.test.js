@@ -913,6 +913,44 @@ describe('operators', () => {
     })
   })
 
+  describe('debounceTime', () => {
+    it("should emit value only after given interval", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.never().startWith(5).debounceTime(1).subscribe(next, err, complete)
+      expect(next).to.not.have.been.called()
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(5)
+        expect(complete).to.not.have.been.called()
+        done()
+      }, 10)
+    })
+    it("when source completes, should emit last source value and complete immediately", () => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.of(1).debounceTime(9999).subscribe(next, err, complete)
+      expect(next).to.have.been.called.with(1)
+      expect(complete).to.have.been.called()
+    })
+    it("should discard values that take less than the specified time and emit the rest", (done) => {
+      const next = chai.spy()
+      Stream.merge(
+        Stream.of(1,2,3),
+        Stream.of(4).delay(10),
+        Stream.of(5).delay(11),
+        Stream.of(6).delay(40)
+      ).debounceTime(5).subscribe(next, err, () => {
+        expect(next).to.not.have.been.called.with(1)
+        expect(next).to.not.have.been.called.with(2)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.not.have.been.called.with(4)
+        expect(next).to.have.been.called.with(5)
+        expect(next).to.have.been.called.with(6)
+        done()
+      })
+    })
+  })
+
   describe('flatMap', () => {
     it("should call the mapping function with value and index", (done) => {
       const mappingFunction = chai.spy()
