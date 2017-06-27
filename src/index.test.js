@@ -973,11 +973,11 @@ describe('operators', () => {
       const next = chai.spy()
       Stream.merge(
         Stream.of(1,2,3),
-        Stream.of(4).delay(10),
-        Stream.of(5).delay(11),
-        Stream.of(6).delay(12),
-        Stream.of(7).delay(40)
-      ).throttleTime(5).subscribe(next, err, () => {
+        Stream.of(4).delay(110),
+        Stream.of(5).delay(120),
+        Stream.of(6).delay(130),
+        Stream.of(7).delay(300)
+      ).throttleTime(50).subscribe(next, err, () => {
         expect(next).to.have.been.called.with(1)
         expect(next).to.not.have.been.called.with(2)
         expect(next).to.have.been.called.with(3)
