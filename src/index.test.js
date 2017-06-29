@@ -913,6 +913,55 @@ describe('operators', () => {
     })
   })
 
+  describe('debounce', () => {
+    it("should emit value only after the interval determined by the given function passes", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.never().startWith(5).debounce(() => Stream.timer(1)).subscribe(next, err, complete)
+      expect(next).to.not.have.been.called()
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(5)
+        expect(complete).to.not.have.been.called()
+        done()
+      }, 10)
+    })
+    it("when source completes, should emit last source value and complete immediately", () => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.of(1).debounce(() => Stream.timer(9999)).subscribe(next, err, complete)
+      expect(next).to.have.been.called.with(1)
+      expect(complete).to.have.been.called()
+    })
+    it("should call the given function with source values", (done) => {
+      const fn = chai.spy()
+      Stream.of(1,2).debounce((...args) => {
+        fn(...args)
+        return Stream.timer(1)
+      }).subscribe(nx, err, () => {
+        expect(fn).to.have.been.called.with(1)
+        expect(fn).to.have.been.called.with(2)
+        expect(fn).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should be able to dynamically adjust the interval", (done) => {
+      const next = chai.spy()
+      Stream.interval(50).take(8).debounce(val => Stream.timer(val * 11)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(0)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.with(3)
+        expect(next).to.have.been.called.with(4)
+        //interval returned by inner function is greater than source's interval
+        expect(next).to.not.have.been.called.with(5)
+        expect(next).to.not.have.been.called.with(6)
+        //emitting last on source completion
+        expect(next).to.have.been.called.with(7)
+        done()
+      })
+    })
+  })
+
   describe('debounceTime', () => {
     it("should emit value only after given interval", (done) => {
       const next = chai.spy()
@@ -1716,3 +1765,4 @@ describe('operators', () => {
     })
   })
 })
+
