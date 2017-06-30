@@ -917,8 +917,27 @@ describe('operators', () => {
     it("should emit value only after the interval determined by the given function passes", (done) => {
       const next = chai.spy()
       const complete = chai.spy()
+
       Stream.never().startWith(5).debounce(() => Stream.timer(1)).subscribe(next, err, complete)
+
       expect(next).to.not.have.been.called()
+
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(5)
+        expect(complete).to.not.have.been.called()
+        done()
+      }, 10)
+    })
+    it("should work with a promise", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+
+      Stream.never().startWith(5)
+        .debounce(x => new Promise(resolve => setTimeout(() => resolve(x), 1)))
+        .subscribe(next, err, complete)
+
+      expect(next).to.not.have.been.called()
+
       setTimeout(() => {
         expect(next).to.have.been.called.with(5)
         expect(complete).to.not.have.been.called()
@@ -997,6 +1016,78 @@ describe('operators', () => {
         expect(next).to.have.been.called.with(6)
         done()
       })
+    })
+  })
+
+  describe('throttle', () => {
+    it("should emit the first value immediately", () => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.never().startWith(5).throttle(() => Stream.timer(1)).subscribe(next, err, complete)
+      expect(next).to.have.been.called.with(5)
+      expect(complete).to.not.have.been.called()
+    })
+    it("when source completes, should complete immediately without emitting a value", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3).throttle(() => Stream.timer(9999)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.not.have.been.called.with(2)
+        expect(next).to.not.have.been.called.with(3)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should call the given function with source values", (done) => {
+      const fn = chai.spy()
+      Stream.of(1,2,3).throttle((...args) => {
+        fn(...args)
+        return Stream.timer(1)
+      }).subscribe(nx, err, () => {
+        expect(fn).to.have.been.called.with(1)
+        expect(fn).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should be able to dynamically adjust the interval", (done) => {
+      const next = chai.spy()
+      //emits values from 3 to 11
+      const interval = Stream.interval(100).map(x => x + 3).take(9)
+
+      interval.throttle(x => Stream.timer(x * 40)).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(3)
+        // set to throttle for next 120ms
+        // 100ms in - source emits 4
+        expect(next).to.have.been.called.with(4) //+20ms we emit 4
+        // set to throttle for next 160ms
+        // 80ms in - source emits 4
+        expect(next).to.have.been.called.with(5) //+80ms we emit 5
+        // set to throttle for next 200ms
+        // 20ms in - source emits 6
+        expect(next).to.not.have.been.called.with(6) //still throttling
+        // 120ms in - source emits 7
+        expect(next).to.have.been.called.with(7) //+80ms we emit 7
+        // set to throttle for next 280ms
+        // 20ms in - source emits 8
+        expect(next).to.not.have.been.called.with(8) //still throttling
+        // 120ms in - source emits 9
+        expect(next).to.not.have.been.called.with(9) //still throttling
+        // 220ms in - source emits 10
+        expect(next).to.have.been.called.with(10) //+60ms we emit 10
+        // set to throttle for next 400ms
+        // 40ms in - source emits 11
+        expect(next).to.not.have.been.called.with(11)  //still throttling
+        // source completes
+        expect(next).to.have.been.called.exactly(5)
+        done()
+      })
+    })
+    it("should work with a promise", () => {
+      const next = chai.spy()
+      const complete = chai.spy()
+      Stream.never().startWith(42)
+        .throttle(x => new Promise(resolve => setTimeout(() => resolve(x), 1)))
+        .subscribe(next, err, complete)
+      expect(next).to.have.been.called.with(42)
     })
   })
 
@@ -1765,4 +1856,3 @@ describe('operators', () => {
     })
   })
 })
-

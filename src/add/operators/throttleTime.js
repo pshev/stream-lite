@@ -8,21 +8,14 @@ proto.throttleTime = function throttleTime(interval) {
 
   return baseCreate({
     next(x) {
+      lastValue = x
       if (throttling) {
-        lastValue = x
         shouldEmitOnTimeoutComplete = true
       } else {
         baseNext(this, x)
         throttling = true
         this.schedule()
       }
-    },
-    stop() {
-      clearTimeout(timeoutId)
-      timeoutId = null
-      lastValue = null
-      throttling = false
-      shouldEmitOnTimeoutComplete = false
     },
     schedule() {
       clearTimeout(timeoutId)
@@ -35,6 +28,13 @@ proto.throttleTime = function throttleTime(interval) {
           throttling = false
         }
       }, interval)
+    },
+    stop() {
+      clearTimeout(timeoutId)
+      timeoutId = null
+      lastValue = null
+      throttling = false
+      shouldEmitOnTimeoutComplete = false
     }
   }, this, 'throttleTime')
 }
