@@ -114,6 +114,7 @@ Operators marked with 🚩 are also available as statics.
 - [`first`](https://www.learnrxjs.io/operators/filtering/first.html)
 - [`last`](https://www.learnrxjs.io/operators/filtering/last.html)
 - [`every`](https://www.learnrxjs.io/operators/conditional/every.html)
+- [`defaultifempty`](https://www.learnrxjs.io/operators/conditional/defaultifempty.html)
 - [`do`](https://www.learnrxjs.io/operators/utility/do.html)
 - [`pairwise`](https://www.learnrxjs.io/operators/combination/pairwise.html)
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)

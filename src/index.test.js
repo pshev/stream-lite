@@ -814,6 +814,35 @@ describe('operators', () => {
     })
   })
 
+  describe('defaultIfEmpty', () => {
+    it("should not do anything for streams that emit values", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).defaultIfEmpty(42).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.not.have.been.called.with(42)
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should emit given value if source stream completes without emitting any values", (done) => {
+      const next = chai.spy()
+      Stream.of().defaultIfEmpty(42).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(42)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should work with Stream.empty()", (done) => {
+      const next = chai.spy()
+      Stream.empty().defaultIfEmpty(42).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(42)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+  })
+
   describe('mapTo', () => {
     it("should emit the given value regardless of values emitted from source stream", (done) => {
       const next = chai.spy()
