@@ -505,6 +505,28 @@ describe('operators', () => {
     })
   })
 
+  describe('pairwise', () => {
+    it("should wait for 2 source emissions to start emitting", () => {
+      const next = chai.spy()
+      Stream.of(1).pairwise().subscribe(next, err, () => {
+        expect(next).to.not.have.been.called()
+      })
+      Stream.of(1,2).pairwise().subscribe(next, err, () => {
+        expect(next).to.have.been.called.once()
+      })
+    })
+    it("should emit pairs of [prevValue, currentValue]", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4).pairwise().subscribe(next, err, () => {
+        expect(next).to.have.been.called.with([1,2])
+        expect(next).to.have.been.called.with([2,3])
+        expect(next).to.have.been.called.with([3,4])
+        expect(next).to.have.been.called.exactly(3)
+        done()
+      })
+    })
+  })
+
   describe('single', () => {
     it("should complete", (done) => {
       Stream.never().startWith(1).single().subscribe(nx, err, done)

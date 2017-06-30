@@ -115,6 +115,7 @@ Operators marked with 🚩 are also available as statics.
 - [`last`](https://www.learnrxjs.io/operators/filtering/last.html)
 - [`every`](https://www.learnrxjs.io/operators/conditional/every.html)
 - [`do`](https://www.learnrxjs.io/operators/utility/do.html)
+- [`pairwise`](https://www.learnrxjs.io/operators/combination/pairwise.html)
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)
 - [`debounce`](https://www.learnrxjs.io/operators/filtering/debounce.html)
 - [`debounceTime`](https://www.learnrxjs.io/operators/filtering/debouncetime.html)
