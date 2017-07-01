@@ -119,6 +119,7 @@ Operators marked with 🚩 are also available as statics.
 - [`pairwise`](https://www.learnrxjs.io/operators/combination/pairwise.html)
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)
 - [`buffer`](https://www.learnrxjs.io/operators/transformation/buffer.html)
+- [`bufferWhen`](https://www.learnrxjs.io/operators/transformation/bufferwhen.html)
 - [`debounce`](https://www.learnrxjs.io/operators/filtering/debounce.html)
 - [`debounceTime`](https://www.learnrxjs.io/operators/filtering/debouncetime.html)
 - [`throttle`](https://www.learnrxjs.io/operators/filtering/throttle.html)
