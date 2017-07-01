@@ -11,7 +11,7 @@
 - Familiar interface (mostly replicating RxJS's API)
 - Modular. Add as little or as much functionality as you want
 - Lazy streams (only active once subscribed to)
-- More than 40 operators and factories available
+- More than 50 operators and factories available
 
 [![npm](https://img.shields.io/npm/v/stream-lite.svg?style=flat-square)](http://npm.im/stream-lite)
 [![travis build](https://img.shields.io/travis/pshev/stream-lite.svg?style=flat-square)](https://travis-ci.org/pshev/stream-lite)
@@ -71,7 +71,7 @@ import 'stream-lite/add/operators/combineLatest'
 
 ##### Import [everything available](https://github.com/pshev/stream-lite/blob/master/src/add/all.js#L1-L99):
 If for some reason you feel the need to import all available operators and factories, that option is also available.<br/>
-This pack will include all `stream-lite` has got: about 40 operators and factories. This will make your app heavier by about **2.9KB** gzipped.
+This pack will include all `stream-lite` has got: about 50 operators and factories. This will make your app heavier by about **3.2KB** gzipped.
 ```js
 import 'stream-lite/add/all' 
 ```
@@ -120,6 +120,7 @@ Operators marked with 🚩 are also available as statics.
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)
 - [`buffer`](https://www.learnrxjs.io/operators/transformation/buffer.html)
 - [`bufferWhen`](https://www.learnrxjs.io/operators/transformation/bufferwhen.html)
+- [`bufferCount`](https://www.learnrxjs.io/operators/transformation/buffercount.html)
 - [`debounce`](https://www.learnrxjs.io/operators/filtering/debounce.html)
 - [`debounceTime`](https://www.learnrxjs.io/operators/filtering/debouncetime.html)
 - [`throttle`](https://www.learnrxjs.io/operators/filtering/throttle.html)

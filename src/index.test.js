@@ -1068,6 +1068,64 @@ describe('operators', () => {
     })
   })
 
+  describe('bufferCount', () => {
+    it("should complete when source completes", (done) => {
+      Stream.of(1).bufferCount(1).subscribe(nx, err, done)
+    })
+    it("should emit buffered values as arrays when given stream emits", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4).bufferCount(2).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with([1,2])
+        expect(next).to.have.been.called.with([3,4])
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should ignore startBufferEvery when it's equal to bufferSize", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3).bufferCount(2,2).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with([1,2])
+        expect(next).to.have.been.called.with([3])
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should emit overlapping buffers when startBufferEvery is less bufferSize", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4,5).bufferCount(3,1).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with([1,2,3])
+        expect(next).to.have.been.called.with([2,3,4])
+        expect(next).to.have.been.called.with([3,4,5])
+        expect(next).to.have.been.called.with([4,5])
+        expect(next).to.have.been.called.with([5])
+        expect(next).to.have.been.called.exactly(5)
+        done()
+      })
+    })
+    it("should skip (startBufferEvery - bufferSize) number of values on each new buffer when startBufferEvery > bufferSize", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2,3,4,5,6,7).bufferCount(3,5).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with([1,2,3])
+        expect(next).to.have.been.called.with([6,7])
+        expect(next).to.have.been.called.twice()
+        done()
+      })
+    })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = Stream.of(1,2).bufferCount(2)
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with([1,2])
+          expect(next).to.have.been.called.with([1,2])
+          expect(next).to.have.been.called.twice()
+          done()
+        }))
+    })
+  })
+
   describe('debounce', () => {
     it("should emit value only after the interval determined by the given function passes", (done) => {
       const next = chai.spy()
