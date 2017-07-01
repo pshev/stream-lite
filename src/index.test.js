@@ -964,6 +964,54 @@ describe('operators', () => {
     })
   })
 
+  describe('buffer', () => {
+    it("should complete when source completes", (done) => {
+      Stream.of(1).buffer(Stream.never()).subscribe(nx, err, done)
+    })
+    it("should complete when given stream completes", (done) => {
+      Stream.never().buffer(Stream.of(1)).subscribe(nx, err, done)
+    })
+    it("should not emit when source emits", (done) => {
+      const next = chai.spy()
+      Stream.of(1,2).buffer(Stream.never()).subscribe(next, err, () => {
+        expect(next).to.not.have.been.called.with(1)
+        expect(next).to.not.have.been.called.with(2)
+        done()
+      })
+    })
+    it("should error if the given stream errors", (done) => {
+      Stream.of(1).buffer(Stream.throw()).subscribe(nx, done)
+    })
+    it("should emit buffered values as arrays when given stream emits", (done) => {
+      const next = chai.spy()
+      Stream.merge(
+        Stream.of(0,1),
+        Stream.of(2,3).delay(100),
+        Stream.never()
+      )
+        .buffer(Stream.interval(70).take(2))
+        .subscribe(next, err, () => {
+          expect(next).to.have.been.called.with([0,1])
+          expect(next).to.have.been.called.with([2,3])
+          expect(next).to.have.been.called.twice()
+          done()
+        })
+    })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = Stream.never().startWith(1,2).buffer(Stream.timer(1))
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with([1,2])
+          expect(next).to.have.been.called.with([1,2])
+          expect(next).to.have.been.called.twice()
+          done()
+        }))
+    })
+  })
+
   describe('debounce', () => {
     it("should emit value only after the interval determined by the given function passes", (done) => {
       const next = chai.spy()
