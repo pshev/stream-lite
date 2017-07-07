@@ -145,6 +145,7 @@ Operators marked with 🚩 are also available as statics.
 - [`take`](https://www.learnrxjs.io/operators/filtering/take.html)
 - [`takeUntil`](https://www.learnrxjs.io/operators/filtering/takeuntil.html)
 - [`takeWhile`](https://www.learnrxjs.io/operators/filtering/takewhile.html)
+- [`toPromise`](https://www.learnrxjs.io/operators/utility/topromise.html)
 - [`withLatestFrom`](https://www.learnrxjs.io/operators/combination/withlatestfrom.html)
 - [`withValue`](#withValue)*
 

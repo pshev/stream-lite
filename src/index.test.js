@@ -1938,6 +1938,31 @@ describe('operators', () => {
     })
   })
 
+  describe('toPromise', () => {
+    it("should not complete until source completes", () => {
+      const then = chai.spy()
+      Stream.never().startWith(1).toPromise().then(then)
+      expect(then).to.not.have.been.called()
+    })
+    it("should complete when source completes", (done) => {
+      Stream.of(1).toPromise().then(_ => done())
+    })
+    it("should resolve to the last emitted value", (done) => {
+      Stream.of(1,2,3).toPromise().then(x => {
+        expect(x).to.equal(3)
+        done()
+      })
+    })
+    it("should reject when source errors", (done) => {
+      const then = chai.spy()
+      Stream.throw('oops').toPromise().then(then, err => {
+        expect(then).to.not.have.been.called()
+        expect(err).to.equal('oops')
+        done()
+      })
+    })
+  })
+
   describe('catch', () => {
     it("should catch and replace an error thrown in source stream", (done) => {
       const next = chai.spy()
