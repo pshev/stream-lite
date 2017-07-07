@@ -52,7 +52,7 @@ This core is just under **1KB** gzipped.
 You will probably want more functionality than that, so you will need to tell `stream-lite` which operators and factories you need. Here are the ways to do that:
 
 ##### Import [commonly used pack](https://github.com/pshev/stream-lite/blob/master/src/add/common.js#L1-L99):
-This pack includes a dozen most common operators and a few factories and will only cost you about **1.6KB** gzipped. 😍
+This pack includes a dozen most common operators and a few factories and will only cost you about **1.75KB** gzipped. 😍
 ```js
 import 'stream-lite/add/common' 
 ```
@@ -71,7 +71,7 @@ import 'stream-lite/add/operators/combineLatest'
 
 ##### Import [everything available](https://github.com/pshev/stream-lite/blob/master/src/add/all.js#L1-L99):
 If for some reason you feel the need to import all available operators and factories, that option is also available.<br/>
-This pack will include all `stream-lite` has got: about 50 operators and factories. This will make your app heavier by about **3.2KB** gzipped.
+This pack will include all `stream-lite` has got: more than 50 operators and factories. This will make your app heavier by about **3.5KB** gzipped.
 ```js
 import 'stream-lite/add/all' 
 ```
