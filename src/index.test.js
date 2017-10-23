@@ -2093,4 +2093,19 @@ describe('operators', () => {
       })
     })
   })
+
+  describe('generic', () => {
+    it("should set stream's hasEmitted flag to true after that stream actually emitted", (done) => {
+      const stream$ = Stream.of(1,2,3)
+      const filteredStream$ = stream$.filter(x => x > 5)
+
+      stream$.subscribe(nx, err, () =>
+        expect(stream$.hasEmitted).to.equal(true))
+
+      filteredStream$.subscribe(nx, err, () =>
+        expect(filteredStream$.hasEmitted).to.equal(false))
+
+      setTimeout(done)
+    })
+  })
 })

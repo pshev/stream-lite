@@ -39,7 +39,6 @@ export function baseCreate(props, dependency, name = 'anonymous') {
   stream.next = function(...args) {
     if (stream.nextGuard()) {
       try {
-        stream.hasEmitted = true
         nextFn.call(stream, ...args)
       } catch (error) {
         if (stream.active)
@@ -56,6 +55,7 @@ export function baseCreate(props, dependency, name = 'anonymous') {
 }
 
 export function baseNext(stream, x) {
+  stream.hasEmitted = true
   stream.val = x
   stream.subscribers.forEach(s => s.next(x))
   stream.dependents.forEach(s => s.next(x))
