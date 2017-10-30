@@ -18,7 +18,7 @@ proto.throttle = function throttle(fn) {
         baseNext(this, x)
       }
     },
-    stop() {
+    onStop() {
       subscription && subscription.unsubscribe()
       subscription = null
       lastValue = null

@@ -24,7 +24,7 @@ function noOverlap(bufferSize) {
 
       baseComplete(this)
     },
-    stop() {
+    onStop() {
       buffered = []
     }
   }, this, 'bufferCount')
@@ -58,7 +58,7 @@ function withOverlap(bufferSize, startBufferEvery) {
       }
       baseComplete(this)
     },
-    stop() {
+    onStop() {
       buffers = []
       count = 0
     }

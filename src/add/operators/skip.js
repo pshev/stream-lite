@@ -9,7 +9,7 @@ proto.skip = function skip(numberToSkip) {
       else
         skipped++
     },
-    stop() {
+    onStop() {
       skipped = 0
     }
   }, this, 'skip')

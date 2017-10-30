@@ -9,7 +9,7 @@ proto.distinctUntilChanged = function() {
         lastValue = x
       }
     },
-    stop() {
+    onStop() {
       lastValue = undefined
     }
   }, this)

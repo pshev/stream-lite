@@ -15,7 +15,7 @@ proto.first = function first(predicate, projectionFn = (x => x), defaultValue) {
       baseNext(this, defaultValue)
       baseComplete(this)
     },
-    stop() {
+    onStop() {
       index = 0
     }
   }, this)

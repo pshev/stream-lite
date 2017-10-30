@@ -24,7 +24,7 @@ statics.fromPromise = function fromPromise(promise) {
             self.error(error)
         })
     },
-    stop() {
+    onStop() {
       this.cancelled = true
     }
   }

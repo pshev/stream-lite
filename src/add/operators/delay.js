@@ -20,7 +20,7 @@ proto.delay = function delay(delay) {
       if (numberOfValuesReceived === numberOfValuesEmitted)
         baseComplete(this)
     },
-    stop() {
+    onStop() {
       sourceStreamHasCompleted = false
       numberOfValuesReceived = 0
       numberOfValuesEmitted = 0

@@ -11,13 +11,13 @@ proto.skipUntil = function skipUntil(stream) {
         subscription.unsubscribe()
       }
     },
-    start() {
+    onStart() {
       subscription = stream.subscribe(
         () => shouldEmit = true,
         this.error.bind(this)
       )
     },
-    stop() {
+    onStop() {
       subscription && subscription.unsubscribe()
       shouldEmit = false
       subscription = undefined

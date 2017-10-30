@@ -1,4 +1,6 @@
-import {traverseUpOnFirstSubscriberAdded, traverseUpOnLastSubscriberRemoved, traverseUpOnStreamCompleted, traverseUpOnStreamError} from './traversals'
+import {notifyUpTheChainOn} from './upchain-notification'
+import {activateStream, deactivateStream, removeSubscriber, isProducerStream, startProducer,
+  hasNoSubscribers, hasNoActiveDependencies, hasNoActiveDependents} from './helpers'
 
 // additional properties dynamically added onto statics and proto
 export const statics = {
@@ -9,6 +11,8 @@ export const statics = {
   }
 }
 
+export const baseNextGuard = s => s.active === true
+
 export const proto = {
   subscribe(next, error = err => { throw new Error(err) }, complete = () => {}) {
     return subscribe(this, {next, error, complete})
@@ -17,8 +21,8 @@ export const proto = {
   error(error) { baseError(this, error) },
   complete() { baseComplete(this) },
   nextGuard() { return baseNextGuard(this) },
-  start() {},
-  stop() {}
+  onStart() {},
+  onStop() {}
 }
 
 const baseProps = props => Object.assign({}, {
@@ -66,13 +70,16 @@ export function baseError(stream, error) {
   // we want to call all subscribers' complete callback when
   // all streams that have to be deactivated already have been
   // but we also want to reset stream.subscribers because
-  // traverseUpOnStreamError checks that property
+  // deactivationGuard checks that property
   const subscribers = [...stream.subscribers]
   stream.subscribers = []
-  // notify up the chain
-  traverseUpOnStreamError(stream)
-  // notify down the chain
+
+  deactivateStream(stream)
+
+  notifyUpTheChainOn(stream, 'error')
+
   stream.dependents.forEach(d => d.error(error))
+
   subscribers.forEach(s => s.error(error))
 }
 
@@ -80,35 +87,42 @@ export function baseComplete(stream) {
   // we want to call all subscribers' complete callback when
   // all streams that have to be deactivated already have been
   // but we also want to reset stream.subscribers because
-  // traverseUpOnStreamCompleted checks that property
+  // deactivationGuard checks that property
   const subscribers = [...stream.subscribers]
   stream.subscribers = []
-  // notify up the chain
-  traverseUpOnStreamCompleted(stream)
-  // notify down the chain
-  stream.dependents.forEach(d => {
-    if (d.dependencies.every(dep => !dep.active))
-      d.complete()
-  })
+
+  deactivateStream(stream)
+
+  notifyUpTheChainOn(stream, 'completed')
+
+  stream.dependents
+    .filter(hasNoActiveDependencies)
+    .forEach(d => d.complete())
+
   subscribers.forEach(s => s.complete())
 }
 
-export function baseNextGuard(stream) {
-  return stream.active === true
+function subscribe(s, subscriber) {
+  s.subscribers.push(subscriber)
+
+  if (s.subscribers.length === 1) {
+    activateStream(s)
+    isProducerStream(s) && startProducer(s)
+    notifyUpTheChainOn(s, 'activated')
+  }
+
+  return {unsubscribe: unsubscribe.bind(null, s, subscriber)}
 }
 
-function subscribe(stream, subscriber) {
-  stream.subscribers.push(subscriber)
-  if (stream.subscribers.length === 1)
-    traverseUpOnFirstSubscriberAdded(stream)
-  return { unsubscribe: unsubscribe.bind(null, stream, subscriber) }
-}
+function unsubscribe(s, subscriber) {
+  if (hasNoSubscribers(s)) return
 
-function unsubscribe(stream, subscriber) {
-  if (stream.subscribers === 0) return
+  removeSubscriber(s, subscriber)
 
-  stream.subscribers = stream.subscribers.filter(s => s !== subscriber)
-
-  if (stream.subscribers.length === 0)
-    traverseUpOnLastSubscriberRemoved(stream)
+  if (hasNoSubscribers(s)) {
+    if (hasNoActiveDependents(s)) {
+      deactivateStream(s)
+      notifyUpTheChainOn(s, 'completed')
+    }
+  }
 }

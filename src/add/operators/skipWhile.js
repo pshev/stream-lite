@@ -13,7 +13,7 @@ proto.skipWhile = function skipWhile(predicate) {
       }
       index++
     },
-    stop() {
+    onStop() {
       index = 0
       skipping = true
     }

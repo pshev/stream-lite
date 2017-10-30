@@ -13,7 +13,7 @@ proto.switchMap = function switchMap(fn, resultSelector) {
       subscription && subscription.unsubscribe()
       subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})
     },
-    stop() {
+    onStop() {
       subscription && subscription.unsubscribe()
       subscription = null
       outerIndex = 0

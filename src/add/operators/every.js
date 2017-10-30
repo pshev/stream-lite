@@ -14,7 +14,7 @@ proto.every = function every(predicate = (() => true)) {
       baseNext(this, true)
       baseComplete(this)
     },
-    stop() {
+    onStop() {
       index = 0
     }
   }, this)

@@ -10,13 +10,13 @@ proto.withLatestFrom = function withLatestFrom(s) {
       if (sResult)
         baseNext(this, [x, sResult])
     },
-    start() {
+    onStart() {
       subscription = s.subscribe(
         x => sResult = x,
         this.error.bind(this)
       )
     },
-    stop() {
+    onStop() {
       subscription && subscription.unsubscribe()
       sResult = undefined
       subscription = undefined

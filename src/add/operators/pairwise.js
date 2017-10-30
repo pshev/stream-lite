@@ -12,7 +12,7 @@ proto.pairwise = function pairwise() {
 
       prev = x
     },
-    stop() {
+    onStop() {
       prev = null
       hasPrev = false
     }

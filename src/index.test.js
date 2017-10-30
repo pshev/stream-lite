@@ -2095,15 +2095,57 @@ describe('operators', () => {
   })
 
   describe('generic', () => {
+    it("should complete the stream when last subscriber unsubscribes", (done) => {
+      const stream = Stream.interval(999)
+
+      const subscription = stream.subscribe(nx)
+
+      setTimeout(() => {
+        subscription.unsubscribe()
+        expect(stream.active).to.equal(false)
+        done()
+      })
+    })
+    it("should complete dependencies when stream completes if the completed stream was the only dependent", (done) => {
+      const doBlock = chai.spy()
+      const stream1 = Stream.interval(10).do(doBlock)
+      const stream2 = stream1.map(x => x * 2)
+      const stream3 = stream2.filter(x => x % 2 === 0)
+      const stream4 = stream3.take(15)
+
+      stream4.subscribe(nx, err, () => {
+        expect(doBlock).to.have.been.called.with(10)
+        expect(doBlock).to.not.have.been.called.with(16)
+        expect(stream1.active).to.equal(false)
+        expect(stream2.active).to.equal(false)
+        expect(stream3.active).to.equal(false)
+        expect(stream4.active).to.equal(false)
+        done()
+      })
+    })
+    it("should not complete the stream when last subscriber unsubscribes in case stream has other dependents", (done) => {
+      const stream = Stream.interval(1)
+      const someDependentStream = stream.take(20)
+
+      someDependentStream.subscribe(nx)
+
+      const subscription = stream.subscribe(nx)
+
+      setTimeout(() => {
+        subscription.unsubscribe()
+        expect(stream.active).to.equal(true)
+        expect(someDependentStream.active).to.equal(true)
+        done()
+      })
+    })
     it("should set stream's hasEmitted flag to true after that stream actually emitted", (done) => {
-      const stream$ = Stream.of(1,2,3)
-      const filteredStream$ = stream$.filter(x => x > 5)
+      const stream = Stream.of(1,2,3)
+      const filteredStream = stream.filter(x => x > 5)
 
-      stream$.subscribe(nx, err, () =>
-        expect(stream$.hasEmitted).to.equal(true))
+      stream.subscribe(nx, err, () => expect(stream.hasEmitted).to.equal(true))
 
-      filteredStream$.subscribe(nx, err, () =>
-        expect(filteredStream$.hasEmitted).to.equal(false))
+      filteredStream.subscribe(nx, err, () =>
+        expect(filteredStream.hasEmitted).to.equal(false))
 
       setTimeout(done)
     })

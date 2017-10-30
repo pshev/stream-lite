@@ -10,7 +10,7 @@ proto.single = function single(predicate = (() => true)) {
       }
       index++
     },
-    stop() {
+    onStop() {
       index = 0
     }
   }, this)

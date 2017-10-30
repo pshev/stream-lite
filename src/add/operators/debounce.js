@@ -21,7 +21,7 @@ proto.debounce = function debounce(fn) {
       baseNext(this, lastValue)
       baseComplete(this)
     },
-    stop() {
+    onStop() {
       subscription && subscription.unsubscribe()
       lastValue = null
       subscription = null

@@ -29,7 +29,7 @@ proto.throttleTime = function throttleTime(interval) {
         }
       }, interval)
     },
-    stop() {
+    onStop() {
       clearTimeout(timeoutId)
       timeoutId = null
       lastValue = null

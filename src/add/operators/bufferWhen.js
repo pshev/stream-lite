@@ -9,7 +9,7 @@ proto.bufferWhen = function bufferWhen(fn) {
     next(x) {
       buffered.push(x)
     },
-    start() {
+    onStart() {
       this.subscribeToChild()
     },
     subscribeToChild() {
@@ -24,7 +24,7 @@ proto.bufferWhen = function bufferWhen(fn) {
         this.complete.bind(this)
       )
     },
-    stop() {
+    onStop() {
       subscription && subscription.unsubscribe()
       subscription = null
       buffered = []

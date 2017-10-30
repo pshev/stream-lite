@@ -9,7 +9,7 @@ proto.buffer = function buffer(stream) {
     next(x) {
       buffered.push(x)
     },
-    start() {
+    onStart() {
       subscription = toStream(stream).subscribe(
         _ => {
           baseNext(this, buffered)
@@ -19,7 +19,7 @@ proto.buffer = function buffer(stream) {
         this.complete.bind(this)
       )
     },
-    stop() {
+    onStop() {
       subscription && subscription.unsubscribe()
       subscription = null
       buffered = []

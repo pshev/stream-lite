@@ -14,7 +14,7 @@ proto.defaultIfEmpty = function defaultIfEmpty(defaultValue) {
 
       baseComplete(this)
     },
-    stop() {
+    onStop() {
       isEmpty = true
     }
   }, this)

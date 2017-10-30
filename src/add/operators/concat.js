@@ -13,10 +13,10 @@ const concat = (...streams) => {
           this.complete.bind(this)
         )
     },
-    start() {
+    onStart() {
       this.complete()
     },
-    stop() {
+    onStop() {
       subscription && subscription.unsubscribe()
     }
   })

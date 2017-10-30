@@ -19,5 +19,5 @@ statics.timer = function timer(initialDelay, step) {
       this.counter = 0
     }
   }
-  return statics.create(producer)
+  return statics.create(producer, 'timer')
 }

@@ -19,7 +19,7 @@ proto.debounceTime = function debounceTime(interval) {
       baseNext(this, lastValue)
       baseComplete(this)
     },
-    stop() {
+    onStop() {
       clearTimeout(timeoutId)
       lastValue = null
       timeoutId = null

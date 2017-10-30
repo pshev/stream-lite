@@ -8,7 +8,7 @@ const combine = (...streams) => baseCreate({
   nextGuard() {
     return baseNextGuard(this) && this.dependencies.every(s => s.hasEmitted === true)
   }
-})
+}, null, 'combine')
 
 statics.combine = combine
 statics.combineLatest = combine

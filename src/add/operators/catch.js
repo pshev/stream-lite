@@ -10,9 +10,6 @@ proto.catch = function catchOperator(fn) {
         baseError.bind(null, this),
         this.complete.bind(this)
       )
-    },
-    nextGuard() {
-      return this.active === true
     }
   }, this, 'catch')
 }

@@ -16,7 +16,7 @@ proto.take = function take(numberToTake) {
         }
       }
     },
-    stop() {
+    onStop() {
       taken = 0
     }
   }, this, 'take')
