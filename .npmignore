@@ -4,6 +4,7 @@ npm-debug.log.*
 .nyc_output
 coverage
 .npmignore
+.babelrc
 .travis.yml
 qq
 .temp/

@@ -47,12 +47,6 @@
     "semantic-release": "^6.3.2",
     "semantic-release-cli": "3.0.3"
   },
-  "babel": {
-    "presets": [
-      "es2015",
-      "stage-2"
-    ]
-  },
   "config": {
     "commitizen": {
       "path": "node_modules/cz-conventional-changelog"
