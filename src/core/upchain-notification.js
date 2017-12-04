@@ -41,7 +41,7 @@ export const notifyUpTheChainOn = (stream, eventType) =>
 // Stream.merge(Stream.of(1), Stream.of(2)).subscribe(..)
 // we want to first mark both 'of' streams as active
 // and only then let them start producing values
-// If we can producer.start inline we'd have:
+// If we call producer.start inline we'd have:
 // of(1) calls next on merge with 1
 // of(1) completes and conditionally calls .complete() on all it's dependents
 // the condition being d.dependencies.every(dep => !dep.active)
