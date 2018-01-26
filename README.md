@@ -24,19 +24,19 @@
 
 ## 🔧 Installation
 
-#### Using NPM
-```text
-npm install --save stream-lite
-```
-
 #### Using Yarn
 ```text
 yarn add stream-lite
 ```
 
+#### Using NPM
+```text
+npm install --save stream-lite
+```
+
 ## 🎉 Getting Started
 
-The following guide assumes you use ES2015 but you don't have to.
+The following guide assumes you use ES2015+ but you don't have to.
 
 ### <a id="import-what-you-need"></a> 📦 Import what you need
 
@@ -45,9 +45,10 @@ The core library includes only the most bare bones functionality. If you just im
 ```js
 import Stream from 'stream-lite'
 ```
-The only factory you will get will be [`create`](#create). 
-The streams that factory produces will have no operators on them and the only methods they'll have will be the basic `next`, `error`, and `complete`.<br/>
-This core is just under **1KB** gzipped.
+The only factory you will get will be [`create`](#create).
+The streams that factory produces will have no operators on them but they will have some methods.<br>
+You will be able to [`subscribe`](#subscribe) to those streams to get notified of changes and you will also be able to manually control them by calling `next`, `error`, and `complete`.<br/>
+This core is just around **1KB** gzipped.
 
 You will probably want more functionality than that, so you will need to tell `stream-lite` which operators and factories you need. Here are the ways to do that:
 
@@ -80,6 +81,7 @@ import 'stream-lite/add/all'
 
 Once you've done that you can start hacking! 🙌
 ```js
+import 'stream-lite/add/common' 
 import Stream from 'stream-lite'
 
 Stream.of(42).subscribe(x => console.log('hurrah!', x))
@@ -87,8 +89,8 @@ Stream.of(42).subscribe(x => console.log('hurrah!', x))
 
 ## 📋 API
 
-The vast majority of factories and operators replicate the API of RxJS, so most links will point you to RxJS documentation.<br/>
-There are also some that don't exist in RxJS or ones with a different API. Those are marked with an astrix (*) and their documentation you will find below.<br/>
+The vast majority of factories and operators are too similar to the API of RxJS, so most links will point you to RxJS documentation.<br/>
+However there are some that don't exist in RxJS or ones with a different API. Those are marked with an astrix (*) and their documentation you will find below.<br/>
 Operators marked with 🚩 are also available as statics.
 
 #### Factories
