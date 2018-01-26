@@ -1,17 +1,11 @@
 <p align="center" style="margin-top: 15px">
 	<img alt="stream-lite" title="Stream lite" src="https://cldup.com/KjEcd2jTaI.png" width="550">
 </p>
-<p align="center">Extremely small, and simple reactive programming library.</p>
-
---- 
-
-**The power of streams, without the overhead:**
-
-- [Extremely small](#import-what-you-need).
-- Familiar interface (mostly replicating RxJS's API)
-- Modular. Add as little or as much functionality as you want
-- Lazy streams (only active once subscribed to)
-- More than 50 operators and factories available
+<p align="center">
+	<strong>The power of streams, without the overhead.</strong>
+	<br>
+	Extremely small and simple reactive programming library.
+</p>
 
 [![npm](https://img.shields.io/npm/v/stream-lite.svg?style=flat-square)](http://npm.im/stream-lite)
 [![travis build](https://img.shields.io/travis/pshev/stream-lite.svg?style=flat-square)](https://travis-ci.org/pshev/stream-lite)
@@ -20,9 +14,14 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square)](https://github.com/semantic-release/semantic-release)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat-square)](http://commitizen.github.io/cz-cli/)
 
----
+## ✨ Features:
+- [Extremely small](#import-what-you-need).
+- Familiar interface (mostly replicating RxJS's API)
+- Modular. Add as little or as much functionality as you want
+- Lazy streams (only active once subscribed to)
+- More than 50 operators and factories available
 
-## Installation
+## 🔧 Installation
 
 #### Using NPM
 ```text
@@ -34,11 +33,11 @@ npm install --save stream-lite
 yarn add stream-lite
 ```
 
-## Getting Started
+## 🎉 Getting Started
 
 The following guide assumes you use ES2015 but you don't have to.
 
-### <a id="import-what-you-need"></a> Import what you need
+### <a id="import-what-you-need"></a> 📦 Import what you need
 
 The `stream-lite` module encourages shipping only the scripts that you will actually use. <br/>
 The core library includes only the most bare bones functionality. If you just import it like so:
@@ -76,7 +75,7 @@ This pack will include all `stream-lite` has got: more than 50 operators and fac
 import 'stream-lite/add/all' 
 ```
 
-### Usage
+### 🔨 Usage
 
 Once you've done that you can start hacking! 🙌
 ```js
@@ -85,7 +84,7 @@ import Stream from 'stream-lite'
 Stream.of(42).subscribe(x => console.log('hurrah!', x))
 ```
 
-## API
+## 📋 API
 
 The vast majority of factories and operators replicate the API of RxJS, so most links will point you to RxJS documentation.<br/>
 There are also some that don't exist in RxJS or ones with a different API. Those are marked with an astrix (*) and their documentation you will find below.<br/>
@@ -228,5 +227,5 @@ Stream.of(4).withValue(x => x / 2)
 	.subscribe(x => console.log(x)) // logs [4, 2]
 ```
 
-## License
+## 🙏 License
 MIT
