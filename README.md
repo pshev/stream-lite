@@ -6,12 +6,12 @@
 	<br>
 	Extremely small and simple reactive programming library.
 	<br>
-	[![npm](https://img.shields.io/npm/v/stream-lite.svg?style=flat-square)](http://npm.im/stream-lite)
-	[![travis build](https://img.shields.io/travis/pshev/stream-lite.svg?style=flat-square)](https://travis-ci.org/pshev/stream-lite)
-	[![dependencies](https://img.shields.io/david/pshev/stream-lite.svg?style=flat-square)](https://david-dm.org/pshev/stream-lite)
-	[![codecov coverage](https://img.shields.io/codecov/c/github/pshev/stream-lite.svg?style=flat-square)](https://codecov.io/gh/pshev/stream-lite)
-	[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square)](https://github.com/semantic-release/semantic-release)
-	[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat-square)](http://commitizen.github.io/cz-cli/)
+	<a href="http://npm.im/stream-lite"><img src="https://img.shields.io/npm/v/stream-lite.svg?style=flat-square" alt="npm"></a>
+	<a href="https://travis-ci.org/pshev/stream-lite"><img src="https://img.shields.io/travis/pshev/stream-lite.svg?style=flat-square" alt="travis build"></a>
+	<a href="https://david-dm.org/pshev/stream-lite"><img src="https://img.shields.io/david/pshev/stream-lite.svg?style=flat-square" alt="dependencies"></a>
+	<a href="https://codecov.io/gh/pshev/stream-lite"><img src="https://img.shields.io/codecov/c/github/pshev/stream-lite.svg?style=flat-square" alt="codecov coverage"></a>
+	<a href="https://github.com/semantic-release/semantic-release"><img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square" alt="semantic-release"></a>
+	<a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat-square" alt="Commitizen friendly"></a>
 </p>
 
 ## ✨ Features:
