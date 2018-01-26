@@ -13,6 +13,28 @@ const isRootStream = x => isStream(x) && x.dependencies.length === 0
 const nx = () => {}
 const err = () => {}
 
+describe('subscribe', () => {
+  describe('called with callbacks object', () => {
+    it("should call next", (done) =>
+      Stream.of(1).subscribe({next: () => done()}))
+
+    it("should call error", (done) =>
+      Stream.throw().subscribe({next: nx, error: _ => done()}))
+
+    it("should call complete", (done) =>
+      Stream.of(1).subscribe({next: nx, complete: _ => done()}))
+  })
+  describe('called with callback functions', () => {
+    it("should call next", (done) =>
+      Stream.of(1).subscribe(() => done()))
+
+    it("should call error", (done) =>
+      Stream.throw().subscribe(nx, _ => done()))
+
+    it("should call complete", (done) =>
+      Stream.of(1).subscribe(nx, err, _ => done()))
+  })
+})
 
 describe('factories', () => {
   describe('create', () => {

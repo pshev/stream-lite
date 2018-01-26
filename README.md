@@ -6,6 +6,7 @@
 	<br>
 	Extremely small and simple reactive programming library.
 	<br>
+	<br>
 	<a href="http://npm.im/stream-lite"><img src="https://img.shields.io/npm/v/stream-lite.svg?style=flat-square" alt="npm"></a>
 	<a href="https://travis-ci.org/pshev/stream-lite"><img src="https://img.shields.io/travis/pshev/stream-lite.svg?style=flat-square" alt="travis build"></a>
 	<a href="https://david-dm.org/pshev/stream-lite"><img src="https://img.shields.io/david/pshev/stream-lite.svg?style=flat-square" alt="dependencies"></a>
@@ -152,8 +153,24 @@ Operators marked with 🚩 are also available as statics.
 
 ### <a id="subscribe"></a> subscribe
 
-Takes in three callbacks in this following order: `next`, `error`, `complete`.<br/>
-Passing a subscription object with the next, error, and complete keys is currently not supported.
+You can call it in two different ways:
+<br/>
+Either passing three callbacks in this following order: `next`, `error`, `complete`.
+```js
+Stream.of(1, 2, 3).subscribe(
+  x => console.log(x),
+  err => console.error("There's an error!", err),
+  () => console.log("We're done")
+)
+```
+Or passing a subscription object with the `next`, `error`, `complete` functions as keys.
+```js
+Stream.of(1, 2, 3).subscribe({
+  next: x => console.log(x),
+  error: err => console.error("There's an error!", err),
+  complete: () => console.log("We're done")
+})
+```
 
 ### <a id="create"></a> create
 

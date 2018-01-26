@@ -14,8 +14,10 @@ export const statics = {
 export const baseNextGuard = s => s.active === true
 
 export const proto = {
-  subscribe(next, error = err => { throw new Error(err) }, complete = () => {}) {
-    return subscribe(this, {next, error, complete})
+  subscribe(nextOrCallbacksObject, error = err => { throw new Error(err) }, complete = () => {}) {
+    return typeof nextOrCallbacksObject !== 'function' && typeof nextOrCallbacksObject === 'object'
+      ? subscribe(this, nextOrCallbacksObject)
+      : subscribe(this, {next: nextOrCallbacksObject, error, complete})
   },
   next(value) { baseNext(this, value) },
   error(error) { baseError(this, error) },
