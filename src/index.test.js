@@ -916,6 +916,31 @@ describe('operators', () => {
         done()
       })
     })
+    it("should read read nested properties when given multiple parameters", (done) => {
+      const next = chai.spy()
+      Stream.of({person: {name: 'Peter'}}, {person: {name: 'John'}})
+        .pluck('person', 'name')
+        .subscribe(next, err, () => {
+          expect(next).to.have.been.called.with('Peter')
+          expect(next).to.have.been.called.with('John')
+          done()
+        })
+    })
+    it("should return undefined when reading nested undefined props instead of throwing", (done) => {
+      const next = chai.spy()
+      const error = chai.spy()
+      Stream.of(
+        {name: 'Joe', age: 30, job: {title: 'Developer', language: 'JavaScript'}},
+        {name: 'Sarah', age: 35}
+      )
+        .pluck('job', 'title')
+        .subscribe(next, error, () => {
+          expect(error).to.not.have.been.called()
+          expect(next).to.have.been.called.with('Developer')
+          expect(next).to.have.been.called.with(undefined)
+          done()
+        })
+    })
   })
 
   describe('partition', () => {
