@@ -2100,7 +2100,53 @@ describe('operators', () => {
           }
         }, err, done)
     })
+  })
 
+  describe('let', () => {
+    it("should complete once the number of values emitted is equal to the given number", (done) => {
+      const next = chai.spy()
+
+      Stream.of(1,2)
+        .map(x => x + 1)
+        .let(stream => stream.map(x => x + 2))
+        .subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(4)
+          expect(next).to.have.been.called.with(5)
+          expect(next).to.have.been.called.twice()
+          done()
+        })
+    })
+    it("should handle applying multiple operators", (done) => {
+      const next = chai.spy()
+
+      Stream.of(0, 1, 2, 3, 4)
+        .let(stream =>
+          stream
+            .map(x => x + 1)
+            .filter(x => x % 2 === 0)
+        )
+        .subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(2)
+          expect(next).to.have.been.called.with(4)
+          expect(next).to.have.been.called.twice()
+          done()
+      })
+    })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = Stream.of(1,2)
+        .let(stream => stream.map(x => x))
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.have.been.called.with(2)
+          expect(next).to.not.have.been.called.with(3)
+          expect(next).to.have.been.called.exactly(4)
+          done()
+        }))
+    })
   })
 
   describe('combine and combineLatest (alias)', () => {
@@ -2198,3 +2244,4 @@ describe('operators', () => {
     })
   })
 })
+

@@ -53,7 +53,7 @@ This core is just around **1KB** gzipped.
 You will probably want more functionality than that, so you will need to tell `stream-lite` which operators and factories you need. Here are the ways to do that:
 
 ##### Import [commonly used pack](https://github.com/pshev/stream-lite/blob/master/src/add/common.js#L1-L99):
-This pack includes a dozen most common operators and a few factories and will only cost you about **1.75KB** gzipped. 😍
+This pack includes about a dozen most common operators and a few factories and will only cost you about **1.75KB** gzipped. 😍
 ```js
 import 'stream-lite/add/common' 
 ```
@@ -118,6 +118,7 @@ Operators marked with 🚩 are also available as statics.
 - [`every`](https://www.learnrxjs.io/operators/conditional/every.html)
 - [`defaultIfEmpty`](https://www.learnrxjs.io/operators/conditional/defaultifempty.html)
 - [`do`](https://www.learnrxjs.io/operators/utility/do.html)
+- [`let`](https://www.learnrxjs.io/operators/utility/let.html)
 - [`pairwise`](https://www.learnrxjs.io/operators/combination/pairwise.html)
 - [`delay`](https://www.learnrxjs.io/operators/utility/delay.html)
 - [`buffer`](https://www.learnrxjs.io/operators/transformation/buffer.html)
