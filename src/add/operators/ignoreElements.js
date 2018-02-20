@@ -1,5 +1,6 @@
-import {baseCreate, proto} from '../../core'
+import {proto} from '../../core'
+import {ignoreElements} from '../../operators/ignoreElements'
 
-proto.ignoreElements = function ignoreElements() {
-  return baseCreate({next: () => {}}, this)
+proto.ignoreElements = function(...args) {
+	return ignoreElements(...args)(this)
 }

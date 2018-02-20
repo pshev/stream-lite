@@ -1,17 +1,6 @@
-import {baseCreate, baseNext, proto} from '../../core'
+import {proto} from '../../core'
+import {single} from '../../operators/single'
 
-proto.single = function single(predicate = (() => true)) {
-  let index = 0
-  return baseCreate({
-    next(x) {
-      if (predicate(x, index)) {
-        baseNext(this, x)
-        this.complete()
-      }
-      index++
-    },
-    onStop() {
-      index = 0
-    }
-  }, this)
+proto.single = function(...args) {
+	return single(...args)(this)
 }

@@ -1,11 +1,12 @@
 .idea
-src
+src/index.test.js
+src/index.umd.js
 npm-debug.log.*
 .nyc_output
 coverage
 .npmignore
-.babelrc
+.babelrc.js
+yarn.lock
 .travis.yml
 qq
 .temp/
-dist/

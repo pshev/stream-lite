@@ -1,23 +1,6 @@
-import {proto, baseNext} from '../../core'
-import {baseCreate} from '../../core'
+import {proto} from '../../core'
+import {take} from '../../operators/take'
 
-proto.take = function take(numberToTake) {
-  let taken = 0
-
-  return baseCreate({
-    next(x) {
-      if (taken < numberToTake) {
-        baseNext(this, x)
-
-        taken++
-
-        if (taken === numberToTake) {
-          this.complete()
-        }
-      }
-    },
-    onStop() {
-      taken = 0
-    }
-  }, this, 'take')
+proto.take = function(...args) {
+	return take(...args)(this)
 }

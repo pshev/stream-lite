@@ -1,16 +1,6 @@
-import {baseCreate, baseNext, proto} from '../../core'
+import {proto} from '../../core'
+import {skip} from '../../operators/skip'
 
-proto.skip = function skip(numberToSkip) {
-  let skipped = 0
-  return baseCreate({
-    next(x) {
-      if (skipped === numberToSkip)
-        baseNext(this, x)
-      else
-        skipped++
-    },
-    onStop() {
-      skipped = 0
-    }
-  }, this, 'skip')
+proto.skip = function(...args) {
+	return skip(...args)(this)
 }

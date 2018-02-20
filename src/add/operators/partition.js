@@ -1,9 +1,6 @@
-import './filter'
 import {proto} from '../../core'
+import {partition} from '../../operators/partition'
 
-proto.partition = function partition(predicate) {
-  return [
-    this.filter(predicate),
-    this.filter(x => !predicate(x))
-  ]
+proto.partition = function(...args) {
+	return partition(...args)(this)
 }

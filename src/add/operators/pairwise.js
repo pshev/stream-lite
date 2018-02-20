@@ -1,20 +1,6 @@
-import {baseCreate, baseNext, proto} from '../../core'
+import {proto} from '../../core'
+import {pairwise} from '../../operators/pairwise'
 
-proto.pairwise = function pairwise() {
-  let prev
-  let hasPrev = false
-  return baseCreate({
-    next(x) {
-      if (hasPrev)
-        baseNext(this, [prev, x])
-      else
-        hasPrev = true
-
-      prev = x
-    },
-    onStop() {
-      prev = null
-      hasPrev = false
-    }
-  }, this)
+proto.pairwise = function(...args) {
+	return pairwise(...args)(this)
 }

@@ -1,7 +1,6 @@
-import {baseCreate, baseNext, proto} from '../../core'
+import {proto} from '../../core'
+import {mapTo} from '../../operators/mapTo'
 
-proto.mapTo = function mapTo(x) {
-  return baseCreate({
-    next() { baseNext(this, x) }
-  }, this, 'mapTo')
+proto.mapTo = function(...args) {
+	return mapTo(...args)(this)
 }

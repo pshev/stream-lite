@@ -1,16 +1,6 @@
-import {baseCreate, baseNext, proto} from '../../core'
+import {proto} from '../../core'
+import {distinctUntilChanged} from '../../operators/distinctUntilChanged'
 
-proto.distinctUntilChanged = function() {
-  let lastValue
-  return baseCreate({
-    next(x) {
-      if (x !== lastValue) {
-        baseNext(this, x)
-        lastValue = x
-      }
-    },
-    onStop() {
-      lastValue = undefined
-    }
-  }, this)
+proto.distinctUntilChanged = function(...args) {
+	return distinctUntilChanged(...args)(this)
 }

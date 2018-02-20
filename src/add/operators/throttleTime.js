@@ -1,40 +1,6 @@
-import {proto, baseNext, baseCreate} from '../../core'
+import {proto} from '../../core'
+import {throttleTime} from '../../operators/throttleTime'
 
-proto.throttleTime = function throttleTime(interval) {
-  let timeoutId = null
-  let lastValue = null
-  let throttling = false
-  let shouldEmitOnTimeoutComplete = false
-
-  return baseCreate({
-    next(x) {
-      lastValue = x
-      if (throttling) {
-        shouldEmitOnTimeoutComplete = true
-      } else {
-        baseNext(this, x)
-        throttling = true
-        this.schedule()
-      }
-    },
-    schedule() {
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(() => {
-        if (shouldEmitOnTimeoutComplete) {
-          baseNext(this, lastValue)
-          shouldEmitOnTimeoutComplete = false
-          this.schedule()
-        } else {
-          throttling = false
-        }
-      }, interval)
-    },
-    onStop() {
-      clearTimeout(timeoutId)
-      timeoutId = null
-      lastValue = null
-      throttling = false
-      shouldEmitOnTimeoutComplete = false
-    }
-  }, this, 'throttleTime')
+proto.throttleTime = function(...args) {
+	return throttleTime(...args)(this)
 }

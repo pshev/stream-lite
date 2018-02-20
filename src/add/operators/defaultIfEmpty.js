@@ -1,21 +1,6 @@
-import {baseCreate, baseNext, baseComplete, proto} from '../../core'
+import {proto} from '../../core'
+import {defaultIfEmpty} from '../../operators/defaultIfEmpty'
 
-proto.defaultIfEmpty = function defaultIfEmpty(defaultValue) {
-  let isEmpty = true
-
-  return baseCreate({
-    next(x) {
-      isEmpty = false
-      baseNext(this, x)
-    },
-    complete() {
-      if (isEmpty)
-        baseNext(this, defaultValue)
-
-      baseComplete(this)
-    },
-    onStop() {
-      isEmpty = true
-    }
-  }, this)
+proto.defaultIfEmpty = function(...args) {
+	return defaultIfEmpty(...args)(this)
 }

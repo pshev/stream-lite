@@ -1,21 +1,6 @@
-import {proto, baseCreate, baseNext, baseComplete} from '../../core'
+import {proto} from '../../core'
+import {every} from '../../operators/every'
 
-proto.every = function every(predicate = (() => true)) {
-  let index = 0
-  return baseCreate({
-    next(x) {
-      if (!predicate(x, index)) {
-        baseNext(this, false)
-        baseComplete(this)
-      }
-      index++
-    },
-    complete() {
-      baseNext(this, true)
-      baseComplete(this)
-    },
-    onStop() {
-      index = 0
-    }
-  }, this)
+proto.every = function(...args) {
+	return every(...args)(this)
 }

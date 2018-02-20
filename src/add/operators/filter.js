@@ -1,10 +1,6 @@
-import {baseCreate, baseNext, proto} from '../../core'
+import {proto} from '../../core'
+import {filter} from '../../operators/filter'
 
-proto.filter = function filter(f) {
-  return baseCreate({
-    next(x) {
-      if (f(x))
-        baseNext(this, x)
-    }
-  }, this, 'filter')
+proto.filter = function(...args) {
+	return filter(...args)(this)
 }

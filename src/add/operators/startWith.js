@@ -1,9 +1,6 @@
-import {proto, baseNext, baseCreate} from '../../core'
+import {proto} from '../../core'
+import {startWith} from '../../operators/startWith'
 
-proto.startWith = function startWith(...xs) {
-  return baseCreate({
-    onStart() {
-      xs.forEach(x => baseNext(this, x))
-    }
-  }, this, 'startWith')
+proto.startWith = function(...args) {
+	return startWith(...args)(this)
 }

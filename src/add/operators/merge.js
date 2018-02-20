@@ -1,9 +1,6 @@
-import {baseCreate, proto, statics} from '../../core'
+import {proto} from '../../core'
+import {merge} from '../../operators/merge'
 
-const merge = (...streams) => baseCreate({ dependencies: streams })
-
-statics.merge = merge
-
-proto.merge = function(...streams) {
-  return merge(this, ...streams)
+proto.merge = function(...args) {
+	return merge(...args)(this)
 }

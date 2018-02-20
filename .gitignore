@@ -4,9 +4,7 @@ npm-debug.log
 .nyc_output
 node_modules
 coverage
-/add
-/core
 /index.js
+/Stream.js
 qq
 .temp/
-dist/

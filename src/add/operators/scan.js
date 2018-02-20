@@ -1,11 +1,6 @@
-import {proto, baseNext} from '../../core'
-import {baseCreate} from '../../core'
+import {proto} from '../../core'
+import {scan} from '../../operators/scan'
 
-proto.scan = function scan(f, acc) {
-  const fn = x => (acc = f(acc, this.val))
-  return baseCreate({
-    next(x) {
-      baseNext(this, fn.call(this, x))
-    }
-  }, this, 'scan')
+proto.scan = function(...args) {
+	return scan(...args)(this)
 }

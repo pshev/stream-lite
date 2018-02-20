@@ -1,13 +1,6 @@
-import {proto, baseNext} from '../../core'
-import {baseCreate} from '../../core'
+import {proto} from '../../core'
+import {takeWhile} from '../../operators/takeWhile'
 
-proto.takeWhile = function takeWhile(predicate) {
-  return baseCreate({
-    next(x) {
-      if (predicate(x))
-        baseNext(this, x)
-      else
-        this.complete()
-    }
-  }, this, 'takeWhile')
+proto.takeWhile = function(...args) {
+	return takeWhile(...args)(this)
 }

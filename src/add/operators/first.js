@@ -1,22 +1,6 @@
-import {baseCreate, baseNext, baseComplete, proto} from '../../core'
+import {proto} from '../../core'
+import {first} from '../../operators/first'
 
-proto.first = function first(predicate, projectionFn = (x => x), defaultValue) {
-  predicate = predicate || (() => true)
-  let index = 0
-  return baseCreate({
-    next(x) {
-      if (predicate(x, index)) {
-        baseNext(this, projectionFn(x, index))
-        baseComplete(this)
-      }
-      index++
-    },
-    complete() {
-      baseNext(this, defaultValue)
-      baseComplete(this)
-    },
-    onStop() {
-      index = 0
-    }
-  }, this)
+proto.first = function(...args) {
+	return first(...args)(this)
 }

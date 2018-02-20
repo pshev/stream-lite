@@ -1,9 +1,6 @@
-import {baseCreate, baseNext, proto} from '../../core'
+import {proto} from '../../core'
+import {withValue} from '../../operators/withValue'
 
-proto.withValue = function withValue(fn) {
-  return baseCreate({
-    next(x) {
-      baseNext(this, [x, fn(x)])
-    }
-  }, this, 'withValue')
+proto.withValue = function(...args) {
+	return withValue(...args)(this)
 }
