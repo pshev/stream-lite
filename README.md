@@ -32,7 +32,7 @@ This package includes both a [CommonJS](https://nodejs.org/docs/latest/api/modul
 You can use them from [Node](https://nodejs.org/en/) environment or if you are building for the browser you can use a module bundler like [Webpack](https://webpack.js.org/), [Browserify](http://browserify.org/), or [Rollup](http://rollupjs.org).<br/>
 If you don't use a module bundler, it's also fine. 
 The `stream-lite` npm package includes precompiled production and development UMD builds in the `umd` folder. 
-They can be used directly without a bundler and are thus compatible with many popular JavaScript module loaders and environments. For example, you can drop a UMD build as a `<script>` tag on the page. The UMD builds make `stream-lite` available as a `window.Stream` global variable and include all the functionality.
+They can be used directly without a bundler and are thus compatible with many popular JavaScript module loaders and environments. For example, you can drop a UMD build as a `<script>` tag on the page. The UMD builds make `stream-lite` available as a `window.stream` global variable and include all the functionality.
 
 ## 📦🔨 Import and Usage
 The following guide assumes you use ES2015+ but you don't have to.<br />
@@ -40,7 +40,8 @@ There are a few different ways of importing the functionality that you need.
 
 To import the entire set of functionality:
 ```js
-import Stream from 'stream-lite/Stream'
+import Stream from 'stream-lite'
+import 'stream/add/all'
 
 Stream
   .of(1,2,3)

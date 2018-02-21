@@ -19,8 +19,8 @@
     "build": "npm run build:commonjs && npm run build:es && npm run build:umd && npm run build:umd:min",
     "build:commonjs": "cross-env BUNDLE_ENV=cjs babel src --out-dir . --ignore src/index.test.js",
     "build:es": "cross-env BUNDLE_ENV=es babel src --out-dir es --ignore src/index.test.js",
-    "build:umd": "microbundle -i src/Stream.js -o umd/index.js --format umd --compress false --name Stream",
-    "build:umd:min": "microbundle -i src/Stream.js -o umd/index.min.js --format umd --name Stream",
+    "build:umd": "microbundle -i src/stream.js -o umd/index.js --format umd --compress false --name stream",
+    "build:umd:min": "microbundle -i src/stream.js -o umd/index.min.js --format umd --name stream",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
