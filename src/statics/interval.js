@@ -4,8 +4,8 @@ export const interval = step => {
   const producer = {
     counter: 0,
     id: 0,
-    start(consumer) {
-      this.id = setInterval(() => consumer.next(this.counter++), step)
+    start(self) {
+      this.id = setInterval(() => self.next(this.counter++), step)
     },
     stop() {
       clearInterval(this.id)

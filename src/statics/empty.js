@@ -1,4 +1,4 @@
 import {create} from '../core'
 
 export const empty = () =>
-  create({start: self => self.complete()}, 'empty')
+  create({start: self => self.complete()})

@@ -3,8 +3,8 @@ import {create} from '../core'
 export const fromEvent = (element, eventName) => {
   const producer = {
     cb: null,
-    start(consumer) {
-      this.cb = consumer.next
+    start(self) {
+      this.cb = self.next
       element.addEventListener(eventName, this.cb)
     },
     stop() {
