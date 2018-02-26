@@ -135,6 +135,7 @@ Operators marked with 🚩 are also available as statics.
 - [`never`](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/never.md)
 - [`error`](#error)*
 - [`fromArray`](#fromArray)*
+- [`fromObservable`](#fromObservable)*
 - [`fromEvent`](https://www.learnrxjs.io/operators/creation/fromevent.html)
 - [`fromPromise`](https://www.learnrxjs.io/operators/creation/frompromise.html)
 - [`interval`](https://www.learnrxjs.io/operators/creation/interval.html)
@@ -277,6 +278,11 @@ This is sort of similar to how you would use RxJs's Subject.
 ### <a id="fromArray"></a> fromArray
 
 Equivalent to calling RxJS's [`from`](https://www.learnrxjs.io/operators/creation/from.html) with an array.
+
+
+### <a id="fromObservable"></a> fromObservable
+
+Equivalent to calling RxJS's [`from`](https://www.learnrxjs.io/operators/creation/from.html) with an observable.
 
 ### <a id="error"></a> error
 
