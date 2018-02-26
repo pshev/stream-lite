@@ -1,5 +1,6 @@
 import './statics/of'
 import './statics/fromArray'
+import './statics/fromObservable'
 import './statics/interval'
 import './statics/timer'
 import './statics/range'

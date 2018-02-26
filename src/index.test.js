@@ -12,7 +12,7 @@ import {
   withValue, withLatestFrom, catchError, merge, concat, combine, combineLatest
 } from './operators'
 import {
-  of, error, never, empty, timer, interval, fromArray, fromEvent, fromPromise, 
+  of, error, never, empty, timer, interval, fromArray, fromObservable, fromEvent, fromPromise,
   range, merge as staticMerge, concat as staticConcat, combine as staticCombine,
   combineLatest as staticCombineLatest
 } from './statics'
@@ -179,6 +179,59 @@ describe('factories', () => {
           expect(next).to.have.been.called.with(func)
           done()
         })
+    })
+  })
+
+  describe('fromObservable', () => {
+    it("should emit values from the given observable", () => {
+      const next = chai.spy()
+      const observable = Rx.Observable.of(1)
+
+      Stream.fromObservable(observable).subscribe(next)
+
+      expect(next).to.have.been.called.with(1)
+      expect(next).to.have.been.called.once()
+    })
+    it("should complete when the given observable completes", (done) => {
+      const observable = Rx.Observable.of(1)
+      fromObservable(observable).subscribe(nx, err, done)
+    })
+    it("should emit multiple values from the given observable", () => {
+      const next = chai.spy()
+      const observable = Rx.Observable.interval(1).take(3)
+
+      fromObservable(observable).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(0)
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.with(2)
+        expect(next).to.have.been.called.exactly(3)
+      })
+    })
+    it("should error when the given observable errors", (done) => {
+      const next = chai.spy()
+      const observable = Rx.Observable.throw('err')
+
+      fromObservable(observable).subscribe(next, (error) => {
+        expect(next).to.not.have.been.called()
+        expect(error).to.equal('err')
+        done()
+      })
+    })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+      const observable = Rx.Observable.of(1,2,3)
+
+      const stream = fromObservable(observable)
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.have.been.called.with(2)
+          expect(next).to.have.been.called.with(3)
+          expect(next).to.not.have.been.called.with(4)
+          expect(next).to.have.been.called.exactly(6)
+          done()
+        }))
     })
   })
 
