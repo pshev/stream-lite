@@ -1,3 +1,4 @@
+import $$observable from 'symbol-observable'
 import {baseNext, baseNextGuard, baseError, baseComplete} from '../internal'
 import {pipe} from '../util/pipe'
 import {subscribe} from './subscribe'
@@ -15,6 +16,7 @@ export let proto = {
   onStart() {},
   onStop() {},
   getValue() { return this.val },
+  [$$observable]() { return this }
 }
 
 export const baseProps = props => Object.assign({}, {

@@ -16,6 +16,7 @@ import {
   range, merge as staticMerge, concat as staticConcat, combine as staticCombine,
   combineLatest as staticCombineLatest
 } from './statics'
+import Rx from 'rxjs/Rx'
 
 chai.use(spies)
 
@@ -2738,6 +2739,18 @@ describe('generic', () => {
       expect(filteredStream.hasEmitted).to.equal(false))
 
     setTimeout(done)
+  })
+  it("should work with RxJS's from method", (done) => {
+    const next = chai.spy()
+
+    const stream = interval(1).take(2)
+
+    Rx.Observable.from(stream).subscribe(next, err, () => {
+      expect(next).to.have.been.called.with(0)
+      expect(next).to.have.been.called.with(1)
+      expect(next).to.have.been.called.twice()
+      done()
+    })
   })
 })
 
