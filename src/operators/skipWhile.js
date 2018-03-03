@@ -12,7 +12,7 @@ export const skipWhile = predicate => stream => {
       else {
         const condition = _try(stream, () => predicate(x, index))
 
-        if (condition !== ERROR && !condition) {
+        if (condition !== ERROR && condition === false) {
           skipping = false
           baseNext(this, x)
         }
