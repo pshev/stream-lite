@@ -1,4 +1,5 @@
 import {baseCreate, baseNext, baseComplete} from '../internal'
+import {_try, ERROR} from '../util/try'
 
 export const last = (predicate, projectionFn = (x => x), defaultValue) => stream => {
   predicate = predicate || (() => true)
@@ -6,27 +7,25 @@ export const last = (predicate, projectionFn = (x => x), defaultValue) => stream
   let lastToPassThePredicate
   return baseCreate({
     next(x) {
-      if (predicate(x, index))
-        lastToPassThePredicate = { value: x, index }
+      const condition = _try(this, () => predicate(x, index))
+
+      if (condition !== ERROR && condition)
+        lastToPassThePredicate = {value: x, index}
+
       index++
     },
     complete() {
       const x = lastToPassThePredicate
-        ? this.tryGetResult(projectionFn.bind(this, lastToPassThePredicate.value, lastToPassThePredicate.index))
+        ? _try(this, () => projectionFn(lastToPassThePredicate.value, lastToPassThePredicate.index))
         : defaultValue
-      baseNext(this, x)
-      baseComplete(this)
+      if (x !== ERROR) {
+        baseNext(this, x)
+        baseComplete(this)
+      }
     },
     onStop() {
       index = 0
       lastToPassThePredicate = null
-    },
-    tryGetResult(fn) {
-      try {
-        return fn()
-      } catch (e) {
-        this.error(e)
-      }
     }
   }, stream)
 }

@@ -1,5 +1,6 @@
 import {baseNext, baseComplete, baseCreate} from '../internal'
 import {toStream} from '../internal/helpers'
+import {_try, ERROR} from '../util/try'
 
 export const debounce = fn => stream => {
   let subscription = null
@@ -11,7 +12,10 @@ export const debounce = fn => stream => {
 
       subscription && subscription.unsubscribe()
 
-      subscription = toStream(fn(x)).subscribe(
+      const inner = _try(this, () => fn(x))
+      if (inner === ERROR) return
+
+      subscription = toStream(inner).subscribe(
         _ => baseNext(this, lastValue),
         this.error.bind(this)
       )

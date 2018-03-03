@@ -1,11 +1,13 @@
 import {baseCreate, baseError} from '../internal'
+import {_try, ERROR} from '../util/try'
 
 export const catchError = fn => stream =>
   baseCreate({
     error(error) {
-      const nestedStream = fn(error)
+      const inner = _try(this, () => fn(error))
+      if (inner === ERROR) return
 
-      nestedStream.subscribe(
+      inner.subscribe(
         this.next.bind(this),
         baseError.bind(null, this),
         this.complete.bind(this)

@@ -1,10 +1,13 @@
 import {baseCreate, baseNext, baseComplete} from '../internal'
+import {_try, ERROR} from '../util/try'
 
 export const every = (predicate = (() => true)) => stream => {
   let index = 0
   return baseCreate({
     next(x) {
-      if (!predicate(x, index)) {
+      const condition = _try(this, () => predicate(x, index))
+
+      if (condition !== ERROR && !condition) {
         baseNext(this, false)
         baseComplete(this)
       }

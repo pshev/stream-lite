@@ -1,5 +1,6 @@
 import {baseCreate, baseNext, baseComplete} from '../internal'
 import {toStream} from '../internal/helpers'
+import {_try, ERROR} from '../util/try'
 
 export const concatMapTo = (innerStream, resultSelector) => stream => {
   resultSelector = resultSelector || ((outerValue, innerValue) => innerValue)
@@ -33,7 +34,11 @@ export const concatMapTo = (innerStream, resultSelector) => stream => {
       let innerIndex = 0
       innerStreamIsCurrentlyEmitting = true
       return toStream(innerStream).subscribe(
-        innerValue => this.tryNext(resultSelector.bind(this, outerValue, innerValue, outerIndex, innerIndex++)),
+        innerValue => {
+          const result = _try(this, () => resultSelector(outerValue, innerValue, outerIndex, innerIndex++))
+          if (result !== ERROR)
+            baseNext(this, result)
+        },
         this.error.bind(this),
         this.innerStreamComplete.bind(this)
       )
@@ -45,15 +50,6 @@ export const concatMapTo = (innerStream, resultSelector) => stream => {
         sourceStreamHasCompleted && baseComplete(this)
       else
         subscription = this.subscribeToInner(outerEmissionsToHandle.shift())
-    },
-    tryNext(fn) {
-      let result
-      try {
-        result = fn()
-      } catch (e) {
-        this.error(e)
-      }
-      baseNext(this, result)
     }
   }, stream)
 }

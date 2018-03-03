@@ -1,5 +1,6 @@
 import {baseNext, baseCreate} from '../internal'
 import {toStream} from '../internal/helpers'
+import {_try, ERROR} from '../util/try'
 
 export const throttle = fn => stream => {
   let subscription = null
@@ -28,7 +29,10 @@ export const throttle = fn => stream => {
     schedule() {
       subscription && subscription.unsubscribe()
 
-      subscription = toStream(fn(lastValue)).subscribe(
+      const inner = _try(this, () => fn(lastValue))
+      if (inner === ERROR) return
+
+      subscription = toStream(inner).subscribe(
         _ => {
           if (shouldEmitWhenChildStreamEmits) {
             shouldEmitWhenChildStreamEmits = false
