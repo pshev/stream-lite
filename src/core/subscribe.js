@@ -1,6 +1,6 @@
 import {notifyUpTheChainOn} from '../internal'
 import {Subscriber} from './subscriber'
-import * as helpers from '../internal/helpers'
+import {activateStream, startStream, deactivateStream, deactivationGuard, hasNoSubscribers, removeSubscriber} from '../internal/helpers'
 
 export const subscribe = (...args) => (stream) => {
   const subscriber = Subscriber(...args)
@@ -8,22 +8,20 @@ export const subscribe = (...args) => (stream) => {
   stream.subscribers.push(subscriber)
 
   if (stream.subscribers.length === 1) {
-    helpers.activateStream(stream)
-    helpers.startStream(stream)
+    activateStream(stream)
+    startStream(stream)
     notifyUpTheChainOn(stream, 'activated')
   }
 
   return {
     unsubscribe: function unsubscribe() {
-      if (helpers.hasNoSubscribers(stream)) return
+      if (hasNoSubscribers(stream)) return
 
-      helpers.removeSubscriber(stream, subscriber)
+      removeSubscriber(stream, subscriber)
 
-      if (helpers.hasNoSubscribers(stream)) {
-        if (helpers.hasNoActiveDependents(stream)) {
-          helpers.deactivateStream(stream)
-          notifyUpTheChainOn(stream, 'completed')
-        }
+      if (deactivationGuard(stream)) {
+        deactivateStream(stream)
+        notifyUpTheChainOn(stream, 'completed')
       }
     }
   }
