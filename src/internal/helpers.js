@@ -33,4 +33,5 @@ export function deactivateStream(s) {
   s.active = false
   s.onStop()
   s.producer && s.producer.stop()
+  s.subscribers = []
 }

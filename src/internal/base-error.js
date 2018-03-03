@@ -7,7 +7,6 @@ export function baseError(stream, error) {
   // but we also want to reset stream.subscribers because
   // deactivationGuard checks that property
   const subscribers = [...stream.subscribers]
-  stream.subscribers = []
 
   deactivateStream(stream)
 
