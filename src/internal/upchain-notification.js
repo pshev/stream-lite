@@ -8,11 +8,11 @@ const onActivated = stream => {
     predicate: helpers.isInactive,
     action: s => {
       helpers.activateStream(s)
-      helpers.isProducerStream(s) && producerStreams.push(s) //why not call start inline? see below.
+      s.producer && producerStreams.push(s) //why not call start inline? see below.
     }
   })
 
-  producerStreams.forEach(helpers.startProducer)
+  producerStreams.forEach(s => s.producer.start(s))
 }
 
 const onError = stream => traverseUp(stream, {
