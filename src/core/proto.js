@@ -1,5 +1,5 @@
 import $$observable from 'symbol-observable'
-import {baseNext, baseNextGuard, baseError, baseComplete} from '../internal'
+import {baseNext, baseError, baseComplete} from '../internal'
 import {pipe} from '../util/pipe'
 import {subscribe} from './subscribe'
 
@@ -12,7 +12,6 @@ export let proto = {
   error(error) { baseError(this, error) },
   complete() { baseComplete(this) },
   pipe(...args) { return pipe(...args)(this) },
-  nextGuard() { return baseNextGuard(this) },
   onStart() {},
   onStop() {},
   getValue() { return this.val },
