@@ -1,4 +1,6 @@
 export {Stream} from './stream'
+export {Subscriber} from './subscriber'
+export {Producer} from './producer'
 export {baseNext, baseNextGuard} from './base-next'
 export {baseError} from './base-error'
 export {baseComplete} from './base-complete'

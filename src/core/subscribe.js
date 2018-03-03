@@ -1,5 +1,5 @@
+import {Subscriber} from '../internal'
 import {notifyUpTheChainOnActivated, notifyUpTheChainOnDeactivated} from '../internal/upchain-notification'
-import {Subscriber} from './subscriber'
 import {activateStream, startStream, deactivateStream, deactivationGuard, hasNoSubscribers, removeSubscriber} from '../internal/helpers'
 
 export const subscribe = (...args) => (stream) => {
