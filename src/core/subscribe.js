@@ -1,4 +1,4 @@
-import {notifyUpTheChainOn} from '../internal'
+import {notifyUpTheChainOnActivated, notifyUpTheChainOnDeactivated} from '../internal/upchain-notification'
 import {Subscriber} from './subscriber'
 import {activateStream, startStream, deactivateStream, deactivationGuard, hasNoSubscribers, removeSubscriber} from '../internal/helpers'
 
@@ -10,18 +10,18 @@ export const subscribe = (...args) => (stream) => {
   if (stream.subscribers.length === 1) {
     activateStream(stream)
     startStream(stream)
-    notifyUpTheChainOn(stream, 'activated')
+    notifyUpTheChainOnActivated(stream)
   }
 
   return {
-    unsubscribe: function unsubscribe() {
+    unsubscribe() {
       if (hasNoSubscribers(stream)) return
 
       removeSubscriber(stream, subscriber)
 
       if (deactivationGuard(stream)) {
         deactivateStream(stream)
-        notifyUpTheChainOn(stream, 'completed')
+        notifyUpTheChainOnDeactivated(stream)
       }
     }
   }

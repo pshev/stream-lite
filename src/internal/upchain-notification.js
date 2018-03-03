@@ -1,41 +1,25 @@
-import * as helpers from './helpers'
 import {traverseUp} from './traversals'
+import {activateStream, startStream, deactivateStream, deactivationGuard, isActive, isInactive} from './helpers'
 
-const onActivated = stream => {
+export const notifyUpTheChainOnActivated = stream => {
   let toStart = []
 
   traverseUp(stream, {
-    predicate: helpers.isInactive,
+    predicate: isInactive,
     action: s => {
-      helpers.activateStream(s)
+      activateStream(s)
       toStart.push(s) //why not start inline? see below.
     }
   })
 
-  toStart.forEach(helpers.startStream)
+  toStart.forEach(startStream)
 }
 
-const onError = stream => traverseUp(stream, {
-  predicate: helpers.isActive,
-  action: helpers.deactivateStream,
-  actionGuard: helpers.deactivationGuard
+export const notifyUpTheChainOnDeactivated = stream => traverseUp(stream, {
+  predicate: isActive,
+  action: deactivateStream,
+  actionGuard: deactivationGuard
 })
-
-const onCompleted = stream => traverseUp(stream, {
-  predicate: helpers.isActive,
-  action: helpers.deactivateStream,
-  actionGuard: helpers.deactivationGuard
-})
-
-const eventHandlers = {
-  activated: onActivated,
-  completed: onCompleted,
-  error: onError
-}
-
-export const notifyUpTheChainOn = (stream, eventType) =>
-  eventHandlers[eventType](stream)
-
 
 // why not call s.producer.start right inline?
 // if we have something like this:

@@ -1,5 +1,5 @@
 import {deactivateStream} from './helpers'
-import {notifyUpTheChainOn} from './upchain-notification'
+import {notifyUpTheChainOnDeactivated} from './upchain-notification'
 
 export function baseError(stream, error) {
   // we want to call all subscribers' complete callback when
@@ -10,7 +10,7 @@ export function baseError(stream, error) {
 
   deactivateStream(stream)
 
-  notifyUpTheChainOn(stream, 'error')
+  notifyUpTheChainOnDeactivated(stream)
 
   stream.dependents.forEach(d => d.error(error))
 

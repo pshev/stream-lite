@@ -1,4 +1,4 @@
-import {notifyUpTheChainOn} from './upchain-notification'
+import {notifyUpTheChainOnDeactivated} from './upchain-notification'
 import {deactivateStream, hasNoActiveDependencies} from './helpers'
 
 export function baseComplete(stream) {
@@ -10,7 +10,7 @@ export function baseComplete(stream) {
 
   deactivateStream(stream)
 
-  notifyUpTheChainOn(stream, 'completed')
+  notifyUpTheChainOnDeactivated(stream)
 
   stream.dependents
     .filter(hasNoActiveDependencies)
