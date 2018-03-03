@@ -1,7 +1,5 @@
 import {baseCreate} from '../internal'
+import {Producer} from './producer'
 
-export const create = (producer = {}) => {
-  producer.start = producer.start || (() => {})
-  producer.stop = producer.stop || (() => {})
-  return baseCreate({producer})
-}
+export const create = producer =>
+  baseCreate({producer: Producer(producer)})
