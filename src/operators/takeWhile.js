@@ -1,8 +1,8 @@
-import {baseCreate, baseNext} from '../internal'
+import {Stream, baseNext} from '../internal'
 import {_try, ERROR} from '../util/try'
 
 export const takeWhile = predicate => stream =>
-  baseCreate({
+  Stream({
     next(x) {
       const condition = _try(this, () => predicate(x))
 

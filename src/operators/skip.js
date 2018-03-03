@@ -1,8 +1,8 @@
-import {baseCreate, baseNext} from '../internal'
+import {Stream, baseNext} from '../internal'
 
 export const skip = numberToSkip => stream => {
   let skipped = 0
-  return baseCreate({
+  return Stream({
     next(x) {
       if (skipped === numberToSkip)
         baseNext(this, x)

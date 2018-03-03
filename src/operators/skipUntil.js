@@ -1,10 +1,10 @@
-import {baseCreate, baseNext} from '../internal'
+import {Stream, baseNext} from '../internal'
 
 export const skipUntil = innerStream => stream => {
   let subscription
   let shouldEmit = false
 
-  return baseCreate({
+  return Stream({
     next(x) {
       if (shouldEmit) {
         baseNext(this, x)

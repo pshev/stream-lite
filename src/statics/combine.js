@@ -1,6 +1,6 @@
-import {baseCreate, baseNextGuard, baseNext} from '../internal'
+import {Stream, baseNextGuard, baseNext} from '../internal'
 
-export const combine = (...streams) => baseCreate({
+export const combine = (...streams) => Stream({
   dependencies: streams,
   next() {
     baseNext(this, this.dependencies.map(d => d.val))

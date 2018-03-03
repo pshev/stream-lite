@@ -1,6 +1,6 @@
 import {proto, baseProps} from '../core/proto'
 
-export function baseCreate(props, dependency) {
+export function Stream(props, dependency) {
   props.dependencies = dependency ? [dependency] : (props.dependencies || [])
 
   let stream = Object.assign(Object.create(proto), baseProps(props))

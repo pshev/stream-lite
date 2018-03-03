@@ -1,10 +1,10 @@
-import {baseCreate, baseNext} from '../internal'
+import {Stream, baseNext} from '../internal'
 
 export const withLatestFrom = innerStream => stream => {
   let sResult
   let subscription
 
-  return baseCreate({
+  return Stream({
     next(x) {
       baseNext(this, [x, sResult])
     },

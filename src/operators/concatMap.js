@@ -1,4 +1,4 @@
-import {baseCreate, baseNext, baseComplete} from '../internal'
+import {Stream, baseNext, baseComplete} from '../internal'
 import {toStream} from '../internal/helpers'
 import {_try, ERROR} from '../util/try'
 
@@ -10,7 +10,7 @@ export const concatMap = (fn, resultSelector) => stream => {
   let innerStreamIsCurrentlyEmitting = false
   let sourceStreamHasCompleted
 
-  return baseCreate({
+  return Stream({
     next(outerValue) {
       if (innerStreamIsCurrentlyEmitting)
         streamsToCreate.push({outerValue, outerIndex: outerIndex++})

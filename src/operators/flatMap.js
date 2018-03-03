@@ -1,4 +1,4 @@
-import {baseCreate, baseNext, baseComplete} from '../internal'
+import {Stream, baseNext, baseComplete} from '../internal'
 import {toStream} from '../internal/helpers'
 import {_try, ERROR} from '../util/try'
 
@@ -9,7 +9,7 @@ export const flatMap = (fn, resultSelector) => stream => {
   let sourceStreamHasCompleted
   let numberOfCompletedNestedStreams = 0
 
-  return baseCreate({
+  return Stream({
     next(outerValue) {
       const subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})
       subscriptions.push(subscription)

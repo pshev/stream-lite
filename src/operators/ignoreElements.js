@@ -1,4 +1,4 @@
-import {baseCreate} from '../internal'
+import {Stream} from '../internal'
 
 export const ignoreElements = () => stream =>
-  baseCreate({next: () => {}}, stream)
+  Stream({next: () => {}}, stream)

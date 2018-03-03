@@ -1,5 +1,5 @@
-import {baseCreate} from '../internal'
+import {Stream} from '../internal'
 import {Producer} from './producer'
 
 export const create = producer =>
-  baseCreate({producer: Producer(producer)})
+  Stream({producer: Producer(producer)})

@@ -1,4 +1,4 @@
-import {baseNext, baseComplete, baseCreate} from '../internal'
+import {baseNext, baseComplete, Stream} from '../internal'
 import {toStream} from '../internal/helpers'
 import {_try, ERROR} from '../util/try'
 
@@ -6,7 +6,7 @@ export const debounce = fn => stream => {
   let subscription = null
   let lastValue = null
 
-  return baseCreate({
+  return Stream({
     next(x) {
       lastValue = x
 

@@ -1,10 +1,10 @@
-import {baseCreate, baseNext, baseComplete} from '../internal'
+import {Stream, baseNext, baseComplete} from '../internal'
 import {_try, ERROR} from '../util/try'
 
 export const first = (predicate, projectionFn = (x => x), defaultValue) => stream => {
   predicate = predicate || (() => true)
   let index = 0
-  return baseCreate({
+  return Stream({
     next(x) {
       const condition = _try(this, () => predicate(x, index))
       if (condition === ERROR) return

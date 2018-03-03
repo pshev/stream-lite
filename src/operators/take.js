@@ -1,9 +1,9 @@
-import {baseCreate, baseNext} from '../internal'
+import {Stream, baseNext} from '../internal'
 
 export const take = numberToTake => stream => {
   let taken = 0
 
-  return baseCreate({
+  return Stream({
     next(x) {
       if (taken < numberToTake) {
         baseNext(this, x)

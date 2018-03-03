@@ -1,4 +1,4 @@
-import {baseNext, baseCreate} from '../internal'
+import {baseNext, Stream} from '../internal'
 
 export const throttleTime = interval => stream => {
   let timeoutId = null
@@ -6,7 +6,7 @@ export const throttleTime = interval => stream => {
   let throttling = false
   let shouldEmitOnTimeoutComplete = false
 
-  return baseCreate({
+  return Stream({
     next(x) {
       lastValue = x
       if (throttling) {

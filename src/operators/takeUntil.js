@@ -1,9 +1,9 @@
-import {baseCreate} from '../internal'
+import {Stream} from '../internal'
 
 export const takeUntil = innerStream => stream => {
   let subscription
 
-  return baseCreate({
+  return Stream({
     onStart() {
       subscription = innerStream.subscribe(
         this.complete.bind(this),

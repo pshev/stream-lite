@@ -1,8 +1,8 @@
-import {baseCreate, baseNext} from '../internal'
+import {Stream, baseNext} from '../internal'
 import {_try, ERROR} from '../util/try'
 
 export const map = f => stream =>
-  baseCreate({
+  Stream({
     next(x) {
       const result = _try(this, () => f(x))
       if (result !== ERROR)

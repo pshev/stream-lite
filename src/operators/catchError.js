@@ -1,8 +1,8 @@
-import {baseCreate, baseError} from '../internal'
+import {Stream, baseError} from '../internal'
 import {_try, ERROR} from '../util/try'
 
 export const catchError = fn => stream =>
-  baseCreate({
+  Stream({
     error(error) {
       const inner = _try(this, () => fn(error))
       if (inner === ERROR) return

@@ -1,4 +1,4 @@
-import {baseCreate, baseNext, baseComplete} from '../internal'
+import {Stream, baseNext, baseComplete} from '../internal'
 import {toStream} from '../internal/helpers'
 import {_try, ERROR} from '../util/try'
 
@@ -9,7 +9,7 @@ export const switchMap = (fn, resultSelector) => stream => {
   let sourceStreamHasCompleted
   let nestedStreamHasCompleted
 
-  return baseCreate({
+  return Stream({
     next(outerValue) {
       subscription && subscription.unsubscribe()
       subscription = this.subscribeToInner({outerValue, outerIndex: outerIndex++})

@@ -1,7 +1,7 @@
-import {baseNext, baseCreate} from '../internal'
+import {baseNext, Stream} from '../internal'
 
 export const startWith = (...xs) => stream =>
-  baseCreate({
+  Stream({
     onStart() {
       xs.forEach(x => baseNext(this, x))
     }

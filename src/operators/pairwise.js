@@ -1,10 +1,10 @@
-import {baseCreate, baseNext} from '../internal'
+import {Stream, baseNext} from '../internal'
 
 export const pairwise = () => stream => {
   let prev
   let hasPrev = false
 
-  return baseCreate({
+  return Stream({
     next(x) {
       if (hasPrev)
         baseNext(this, [prev, x])

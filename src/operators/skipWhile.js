@@ -1,11 +1,11 @@
-import {baseCreate, baseNext} from '../internal'
+import {Stream, baseNext} from '../internal'
 import {_try, ERROR} from '../util/try'
 
 export const skipWhile = predicate => stream => {
   let index = 0
   let skipping = true
 
-  return baseCreate({
+  return Stream({
     next(x) {
       if (!skipping)
         baseNext(this, x)

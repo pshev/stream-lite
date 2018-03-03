@@ -1,9 +1,9 @@
-import {baseCreate, baseNext, baseComplete} from '../internal'
+import {Stream, baseNext, baseComplete} from '../internal'
 
 export const defaultIfEmpty = defaultValue => stream => {
   let isEmpty = true
 
-  return baseCreate({
+  return Stream({
     next(x) {
       isEmpty = false
       baseNext(this, x)

@@ -1,4 +1,4 @@
-import {baseNext, baseCreate} from '../internal'
+import {baseNext, Stream} from '../internal'
 import {toStream} from '../internal/helpers'
 import {_try, ERROR} from '../util/try'
 
@@ -8,7 +8,7 @@ export const throttle = fn => stream => {
   let throttling = false
   let shouldEmitWhenChildStreamEmits = false
 
-  return baseCreate({
+  return Stream({
     next(x) {
       lastValue = x
       if (throttling) {

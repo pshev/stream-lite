@@ -1,4 +1,4 @@
-import {baseNext, baseCreate, baseComplete} from '../internal'
+import {baseNext, Stream, baseComplete} from '../internal'
 
 export const bufferCount = (bufferSize, startBufferEvery) => stream => {
   if (!startBufferEvery || startBufferEvery === bufferSize)
@@ -10,7 +10,7 @@ export const bufferCount = (bufferSize, startBufferEvery) => stream => {
 function noOverlap(stream, bufferSize) {
   let buffered = []
 
-  return baseCreate({
+  return Stream({
     next(x) {
       buffered.push(x)
       if (buffered.length === bufferSize) {
@@ -34,7 +34,7 @@ function withOverlap(stream, bufferSize, startBufferEvery) {
   let buffers = []
   let count = 0
 
-  return baseCreate({
+  return Stream({
     next(x) {
       if (count % startBufferEvery === 0)
         buffers.push([])

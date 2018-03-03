@@ -1,7 +1,7 @@
-import {baseCreate, baseNext} from '../internal'
+import {Stream, baseNext} from '../internal'
 
 export const pluck = (...props) => stream =>
-  baseCreate({
+  Stream({
     next(x) {
       baseNext(this, delve(x, props))
     }

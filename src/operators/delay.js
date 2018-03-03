@@ -1,11 +1,11 @@
-import {baseNext, baseComplete, baseCreate} from '../internal'
+import {baseNext, baseComplete, Stream} from '../internal'
 
 export const delay = timeout => stream => {
   let sourceStreamHasCompleted
   let numberOfValuesReceived = 0
   let numberOfValuesEmitted = 0
 
-  return baseCreate({
+  return Stream({
     next(x) {
       numberOfValuesReceived++
       setTimeout(() => {

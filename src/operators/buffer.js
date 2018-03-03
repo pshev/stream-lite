@@ -1,11 +1,11 @@
-import {baseNext, baseCreate} from '../internal'
+import {baseNext, Stream} from '../internal'
 import {toStream} from '../internal/helpers'
 
 export const buffer = innerStream => stream => {
   let subscription = null
   let buffered = []
 
-  return baseCreate({
+  return Stream({
     next(x) {
       buffered.push(x)
     },

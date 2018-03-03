@@ -1,4 +1,4 @@
-export {baseCreate} from './base-create'
+export {Stream} from './stream'
 export {baseNext} from './base-next'
 export {baseNextGuard} from './base-next'
 export {baseError} from './base-error'

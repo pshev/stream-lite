@@ -1,9 +1,9 @@
-import {baseCreate, baseComplete} from '../internal'
+import {Stream, baseComplete} from '../internal'
 
 export const concat = (...streams) => {
   let subscription
 
-  return baseCreate({
+  return Stream({
     complete() {
       if (streams.length === 0)
         baseComplete(this)

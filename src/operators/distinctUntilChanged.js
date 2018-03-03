@@ -1,8 +1,8 @@
-import {baseCreate, baseNext} from '../internal'
+import {Stream, baseNext} from '../internal'
 
 export const distinctUntilChanged = () => stream => {
   let lastValue
-  return baseCreate({
+  return Stream({
     next(x) {
       if (x !== lastValue) {
         baseNext(this, x)

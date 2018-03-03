@@ -1,4 +1,4 @@
-import {baseCreate} from '../internal'
+import {Stream} from '../internal'
 
 export const merge = (...streams) =>
-  baseCreate({dependencies: streams})
+  Stream({dependencies: streams})

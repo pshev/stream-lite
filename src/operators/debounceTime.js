@@ -1,10 +1,10 @@
-import {baseNext, baseComplete, baseCreate} from '../internal'
+import {baseNext, baseComplete, Stream} from '../internal'
 
 export const debounceTime = interval => stream => {
   let timeoutId = null
   let lastValue = null
 
-  return baseCreate({
+  return Stream({
     next(x) {
       lastValue = x
 
