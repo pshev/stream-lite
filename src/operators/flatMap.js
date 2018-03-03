@@ -44,6 +44,7 @@ export const flatMap = (fn, resultSelector) => stream => {
     innerStreamComplete() {
       numberOfCompletedNestedStreams++
       sourceStreamHasCompleted && this.complete()
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

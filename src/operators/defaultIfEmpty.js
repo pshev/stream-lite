@@ -16,6 +16,7 @@ export const defaultIfEmpty = defaultValue => stream => {
     },
     onStop() {
       isEmpty = true
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

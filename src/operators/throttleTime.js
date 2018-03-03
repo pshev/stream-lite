@@ -35,6 +35,7 @@ export const throttleTime = interval => stream => {
       lastValue = null
       throttling = false
       shouldEmitOnTimeoutComplete = false
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

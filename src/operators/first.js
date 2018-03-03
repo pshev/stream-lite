@@ -25,6 +25,7 @@ export const first = (predicate, projectionFn = (x => x), defaultValue) => strea
     },
     onStop() {
       index = 0
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

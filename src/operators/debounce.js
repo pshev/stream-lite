@@ -29,6 +29,7 @@ export const debounce = fn => stream => {
       subscription && subscription.unsubscribe()
       lastValue = null
       subscription = null
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

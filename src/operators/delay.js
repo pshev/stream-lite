@@ -24,6 +24,7 @@ export const delay = timeout => stream => {
       sourceStreamHasCompleted = false
       numberOfValuesReceived = 0
       numberOfValuesEmitted = 0
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

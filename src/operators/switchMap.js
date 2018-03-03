@@ -43,6 +43,7 @@ export const switchMap = (fn, resultSelector) => stream => {
     innerStreamComplete() {
       nestedStreamHasCompleted = true
       sourceStreamHasCompleted && this.complete()
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

@@ -18,6 +18,7 @@ export const withLatestFrom = innerStream => stream => {
       subscription && subscription.unsubscribe()
       sResult = undefined
       subscription = undefined
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

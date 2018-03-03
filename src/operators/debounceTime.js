@@ -23,6 +23,7 @@ export const debounceTime = interval => stream => {
       clearTimeout(timeoutId)
       lastValue = null
       timeoutId = null
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

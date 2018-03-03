@@ -1,9 +1,7 @@
 import {proto, baseProps} from '../core/proto'
 import {baseNextGuard} from '../internal'
 
-export function Stream(props, dependency) {
-  props.dependencies = dependency ? [dependency] : (props.dependencies || [])
-
+export function Stream(props) {
   let stream = Object.assign(Object.create(proto), baseProps(props))
 
   const nextFn = stream.next

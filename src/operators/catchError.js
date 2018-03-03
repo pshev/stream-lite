@@ -12,5 +12,6 @@ export const catchError = fn => stream =>
         baseError.bind(null, this),
         this.complete.bind(this)
       )
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })

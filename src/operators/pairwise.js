@@ -16,6 +16,7 @@ export const pairwise = () => stream => {
     onStop() {
       prev = null
       hasPrev = false
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

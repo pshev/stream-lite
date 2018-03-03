@@ -4,5 +4,6 @@ export const startWith = (...xs) => stream =>
   Stream({
     onStart() {
       xs.forEach(x => baseNext(this, x))
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })

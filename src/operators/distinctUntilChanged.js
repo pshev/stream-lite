@@ -11,6 +11,7 @@ export const distinctUntilChanged = () => stream => {
     },
     onStop() {
       lastValue = undefined
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

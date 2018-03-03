@@ -44,6 +44,7 @@ export const throttle = fn => stream => {
         },
         this.error.bind(this)
       )
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

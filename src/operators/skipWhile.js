@@ -22,6 +22,7 @@ export const skipWhile = predicate => stream => {
     onStop() {
       index = 0
       skipping = true
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

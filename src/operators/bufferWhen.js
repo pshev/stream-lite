@@ -33,6 +33,7 @@ export const bufferWhen = fn => stream => {
       subscription && subscription.unsubscribe()
       subscription = null
       buffered = []
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

@@ -54,6 +54,7 @@ export const concatMap = (fn, resultSelector) => stream => {
         sourceStreamHasCompleted && baseComplete(this)
       else
         subscription = this.subscribeToInner(streamsToCreate.shift())
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

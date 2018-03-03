@@ -26,6 +26,7 @@ export const last = (predicate, projectionFn = (x => x), defaultValue) => stream
     onStop() {
       index = 0
       lastToPassThePredicate = null
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

@@ -26,8 +26,9 @@ function noOverlap(stream, bufferSize) {
     },
     onStop() {
       buffered = []
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }
 
 function withOverlap(stream, bufferSize, startBufferEvery) {
@@ -61,6 +62,7 @@ function withOverlap(stream, bufferSize, startBufferEvery) {
     onStop() {
       buffers = []
       count = 0
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

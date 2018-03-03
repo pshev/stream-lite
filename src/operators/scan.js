@@ -9,6 +9,7 @@ export const scan = (f, acc) => stream => {
       const result = _try(this, () => fn(x))
       if (result !== ERROR)
         baseNext(this, result)
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

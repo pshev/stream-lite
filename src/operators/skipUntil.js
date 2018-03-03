@@ -21,6 +21,7 @@ export const skipUntil = innerStream => stream => {
       subscription && subscription.unsubscribe()
       shouldEmit = false
       subscription = undefined
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

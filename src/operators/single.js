@@ -14,6 +14,7 @@ export const single = (predicate = (() => true)) => stream => {
     },
     onStop() {
       index = 0
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

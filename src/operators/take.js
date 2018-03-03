@@ -17,6 +17,7 @@ export const take = numberToTake => stream => {
     },
     onStop() {
       taken = 0
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

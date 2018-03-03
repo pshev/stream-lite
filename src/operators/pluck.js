@@ -4,8 +4,9 @@ export const pluck = (...props) => stream =>
   Stream({
     next(x) {
       baseNext(this, delve(x, props))
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 
 //taken from https://github.com/developit/dlv
 function delve(obj, keys, def, p = 0) {

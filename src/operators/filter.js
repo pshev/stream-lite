@@ -7,5 +7,6 @@ export const filter = f => stream =>
       const condition = _try(this, () => f(x))
       if (condition !== ERROR && condition)
         baseNext(this, x)
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })

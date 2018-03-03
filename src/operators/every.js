@@ -19,6 +19,7 @@ export const every = (predicate = (() => true)) => stream => {
     },
     onStop() {
       index = 0
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

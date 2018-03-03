@@ -13,6 +13,7 @@ export const takeUntil = innerStream => stream => {
     onStop() {
       subscription && subscription.unsubscribe()
       subscription = undefined
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

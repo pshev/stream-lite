@@ -23,6 +23,7 @@ export const buffer = innerStream => stream => {
       subscription && subscription.unsubscribe()
       subscription = null
       buffered = []
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

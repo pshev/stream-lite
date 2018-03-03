@@ -11,6 +11,7 @@ export const skip = numberToSkip => stream => {
     },
     onStop() {
       skipped = 0
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
 }

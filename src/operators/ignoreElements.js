@@ -1,4 +1,7 @@
 import {Stream} from '../internal'
 
 export const ignoreElements = () => stream =>
-  Stream({next: () => {}}, stream)
+  Stream({
+    next: () => {},
+    dependencies: [stream]
+  })

@@ -10,5 +10,6 @@ export const takeWhile = predicate => stream =>
         baseNext(this, x)
       else
         this.complete()
-    }
-  }, stream)
+    },
+    dependencies: [stream]
+  })
