@@ -2,17 +2,17 @@ import * as helpers from './helpers'
 import {traverseUp} from './traversals'
 
 const onActivated = stream => {
-  let producerStreams = []
+  let toStart = []
 
   traverseUp(stream, {
     predicate: helpers.isInactive,
     action: s => {
       helpers.activateStream(s)
-      s.producer && producerStreams.push(s) //why not call start inline? see below.
+      toStart.push(s) //why not start inline? see below.
     }
   })
 
-  producerStreams.forEach(s => s.producer.start(s))
+  toStart.forEach(helpers.startStream)
 }
 
 const onError = stream => traverseUp(stream, {

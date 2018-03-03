@@ -9,7 +9,7 @@ export const subscribe = (...args) => (stream) => {
 
   if (stream.subscribers.length === 1) {
     helpers.activateStream(stream)
-    stream.producer && stream.producer.start(stream)
+    helpers.startStream(stream)
     notifyUpTheChainOn(stream, 'activated')
   }
 

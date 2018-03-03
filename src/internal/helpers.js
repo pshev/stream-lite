@@ -20,7 +20,11 @@ export const deactivationGuard = s => hasNoSubscribers(s) && hasNoActiveDependen
 export function activateStream(s) {
   s.active = true
   s.hasEmitted = false
+}
+
+export function startStream(s) {
   s.onStart()
+  s.producer && s.producer.start(s)
 }
 
 export function deactivateStream(s) {
