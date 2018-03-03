@@ -1,26 +1,17 @@
-let temporaryQueue = []
+export function traverseUp(s, {predicate, action, actionGuard}) {
+  let q = []
+  const queue = () => s.dependencies
+    .filter(d => predicate(d) && q.indexOf(d) === -1)
+    .forEach(d => q.push(d))
 
-const queueDependencies = (stream, predicate) => {
-  const shouldQueue = d => predicate(d) && temporaryQueue.indexOf(d) === -1
-
-  stream.dependencies
-    .filter(shouldQueue)
-    .forEach(d => temporaryQueue.push(d))
-}
-
-export const traverseUp = (stream, {predicate, action, actionGuard}) => {
-  let s = stream
-  predicate = predicate || (() => true)
-  actionGuard = actionGuard || (() => true)
-
-  queueDependencies(s, predicate)
-  s = temporaryQueue.shift()
+  queue()
+  s = q.shift()
 
   while (s) {
-    if (actionGuard(s)) {
+    if (actionGuard === undefined || actionGuard(s)) {
       action(s)
-      queueDependencies(s, predicate)
+      queue()
     }
-    s = temporaryQueue.shift()
+    s = q.shift()
   }
 }
