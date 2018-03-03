@@ -1,3 +1,7 @@
+import {isActive} from './helpers'
+
+export const baseNextGuard = isActive
+
 export function baseNext(stream, x) {
   stream.hasEmitted = true
   stream.val = x
@@ -15,8 +19,4 @@ export function baseNext(stream, x) {
     else
       stream.dependents.forEach(s => s.next(x))
   }
-
-  return stream
 }
-
-export const baseNextGuard = stream => stream.active === true
