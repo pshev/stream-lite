@@ -59,7 +59,7 @@ describe('getValue', () => {
 	describe('should return the current value of the stream', () => {
 		it("should call next", () => {
 			const stream = of(1)
-			stream.subscribe()
+			stream.subscribe(nx)
 			expect(stream.getValue()).to.equal(1)
 		})
 	})

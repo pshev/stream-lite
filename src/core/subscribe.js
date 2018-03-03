@@ -1,35 +1,28 @@
 import {notifyUpTheChainOn} from '../internal'
+import {Subscriber} from './subscriber'
 import * as helpers from '../internal/helpers'
 
-export function subscribe(nextOrSubscriber, error, complete) {
-	nextOrSubscriber = nextOrSubscriber || (() => {})
-  error = error || (err => {throw new Error(err)})
-  complete = complete || (() => {})
+export const subscribe = (...args) => (stream) => {
+  const subscriber = Subscriber(...args)
 
-  const subscriber = typeof nextOrSubscriber === 'function'
-    ? {next: nextOrSubscriber, error, complete}
-    : nextOrSubscriber
+  stream.subscribers.push(subscriber)
 
-  return function(stream) {
-    stream.subscribers.push(subscriber)
+  if (stream.subscribers.length === 1) {
+    helpers.activateStream(stream)
+    helpers.isProducerStream(stream) && helpers.startProducer(stream)
+    notifyUpTheChainOn(stream, 'activated')
+  }
 
-    if (stream.subscribers.length === 1) {
-      helpers.activateStream(stream)
-      helpers.isProducerStream(stream) && helpers.startProducer(stream)
-      notifyUpTheChainOn(stream, 'activated')
-    }
+  return {
+    unsubscribe: function unsubscribe() {
+      if (helpers.hasNoSubscribers(stream)) return
 
-    return {
-      unsubscribe: function unsubscribe() {
-        if (helpers.hasNoSubscribers(stream)) return
+      helpers.removeSubscriber(stream, subscriber)
 
-        helpers.removeSubscriber(stream, subscriber)
-
-        if (helpers.hasNoSubscribers(stream)) {
-          if (helpers.hasNoActiveDependents(stream)) {
-            helpers.deactivateStream(stream)
-            notifyUpTheChainOn(stream, 'completed')
-          }
+      if (helpers.hasNoSubscribers(stream)) {
+        if (helpers.hasNoActiveDependents(stream)) {
+          helpers.deactivateStream(stream)
+          notifyUpTheChainOn(stream, 'completed')
         }
       }
     }
