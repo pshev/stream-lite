@@ -17,7 +17,8 @@ const onActivated = stream => {
 
 const onError = stream => traverseUp(stream, {
   predicate: helpers.isActive,
-  action: helpers.deactivateStream
+  action: helpers.deactivateStream,
+  actionGuard: helpers.deactivationGuard
 })
 
 const onCompleted = stream => traverseUp(stream, {
