@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {skipUntil} from '../../operators/skipUntil'
 
 proto.skipUntil = function(...args) {

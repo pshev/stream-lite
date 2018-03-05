@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {skip} from '../../operators/skip'
 
 proto.skip = function(...args) {

@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {debounceTime} from '../../operators/debounceTime'
 
 proto.debounceTime = function(...args) {

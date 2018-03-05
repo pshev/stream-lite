@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {takeUntil} from '../../operators/takeUntil'
 
 proto.takeUntil = function(...args) {

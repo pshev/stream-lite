@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {throttleTime} from '../../operators/throttleTime'
 
 proto.throttleTime = function(...args) {

@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {combine} from '../../operators/combine'
 
 proto.combine = function(...args) {

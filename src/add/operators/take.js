@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {take} from '../../operators/take'
 
 proto.take = function(...args) {

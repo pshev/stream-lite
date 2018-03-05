@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {catchError} from '../../operators/catchError'
 
 proto.catchError = function(...args) {

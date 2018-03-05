@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {distinctUntilChanged} from '../../operators/distinctUntilChanged'
 
 proto.distinctUntilChanged = function(...args) {

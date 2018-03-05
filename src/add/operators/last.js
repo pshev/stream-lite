@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {last} from '../../operators/last'
 
 proto.last = function(...args) {

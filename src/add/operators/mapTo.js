@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {mapTo} from '../../operators/mapTo'
 
 proto.mapTo = function(...args) {

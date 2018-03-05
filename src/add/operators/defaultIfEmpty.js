@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {defaultIfEmpty} from '../../operators/defaultIfEmpty'
 
 proto.defaultIfEmpty = function(...args) {

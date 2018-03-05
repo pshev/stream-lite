@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {startWith} from '../../operators/startWith'
 
 proto.startWith = function(...args) {

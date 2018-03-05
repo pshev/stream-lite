@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {flatMap} from '../../operators/flatMap'
 
 proto.flatMap = function(...args) {

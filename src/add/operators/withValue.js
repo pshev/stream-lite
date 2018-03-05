@@ -1,4 +1,4 @@
-import {proto} from '../../core'
+import {proto} from '../../internal/stream'
 import {withValue} from '../../operators/withValue'
 
 proto.withValue = function(...args) {
