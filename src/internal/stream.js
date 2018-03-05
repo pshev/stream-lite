@@ -1,8 +1,14 @@
-import {proto, baseProps} from '../core/proto'
+import {proto} from '../core/proto'
 import {isActive} from './helpers'
 
 export function Stream(props) {
-  let stream = Object.assign(Object.create(proto), baseProps(props))
+  let stream = Object.assign(Object.create(proto), {
+    active: false,
+    hasEmitted: false,
+    dependencies: [],
+    dependents: [],
+    subscribers: []
+  }, props)
 
   const nextFn = stream.next
   stream.next = (...args) => isActive(stream) && nextFn.call(stream, ...args)

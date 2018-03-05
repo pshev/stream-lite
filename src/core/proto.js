@@ -17,11 +17,3 @@ export let proto = {
   getValue() { return this.val },
   [$$observable]() { return this }
 }
-
-export const baseProps = props => Object.assign({}, {
-  active: false,
-  hasEmitted: false,
-  dependencies: [],
-  dependents: [],
-  subscribers: []
-}, props)
