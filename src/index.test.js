@@ -2966,8 +2966,11 @@ describe('operators', () => {
       const predicate = chai.spy()
 
       of(1,2)
-	      .skipWhile(predicate)
-	      .subscribe(nx, err, () => {
+        .skipWhile((...args) => {
+          predicate(...args)
+          return true
+        })
+        .subscribe(nx, err, () => {
           expect(predicate).to.have.been.called.with(1, 0)
           expect(predicate).to.have.been.called.with(2, 1)
           expect(predicate).to.have.been.called.twice()
@@ -2989,6 +2992,21 @@ describe('operators', () => {
 
       of(1,2,3,4,5)
         |> skipWhile(x => x < 4)
+        |> subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(4)
+          expect(next).to.have.been.called.with(5)
+          expect(next).to.have.been.called.twice()
+          done()
+        })
+    })
+    it("should consider predicate failed when it returns any falsy value, not only strictly false", (done) => {
+      const next = chai.spy()
+
+      of(1,2,3,4,5)
+        |> skipWhile(x => {
+          if (x < 4) return x < 4
+          else return ''
+        })
         |> subscribe(next, err, () => {
           expect(next).to.have.been.called.with(4)
           expect(next).to.have.been.called.with(5)
