@@ -54,7 +54,39 @@ describe('subscribe', () => {
 
 	  it("should work as a standalone function", (done) =>
 	    of(1) |> subscribe({next: () => done()}))
+
+    it("should throw if next callback is not defined", (done) => {
+      try {
+        of(1).subscribe({})
+      } catch (ex) {
+        done()
+      }
+    })
+
+    it("should provide a default complete callback if it is not provided", (done) => {
+      const error = chai.spy()
+      try {
+        of(1).subscribe({
+          next: nx,
+          error: err
+        })
+      } catch (ex) {
+        error(ex)
+      }
+      expect(error).to.not.have.been.called()
+      done()
+    })
+
+    it("should provide a default error callback that re-throws an error if error callback is not provided", (done) => {
+      try {
+        error('bad').subscribe({next: nx})
+      } catch (ex) {
+        expect(ex).to.equal('bad')
+        done()
+      }
+    })
   })
+
   describe('called with callback functions', () => {
     it("should call next", (done) =>
       of(1).subscribe(() => done()))
@@ -64,7 +96,36 @@ describe('subscribe', () => {
 
     it("should call complete", (done) =>
       of(1).subscribe(nx, err, _ => done()))
+
+    it("should throw if next callback is not defined", (done) => {
+      try {
+        of(1).subscribe()
+      } catch (ex) {
+        done()
+      }
+    })
+
+    it("should provide a default complete callback if it is not provided", (done) => {
+      const error = chai.spy()
+      try {
+        of(1).subscribe(nx, err)
+      } catch (ex) {
+        error(ex)
+      }
+      expect(error).to.not.have.been.called()
+      done()
+    })
+
+    it("should provide a default error callback that re-throws an error if error callback is not provided", (done) => {
+      try {
+        error('bad').subscribe(nx)
+      } catch (ex) {
+        expect(ex).to.equal('bad')
+        done()
+      }
+    })
   })
+
   describe('unsubscribe', () => {
     it("should return a subscription object", (done) => {
       const subscription = of(1).subscribe(() => done())
