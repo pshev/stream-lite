@@ -65,6 +65,100 @@ describe('subscribe', () => {
     it("should call complete", (done) =>
       of(1).subscribe(nx, err, _ => done()))
   })
+  describe('unsubscribe', () => {
+    it("should return a subscription object", (done) => {
+      const subscription = of(1).subscribe(() => done())
+      expect(subscription.unsubscribe).to.not.equal(undefined)
+      expect(typeof subscription.unsubscribe).to.not.equal('function')
+    })
+    it("should deactivate the stream when and only when last subscriber unsubscribes", (done) => {
+      const stream = interval(1)
+
+      const subscription1 = stream.subscribe(nx)
+      const subscription2 = stream.subscribe(nx)
+
+      expect(stream.active).to.equal(true)
+
+      setTimeout(() => {
+        subscription1.unsubscribe()
+        expect(stream.active).to.equal(true)
+
+        setTimeout(() => {
+          subscription2.unsubscribe()
+          expect(stream.active).to.equal(false)
+          done()
+        }, 10)
+      }, 10)
+    })
+    it("stream should not produce any values after last subscriber unsubscribes", (done) => {
+      const next = chai.spy()
+      const manualStream = create()
+
+      const subscription1 = manualStream.subscribe(next)
+
+      expect(manualStream.active).to.equal(true)
+
+      manualStream.next(1)
+
+      setTimeout(() => {
+        subscription1.unsubscribe()
+        expect(manualStream.active).to.equal(false)
+
+        manualStream.next(2)
+        manualStream.next(3)
+
+        setTimeout(() => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.not.have.been.called.with(2)
+          expect(next).to.not.have.been.called.with(3)
+          done()
+        }, 10)
+      }, 10)
+    })
+    it("should not call stream's complete method when last subscriber unsubscribes", (done) => {
+      const complete = chai.spy()
+      const stream = interval(1)
+
+      const subscription1 = stream.subscribe(nx, err, complete)
+
+      expect(stream.active).to.equal(true)
+
+      setTimeout(() => {
+        subscription1.unsubscribe()
+        expect(stream.active).to.equal(false)
+
+        setTimeout(() => {
+          expect(complete).to.not.have.been.called()
+          done()
+        }, 10)
+      }, 10)
+    })
+    it("should not call stream's error method when last subscriber unsubscribes", (done) => {
+      const error = chai.spy()
+      const stream = interval(1)
+
+      const subscription1 = stream.subscribe(nx, error)
+
+      expect(stream.active).to.equal(true)
+
+      setTimeout(() => {
+        subscription1.unsubscribe()
+        expect(stream.active).to.equal(false)
+
+        setTimeout(() => {
+          expect(error).to.not.have.been.called()
+          done()
+        }, 10)
+      }, 10)
+    })
+    it("calling unsubscribe multiple times shouldn't cause any problems", (done) => {
+      const subscription = of(1).subscribe(nx)
+      subscription.unsubscribe()
+      subscription.unsubscribe()
+      subscription.unsubscribe()
+      done()
+    })
+  })
 })
 
 describe('getValue', () => {
