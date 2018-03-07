@@ -20,6 +20,9 @@
 - Familiar interface (mostly replicating RxJS's API)
 - Modular. Add as little or as much functionality as you want
 - Lazy streams (only active once subscribed to)
+- Only ["hot"](https://medium.com/@benlesh/hot-vs-cold-observables-f8094ed53339) streams
+- [Pipeable operators](https://github.com/ReactiveX/rxjs/blob/master/doc/pipeable-operators.md) support
+- [Fantasy Observable](https://github.com/staltz/fantasy-observable) compliant
 - More than 50 operators and factories available
 
 ## 🔧 Installation
@@ -30,9 +33,12 @@ npm install --save stream-lite
 ```
 This package includes both a [CommonJS](https://nodejs.org/docs/latest/api/modules.html) and [ES2015](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) based modules.<br />
 You can use them from [Node](https://nodejs.org/en/) environment or if you are building for the browser you can use a module bundler like [Webpack](https://webpack.js.org/), [Browserify](http://browserify.org/), or [Rollup](http://rollupjs.org).<br/>
-If you don't use a module bundler, it's also fine. 
+If you want to experiment and play around with Amnis without a module bundler or you don't use one - that's OK.
 The `stream-lite` npm package includes precompiled production and development UMD builds in the `umd` folder. 
-They can be used directly without a bundler and are thus compatible with many popular JavaScript module loaders and environments. For example, you can drop a UMD build as a `<script>` tag on the page. The UMD builds make `stream-lite` available as a `window.stream` global variable and include all the functionality.
+You can just drop a UMD build as a `<script>` tag on a page. The UMD builds make `stream-lite` available as a `window.stream` global variable and include all the functionality.
+```html
+<script type="application/javascript" src="https://unpkg.com/stream-lite"></script>
+```
 
 ## 📦🔨 Import and Usage
 The following guide assumes you use ES2015+ but you don't have to.<br />
@@ -111,14 +117,14 @@ of(1,2,3)
 The `stream-lite` package is built to bring as little overhead to your project as possible.<br/>
 ##### core
 The core of the library includes the `create` function and a few prototype methods, like `subscribe` and `pipe`. <br/>
-This core is under **900B** gzipped.
+This core is **~1KB** gzipped.
 <br/>
 ##### common
-A common usage will probably include around 15 most common methods and operators, which should bring about **1.5KB** to your app if you use tree-shaking. 😍
+A common usage will probably include around 15 most common methods and operators, which should bring about **1.8KB** to your app if you use tree-shaking. 😍
 <br/>
 ##### everything
 If for some reason you feel the need to import all available operators and factories, that option is also available.<br/>
-That includes more than 50 operators and factories, and will make your app heavier by about **3.3KB** gzipped.
+That includes more than 50 operators and factories, and will make your app heavier by about **3.5KB** gzipped.
 
 
 
