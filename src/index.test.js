@@ -18,6 +18,9 @@ import {
 } from './statics'
 import Rx from 'rxjs/Rx'
 
+const allStatics = ['of', 'fromArray', 'timer', 'range', 'fromEvent', 'empty', 'error', 'never', 'fromPromise']
+const allOperators = ['map', 'filter', 'startWith', 'scan', 'tap', 'pairwise', 'single', 'first', 'last', 'every', 'defaultIfEmpty', 'mapTo', 'distinctUntilChanged', 'pluck', 'partition', 'delay', 'buffer', 'bufferWhen', 'bufferCount', 'debounce', 'debounceTime', 'throttle', 'throttleTime', 'flatMap', 'concatMap', 'switchMap', 'concatMapTo', 'skip', 'skipUntil', 'skipWhile', 'ignoreElements', 'take', 'takeUntil', 'takeWhile', 'withValue', 'withLatestFrom', 'catchError', 'merge', 'concat', 'combine', 'combineLatest']
+
 chai.use(spies)
 
 const expect = chai.expect
@@ -29,6 +32,15 @@ const nx = () => {}
 const err = () => {}
 
 //TODO: test default parameters
+describe('check statics and operators are available as methods', () => {
+  const isFunction = x => typeof x === 'function'
+  const isAvailableAsStatic = method => expect(isFunction(Stream[method])).to.equal(true)
+  const isAvailableAsMethod = method => expect(isFunction(of(1)[method])).to.equal(true)
+
+  allStatics.forEach(x => it(x, () => isAvailableAsStatic(x)))
+  allOperators.forEach(x => it(x, () => isAvailableAsMethod(x)))
+})
+
 describe('subscribe', () => {
   describe('called with callbacks object', () => {
     it("should call next", (done) =>
@@ -477,6 +489,22 @@ describe('factories', () => {
           done()
         })
     })
+    it("should be able to cancel a promise", (done) => {
+      const next = chai.spy()
+
+      const get42Async = () => new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(42)
+        }, 20)
+      })
+
+      fromPromise(get42Async())
+        |> takeUntil(timer(5))
+        |> subscribe(next, err, () => {
+          expect(next).to.not.have.been.called.with(42)
+          done()
+        })
+    })
     it("should work with the 'catchError' operator", (done) => {
       const next = chai.spy()
       const err = chai.spy()
@@ -532,6 +560,17 @@ describe('operators', () => {
         |> map(() => {throw new Error()})
         |> subscribe(nx, () => done())
     })
+    it("should not call next when mapping function errors", (done) => {
+      const next = chai.spy()
+
+      of(1)
+        |> map(() => {throw 'bad'})
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
     it("should not run the mapping function when source stream errors", (done) => {
       const mappingFn = chai.spy()
 
@@ -569,6 +608,26 @@ describe('operators', () => {
   })
 
   describe('filter', () => {
+    it("should complete when source stream completes", (done) => {
+      of(1,2,3)
+        .filter(() => true)
+        .subscribe(nx, err, done)
+    })
+    it("should run values emitted from source stream through the given filtering function", (done) => {
+      const filteringFn = chai.spy()
+
+      of(1,2)
+        |> filter((...args) => {
+          filteringFn(...args)
+          return true
+        })
+        |> subscribe(nx, err, () => {
+          expect(filteringFn).to.have.been.called.with(1)
+          expect(filteringFn).to.have.been.called.with(2)
+          expect(filteringFn).to.have.been.called.twice()
+          done()
+        })
+    })
     it("should emit only those values from source stream that pass the provided given function", (done) => {
       const next = chai.spy()
 
@@ -581,10 +640,21 @@ describe('operators', () => {
           done()
         })
     })
+    it("should error when source stream errors", (done) => {
+      error('bad')
+        |> filter(() => true)
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
     it("should error when filtering function errors", (done) => {
       of(1)
-        |> filter(() => { throw new Error() })
-        |> subscribe(nx, () => done())
+        |> filter(() => {throw 'bad'})
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
     })
   })
 
@@ -604,6 +674,30 @@ describe('operators', () => {
         done()
       })
     })
+    it("should start with given value and not complete if source does not completes", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+
+      const subscription = never().startWith(1).subscribe(next, err, complete)
+
+      setTimeout(() => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.once()
+        expect(complete).to.not.have.been.called()
+        subscription.unsubscribe()
+        done()
+      }, 10)
+    })
+    it("should start with given value and complete immediately if source is empty", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+
+      empty().startWith(1).subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(1)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
     it("should provide an initial sequence of values for a source stream", (done) => {
       const next = chai.spy()
       let firstNextValue
@@ -618,6 +712,18 @@ describe('operators', () => {
         expect(firstNextValue).to.equal(1)
         done()
       })
+    })
+    it("should start with given value and error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> startWith(1)
+        |> subscribe(next, error => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.have.been.called.once()
+          expect(error).to.equal('bad')
+          done()
+        })
     })
   })
 
@@ -646,9 +752,43 @@ describe('operators', () => {
           done()
         })
     })
+    it("should error when source stream errors", (done) => {
+      const add = (x, y) => x + y
+      error()
+        |> scan(add, 0)
+        |> subscribe(nx, done)
+    })
+    it("should error when the given function errors", (done) => {
+      of(1)
+        |> scan(() => {throw new Error()}, 0)
+        |> subscribe(nx, () => done())
+    })
+    it("should not call next when mapping function errors", (done) => {
+      const next = chai.spy()
+
+      of(1)
+        |> scan(() => {throw 'bad'}, 0)
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
   })
 
   describe('tap', () => {
+    it("should emit all values coming from source stream", (done) => {
+      const next = chai.spy()
+
+      of(1,2)
+        |> tap(() => {})
+        |> subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.have.been.called.with(2)
+          expect(next).to.have.been.called.twice()
+          done()
+        })
+    })
     it("should execute the given function with each value from source stream", (done) => {
       const fn = chai.spy()
       of(1,2)
@@ -668,6 +808,33 @@ describe('operators', () => {
           expect(next).to.have.been.called.with(1)
           expect(next).to.have.been.called.with(2)
           expect(next).to.have.been.called.twice()
+          done()
+        })
+    })
+    it("should error when source stream errors", (done) => {
+      error('bad')
+        |> tap(() => {})
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error when the given function errors", (done) => {
+      of(1)
+        |> tap(() => {throw 'bad'})
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should not call next when given function errors", (done) => {
+      const next = chai.spy()
+
+      of(1)
+        |> tap(() => {throw 'bad'})
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
           done()
         })
     })
@@ -702,10 +869,18 @@ describe('operators', () => {
           done()
         })
     })
+    it("should error when source stream errors", (done) => {
+      error('bad')
+        |> pairwise()
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
   })
 
   describe('single', () => {
-    it("should complete", (done) => {
+    it("should complete when source emits one value", (done) => {
       never()
 	      .startWith(1)
 	      .single()
@@ -745,6 +920,33 @@ describe('operators', () => {
           done()
         })
     })
+    it("should error when source stream errors", (done) => {
+      error('bad')
+        |> single()
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error when the given predicate errors", (done) => {
+      of(1)
+        |> single(() => {throw 'bad'})
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should not call next when the given predicate errors", (done) => {
+      const next = chai.spy()
+
+      of(1)
+        |> single(() => {throw 'bad'})
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
     it("should handle re-subscription", (done) => {
       const predicate = chai.spy()
 
@@ -764,7 +966,7 @@ describe('operators', () => {
   })
 
   describe('first', () => {
-    it("should complete", (done) => {
+    it("should complete when source emits one value", (done) => {
       never()
 	      .startWith(1)
 	      .first()
@@ -778,6 +980,14 @@ describe('operators', () => {
         |> subscribe(next, err, () => {
           expect(next).to.have.been.called.with(1)
           expect(next).to.have.been.called.once()
+          done()
+        })
+    })
+    it("should error when source stream errors", (done) => {
+      error('bad')
+        |> first()
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
           done()
         })
     })
@@ -800,8 +1010,22 @@ describe('operators', () => {
     })
     it("should error when resultSelector function errors", (done) => {
       of(1,2)
-        |> first(x => x === 1, () => {throw new Error()})
-        |> subscribe(nx, () => done())
+        |> first(x => x === 1, () => {throw 'bad'})
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should not call next when the given predicate errors", (done) => {
+      const next = chai.spy()
+
+      of(1)
+        |> first(() => {throw 'bad'})
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
     })
     it("should emit the first value from source to pass the predicate", (done) => {
       const next = chai.spy()
@@ -888,6 +1112,14 @@ describe('operators', () => {
         done()
       })
     })
+    it("should error when source stream errors", (done) => {
+      error('bad')
+        |> last()
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
     it("should call the predicate with value and index", (done) => {
       const predicate = chai.spy()
 
@@ -906,11 +1138,22 @@ describe('operators', () => {
         |> last(x => x === 1, () => { throw new Error() })
         |> subscribe(nx, () => done())
     })
+    it("should not call next when the given predicate errors", (done) => {
+      const next = chai.spy()
+
+      of(1)
+        |> last(() => {throw 'bad'})
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
     it("should emit the last value from source to pass the predicate", (done) => {
       const next = chai.spy()
 
-      of(1,2,3,4) 
-        |> last(x => x === 2) 
+      of(1,2,3,4)
+        |> last(x => x === 2)
         |> subscribe(next, err, () => {
           expect(next).to.have.been.called.with(2)
           expect(next).to.have.been.called.once()
@@ -971,24 +1214,67 @@ describe('operators', () => {
 
   describe('every', () => {
     it("should complete when source stream completes", (done) => {
-      of(1) 
+      of(1)
 	      .every(x => x < 10)
 	      .subscribe(nx, err, done)
+    })
+    it("should not complete when source does not", (done) => {
+      const next = chai.spy()
+      const complete = chai.spy()
+
+      never() |> every() |> subscribe(next, err, complete)
+
+      setTimeout(() => {
+        expect(next).to.not.have.been.called()
+        expect(complete).to.not.have.been.called()
+        done()
+      }, 10)
+    })
+    it("when no predicate is given should emit emit true when source completes", (done) => {
+      const next = chai.spy()
+
+      of(1,2) |> every() |> subscribe(next, err, () => {
+        expect(next).to.have.been.called.with(true)
+        expect(next).to.have.been.called.once()
+        done()
+      })
+    })
+    it("should error when source stream errors", (done) => {
+      error('bad')
+        |> every()
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
     })
     it("should call the predicate with value and index", (done) => {
       const predicate = chai.spy()
 
-      of(1,2) 
+      of(1,2)
         |> every((x, i) => {
             predicate(x, i)
             return x < 10
-          }) 
+          })
         |> subscribe(nx, err, () => {
             expect(predicate).to.have.been.called.with(1, 0)
             expect(predicate).to.have.been.called.with(2, 1)
             expect(predicate).to.have.been.called.twice()
             done()
           })
+    })
+    it("should error if the given predicate errors", (done) => {
+      of(1) |> every(x => {throw new Error()}) |> subscribe(nx, () => done())
+    })
+    it("should not call next when the given predicate errors", (done) => {
+      const next = chai.spy()
+
+      of(1)
+        |> every(() => {throw 'bad'})
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
     })
     it("should not emit source stream values", (done) => {
       const next = chai.spy()
@@ -1006,11 +1292,11 @@ describe('operators', () => {
       const next = chai.spy()
       const predicate = chai.spy()
 
-      of(1,2,3,4,5) 
+      of(1,2,3,4,5)
         |> every((x) => {
             predicate(x)
             return x === 1
-          }) 
+          })
         |> subscribe(next, err, () => {
             expect(predicate).to.have.been.called.with(1)
             expect(predicate).to.have.been.called.with(2)
@@ -1095,6 +1381,25 @@ describe('operators', () => {
           done()
         })
     })
+    it("should error when source stream errors", (done) => {
+      error('bad')
+        |> defaultIfEmpty()
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should not call next when the given predicate errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> defaultIfEmpty()
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
   })
 
   describe('mapTo', () => {
@@ -1106,6 +1411,17 @@ describe('operators', () => {
 	      .subscribe(next, err, () => {
           expect(next).to.have.been.called.with(42)
           expect(next).to.have.been.called.with(42)
+          done()
+        })
+    })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> mapTo(1)
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
           done()
         })
     })
@@ -1143,6 +1459,17 @@ describe('operators', () => {
         |> subscribe(next, err, () => {
           expect(next).to.have.been.called.with(1)
           expect(next).to.have.been.called.once()
+          done()
+        })
+    })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> distinctUntilChanged()
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
           done()
         })
     })
@@ -1196,6 +1523,17 @@ describe('operators', () => {
           expect(error).to.not.have.been.called()
           expect(next).to.have.been.called.with('Developer')
           expect(next).to.have.been.called.with(undefined)
+          done()
+        })
+    })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> pluck('x')
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
           done()
         })
     })
@@ -1298,9 +1636,20 @@ describe('operators', () => {
           done()
         })
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> buffer(timer(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
     it("should error if the given stream errors", (done) => {
-      of(1) 
-        |> buffer(error()) 
+      of(1)
+        |> buffer(error())
         |> subscribe(nx, done)
     })
     it("should emit buffered values as arrays when given stream emits", (done) => {
@@ -1340,7 +1689,7 @@ describe('operators', () => {
     it("should call the given function on initialization", (done) => {
       const fn = chai.spy()
 
-      const subscription = never() 
+      const subscription = never()
 	      .bufferWhen(() => {
 	        fn()
 	        return never()
@@ -1366,7 +1715,26 @@ describe('operators', () => {
           done()
         })
     })
-    it("should error if the given stream errors", (done) => {
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> bufferWhen(() => timer(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if the given function errors", (done) => {
+      of(1)
+        |> bufferWhen(() => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if the stream returned by given function errors", (done) => {
       of(1)
         |> bufferWhen(() => error())
         |> subscribe(nx, done)
@@ -1513,6 +1881,44 @@ describe('operators', () => {
         done()
       }, 10)
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> debounce(() => timer(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if the given function errors", (done) => {
+      of(1)
+      |> debounce(() => {throw 'bad'})
+      |> subscribe(nx, err => {
+        expect(err).to.equal('bad')
+        done()
+      })
+    })
+    it("should error if the stream returned by given function errors", (done) => {
+      of(1)
+        |> debounce(() => error('bad'))
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
+    })
+    it("should not call next when the given function errors", (done) => {
+      const next = chai.spy()
+
+      of(1)
+        |> debounce(() => {throw 'bad'})
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
     it("when source completes, should emit last source value and complete immediately", () => {
       const next = chai.spy()
       const complete = chai.spy()
@@ -1577,6 +1983,17 @@ describe('operators', () => {
         expect(complete).to.not.have.been.called()
         done()
       }, 10)
+    })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> debounceTime(1)
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
     })
     it("when source completes, should emit last source value and complete immediately", () => {
       const next = chai.spy()
@@ -1700,6 +2117,33 @@ describe('operators', () => {
 
       expect(next).to.have.been.called.with(42)
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> throttle(() => timer(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if the given function errors", (done) => {
+      of(1)
+        |> throttle(() => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if the stream returned by given function errors", (done) => {
+      of(1)
+        |> throttle(() => error('bad'))
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
+    })
   })
 
   describe('throttleTime', () => {
@@ -1794,20 +2238,40 @@ describe('operators', () => {
           done()
         })
     })
-    it("should error if and when a stream returned from the given function errors", (done) => {
-      of(1)
-        |> flatMap(x => error())
-        |> subscribe(nx, () => done())
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> flatMap(() => of(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
     })
     it("should error if the given function errors", (done) => {
       of(1)
-        |> flatMap(x => {throw new Error()})
-        |> subscribe(nx, () => done())
+        |> flatMap(x => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if and when a stream returned from the given function errors", (done) => {
+      of(1)
+        |> flatMap(x => error('bad'))
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
     })
     it("should error when resultSelector function errors", (done) => {
       of(1,2)
-        |> flatMap(x => of(4, 5) |> delay(1), () => {throw new Error()})
-        |> subscribe(nx, () => done())
+        |> flatMap(x => of(4, 5) |> delay(1), () => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
     })
     it("should not complete if a stream returned from the given function completes", (done) => {
       const next = chai.spy()
@@ -1897,20 +2361,40 @@ describe('operators', () => {
           done()
         })
     })
-    it("should error if and when a stream returned from the given function errors", (done) => {
-      of(1)
-        |> concatMap(x => error())
-        |> subscribe(nx, () => done())
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> concatMap(() => of(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
     })
     it("should error if the given function errors", (done) => {
       of(1)
-        |> concatMap(x => {throw new Error()})
-        |> subscribe(nx, () => done())
+        |> concatMap(x => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if and when a stream returned from the given function errors", (done) => {
+      of(1)
+        |> concatMap(x => error('bad'))
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
     })
     it("should error when resultSelector function errors", (done) => {
       of(1,2)
-        |> concatMap(x => of(4,5) |> delay(1), () => {throw new Error()})
-        |> subscribe(nx, () => done())
+        |> concatMap(x => of(4,5) |> delay(1), () => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
     })
     it("should handle promises", (done) => {
       const next = chai.spy()
@@ -2047,20 +2531,40 @@ describe('operators', () => {
           }
         }, err, done)
     })
-    it("should error if a stream returned from the given function errors", (done) => {
-      of(1)
-        |> switchMap(x => error())
-        |> subscribe(nx, () => done())
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> switchMap(() => of(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
     })
     it("should error if the given function errors", (done) => {
       of(1)
-        |> switchMap(x => {throw new Error()})
-        |> subscribe(nx, () => done())
+        |> switchMap(x => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if a stream returned from the given function errors", (done) => {
+      of(1)
+        |> switchMap(x => error('bad'))
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
     })
     it("should error when resultSelector function errors", (done) => {
       of(1,2)
-        |> switchMap(x => of(4,5) |> delay(1), () => { throw new Error() })
-        |> subscribe(nx, () => done())
+        |> switchMap(x => of(4,5) |> delay(1), () => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
     })
     it("should not complete if a stream returned from the given function completes", (done) => {
       const next = chai.spy()
@@ -2130,15 +2634,32 @@ describe('operators', () => {
           done()
         })
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> concatMapTo(of(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
     it("should error if the given stream errors", (done) => {
       of(1)
-        |> concatMapTo(error())
-        |> subscribe(nx, () => done())
+        |> concatMapTo(error('bad'))
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
     })
     it("should error when resultSelector function errors", (done) => {
       of(1,2)
-        |> concatMapTo(of(4,5) |> delay(1), () => {throw new Error()})
-        |> subscribe(nx, () => done())
+        |> concatMapTo(of(4,5) |> delay(1), () => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
     })
     it("should handle promises", (done) => {
       const next = chai.spy()
@@ -2187,6 +2708,17 @@ describe('operators', () => {
           expect(next).to.have.been.called.with(4)
           expect(next).to.have.been.called.with(5)
           expect(next).to.have.been.called.twice()
+          done()
+        })
+    })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> skip(1)
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
           done()
         })
     })
@@ -2239,14 +2771,25 @@ describe('operators', () => {
         done()
       })
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> skip(1)
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
     it("should error when given stream errors", () => {
       const err = chai.spy()
 
       never()
-        |> skipUntil(error('err'))
+        |> skipUntil(error('bad'))
         |> subscribe(nx, err)
 
-      expect(err).to.have.been.called.with('err')
+      expect(err).to.have.been.called.with('bad')
     })
     it("should handle re-subscription", (done) => {
       const next = chai.spy()
@@ -2276,7 +2819,7 @@ describe('operators', () => {
           done()
         })
     })
-    it("should emit all values that pass the predicate", (done) => {
+    it("should not emit any values until the predicate is failed", (done) => {
       const next = chai.spy()
 
       of(1,2,3,4)
@@ -2307,6 +2850,25 @@ describe('operators', () => {
           expect(next).to.have.been.called.with(4)
           expect(next).to.have.been.called.with(5)
           expect(next).to.have.been.called.twice()
+          done()
+        })
+    })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> skipWhile(x => x < 5)
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if the given predicate errors", (done) => {
+      of(1)
+        |> skipWhile(x => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
           done()
         })
     })
@@ -2347,6 +2909,14 @@ describe('operators', () => {
           done()
         })
     })
+    it("should error when source stream errors", (done) => {
+      error('bad')
+        |> ignoreElements()
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
   })
 
   describe('take', () => {
@@ -2371,6 +2941,17 @@ describe('operators', () => {
           expect(next).to.have.been.called.with(1)
           expect(next).to.have.been.called.with(2)
           expect(next).to.have.been.called.twice()
+          done()
+        })
+    })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> take(1)
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
           done()
         })
     })
@@ -2404,6 +2985,16 @@ describe('operators', () => {
           done()
         })
     })
+    it("should complete immediately without emitting any values when given a stream that executes immediately", (done) => {
+      const next = chai.spy()
+
+      of(1,2,3)
+        |> takeUntil(of(1))
+        |> subscribe(next, err, () => {
+          expect(next).to.not.have.been.called()
+          done()
+        })
+    })
     it("should not complete if the given stream doesn't emit", (done) => {
       const next = chai.spy()
       const complete = chai.spy()
@@ -2421,9 +3012,44 @@ describe('operators', () => {
         done()
       })
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> takeUntil(never())
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error when given stream errors", () => {
+      const err = chai.spy()
+
+      never()
+        |> takeUntil(error('bad'))
+        |> subscribe(nx, err)
+
+      expect(err).to.have.been.called.with('bad')
+    })
   })
 
   describe('takeWhile', () => {
+    it("should call the predicate with source values", (done) => {
+      const predicate = chai.spy()
+
+      of(1,2)
+        .takeWhile((...args) => {
+          predicate(...args)
+          return true
+        })
+        .subscribe(nx, err, () => {
+          expect(predicate).to.have.been.called.with(1)
+          expect(predicate).to.have.been.called.with(2)
+          expect(predicate).to.have.been.called.twice()
+          done()
+        })
+    })
     it("should complete when the given predicate evaluates to false", (done) => {
       const next = chai.spy()
 
@@ -2446,6 +3072,50 @@ describe('operators', () => {
           done()
         })
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> takeWhile(x => x < 5)
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if the given predicate errors", (done) => {
+      of(1)
+        |> takeWhile(x => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
+          done()
+        })
+    })
+    it("should handle re-subscription", (done) => {
+      const next = chai.spy()
+
+      const stream = of(1,2,3,4,5)
+        |> takeWhile(x => x < 3)
+        |> subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.have.been.called.with(2)
+          expect(next).to.have.been.called.twice()
+          done()
+        })
+
+      stream.subscribe(next, err, () =>
+        stream.subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(1)
+          expect(next).to.have.been.called.with(2)
+
+          expect(next).to.not.have.been.called.with(3)
+          expect(next).to.not.have.been.called.with(4)
+          expect(next).to.not.have.been.called.with(5)
+
+          expect(next).to.have.been.called.exactly(4)
+          done()
+        }))
+    })
   })
 
   describe('withValue', () => {
@@ -2457,6 +3127,25 @@ describe('operators', () => {
 	      .subscribe(next, err, () => {
           expect(next).to.have.been.called.with([1, 42])
           expect(next).to.have.been.called.once()
+          done()
+        })
+    })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> withValue(x => x)
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if the given function errors", (done) => {
+      of(1)
+        |> withValue(x => {throw 'bad'})
+        |> subscribe(nx, err => {
+          expect(err).to.equal('bad')
           done()
         })
     })
@@ -2486,6 +3175,17 @@ describe('operators', () => {
           done()
         })
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> withLatestFrom(of(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
     it("should error when given stream errors", (done) => {
       of(1)
         |> withLatestFrom(error())
@@ -2512,6 +3212,8 @@ describe('operators', () => {
           done()
         })
     })
+    //TODO: Actually there is a bunch more tests required for catchError
+    it('should unsubscribe from observable returned by the given function when unsubscribed explicitly')
   })
 
   describe('merge', () => {
@@ -2527,7 +3229,7 @@ describe('operators', () => {
           done()
         })
     })
-    it("should not wait for all dependency stream to emit", (done) => {
+    it("should not wait for all dependency streams to emit", (done) => {
       const next = chai.spy()
 
       never() |> merge(of(1)) |> subscribe(next)
@@ -2559,6 +3261,24 @@ describe('operators', () => {
         done()
       })
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> merge(of(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if any of the source streams errors", (done) => {
+      staticMerge(of(1,2,3), timer(1), error('bad'))
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
   })
 
   describe('concat', () => {
@@ -2568,7 +3288,7 @@ describe('operators', () => {
 	      .subscribe(nx, err, done)
     })
     it("should also be available as a static method", (done) => {
-      staticConcat(of(1), of(2)) 
+      staticConcat(of(1), of(2))
         |> subscribe(nx, err, done)
     })
     it("should emit values from all given streams in a sequence", (done) => {
@@ -2598,6 +3318,24 @@ describe('operators', () => {
           }
         }, err, done)
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> concat(of(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if any of the source streams errors", (done) => {
+      staticConcat(of(1,2,3), timer(1), error('bad'))
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
   })
 
   describe('pipe', () => {
@@ -2626,7 +3364,7 @@ describe('operators', () => {
           expect(next).to.have.been.called.with(4)
           expect(next).to.have.been.called.twice()
           done()
-      })
+        })
     })
 	  it("should error when one of the given streams errors", (done) => {
 		  of(1,2,3,4,5).pipe(
@@ -2735,53 +3473,28 @@ describe('operators', () => {
         done()
       })
     })
+    it("should error when source stream errors", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        |> combine(of(1))
+        |> subscribe(next, error => {
+          expect(next).to.not.have.been.called()
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
+    it("should error if any of the source streams errors", (done) => {
+      staticCombine(of(1,2,3), timer(1), error('bad'))
+        |> subscribe(nx, error => {
+          expect(error).to.equal('bad')
+          done()
+        })
+    })
   })
 })
 
 describe('generic', () => {
-  it("should complete the stream when last subscriber unsubscribes", (done) => {
-    const stream = interval(999)
-
-    const subscription = stream.subscribe(nx)
-
-    setTimeout(() => {
-      subscription.unsubscribe()
-      expect(stream.active).to.equal(false)
-      done()
-    })
-  })
-  it("should complete dependencies when stream completes if the completed stream was the only dependent", (done) => {
-    const doBlock = chai.spy()
-    const stream1 = interval(10) |> tap(doBlock)
-    const stream2 = stream1 |> map(x => x * 2)
-    const stream3 = stream2 |> filter(x => x % 2 === 0)
-    const stream4 = stream3 |> take(15)
-
-    stream4.subscribe(nx, err, () => {
-      expect(doBlock).to.have.been.called.with(10)
-      expect(doBlock).to.not.have.been.called.with(16)
-      expect(stream1.active).to.equal(false)
-      expect(stream2.active).to.equal(false)
-      expect(stream3.active).to.equal(false)
-      expect(stream4.active).to.equal(false)
-      done()
-    })
-  })
-  it("should not complete the stream when last subscriber unsubscribes in case stream has other dependents", (done) => {
-    const stream = interval(1)
-    const someDependentStream = stream |> take(20)
-
-    someDependentStream.subscribe(nx)
-
-    const subscription = stream.subscribe(nx)
-
-    setTimeout(() => {
-      subscription.unsubscribe()
-      expect(stream.active).to.equal(true)
-      expect(someDependentStream.active).to.equal(true)
-      done()
-    })
-  })
   it("should set stream's hasEmitted flag to true after that stream actually emitted", (done) => {
     const stream = of(1,2,3)
     const filteredStream = stream |> filter(x => x > 5)
@@ -2805,16 +3518,4 @@ describe('generic', () => {
       done()
     })
   })
-})
-
-describe('check statics and operators are available as methods', () => {
-	const isFunction = x => typeof x === 'function'
-	const isAvailableAsStatic = method => expect(isFunction(Stream[method])).to.equal(true)
-	const isAvailableAsMethod = method => expect(isFunction(of(1)[method])).to.equal(true)
-
-	const statics = ['of', 'fromArray', 'timer', 'range', 'fromEvent', 'empty', 'error', 'never', 'fromPromise']
-	const operators = ['map', 'filter', 'startWith', 'scan', 'tap', 'pairwise', 'single', 'first', 'last', 'every', 'defaultIfEmpty', 'mapTo', 'distinctUntilChanged', 'pluck', 'partition', 'delay', 'buffer', 'bufferWhen', 'bufferCount', 'debounce', 'debounceTime', 'throttle', 'throttleTime', 'flatMap', 'concatMap', 'switchMap', 'concatMapTo', 'skip', 'skipUntil', 'skipWhile', 'ignoreElements', 'take', 'takeUntil', 'takeWhile', 'withValue', 'withLatestFrom', 'catchError', 'merge', 'concat', 'combine', 'combineLatest']
-
-	statics.forEach(x => it(x, () => isAvailableAsStatic(x)))
-	operators.forEach(x => it(x, () => isAvailableAsMethod(x)))
 })
