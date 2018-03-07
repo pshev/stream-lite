@@ -3588,6 +3588,506 @@ describe('operators', () => {
   })
 })
 
+describe('stream activation', () => {
+  it("when first subscriber subscribes stream should be activated", (done) => {
+    const stream = interval(1)
+    expect(stream.active).to.equal(false)
+    const subscription = stream.subscribe(nx)
+    expect(stream.active).to.equal(true)
+    subscription.unsubscribe()
+    done()
+  })
+
+  it("when activated stream should start", (done) => {
+    const stream = never().startWith(1)
+    const onStart = chai.spy.on(stream, 'onStart')
+
+    const subscription = stream.subscribe(nx)
+
+    expect(onStart).to.have.been.called()
+    expect(stream.active).to.equal(true)
+    subscription.unsubscribe()
+    done()
+  })
+
+  it("when activated should activate dependency", (done) => {
+    const stream = interval(1)
+    const stream1 = stream.map(x => x)
+
+    expect(stream.active).to.equal(false)
+    expect(stream1.active).to.equal(false)
+
+    const subscription = stream1.subscribe(nx)
+
+    expect(stream.active).to.equal(true)
+    expect(stream1.active).to.equal(true)
+
+    subscription.unsubscribe()
+    done()
+  })
+
+  it("when activated should start dependency producers", (done) => {
+    const stream = staticMerge(of(1,2,3), never())
+    const stream1 = stream.map(x => x)
+
+    const subscription = stream1.subscribe(nx)
+
+    expect(stream.hasEmitted).to.equal(true)
+
+    subscription.unsubscribe()
+    done()
+  })
+
+  it("when activated should not activate dependents", (done) => {
+    const stream = interval(1)
+    const stream1 = stream.map(x => x)
+
+    const subscription = stream.subscribe(nx)
+
+    expect(stream.active).to.equal(true)
+    expect(stream1.active).to.equal(false)
+
+    subscription.unsubscribe()
+    done()
+  })
+
+  it("when activated should not activate dependency twice if it has already been activated", (done) => {
+    const next = chai.spy()
+
+    const stream = staticMerge(of(1,2), never())
+    const stream1 = stream.map(x => x)
+
+    expect(stream.active).to.equal(false)
+    expect(stream1.active).to.equal(false)
+
+    const subscription = stream.subscribe(next)
+
+    expect(next).to.have.been.called.with(1)
+    expect(next).to.have.been.called.with(2)
+    expect(next).to.have.been.called.twice()
+
+    const subscription1 = stream1.subscribe(nx)
+
+    // if we don't do a isInactive check, we start of's producer twice
+    // which makes it produces values 1 and 2 over again, which results in 4 calls
+    expect(next).to.have.been.called.twice()
+
+    subscription.unsubscribe()
+    subscription1.unsubscribe()
+    done()
+  })
+
+  it("when activated should activate nested dependencies", (done) => {
+    const stream = never()
+    const stream1 = stream.map(x => x)
+    const stream2 = stream1.filter(_ => true)
+    const stream3 = stream2.tap(_ => {})
+
+    const subscription = stream3.subscribe(nx)
+
+    expect(stream.active).to.equal(true)
+    expect(stream1.active).to.equal(true)
+    expect(stream2.active).to.equal(true)
+    expect(stream3.active).to.equal(true)
+
+    subscription.unsubscribe()
+    done()
+  })
+
+  it("when activated should start dependency producers only after all dependency streams have been activated", (done) => {
+    const next = chai.spy()
+
+    const stream1 = of(1,2)
+    const stream2 = of(3,4)
+    const stream3 = never()
+    const stream4 = staticMerge(stream1, stream2, stream3)
+    const stream5 = stream4.map(x => x)
+
+    const subscription = stream5.subscribe(x => {
+      if (x === 1) {
+        expect(stream5.active).to.equal(true)
+        expect(stream4.active).to.equal(true)
+        expect(stream3.active).to.equal(true)
+        expect(stream2.active).to.equal(true)
+        expect(stream1.active).to.equal(true)
+      }
+      next(x)
+    })
+
+    expect(next).to.have.been.called.with(1)
+    expect(next).to.have.been.called.with(2)
+    expect(next).to.have.been.called.with(3)
+    expect(next).to.have.been.called.with(4)
+    expect(next).to.have.been.called.exactly(4)
+
+    subscription.unsubscribe()
+    done()
+  })
+
+  it("when activated should start dependency streams only after all dependency streams have been activated", (done) => {
+    const next = chai.spy()
+
+    const stream1 = of(2).startWith(1)
+    const stream2 = of(4).startWith(3)
+    const stream3 = never()
+    const stream4 = staticMerge(stream1, stream2, stream3)
+    const stream5 = stream4.map(x => x)
+
+    const subscription = stream5.subscribe(x => {
+      if (x === 1) {
+        expect(stream5.active).to.equal(true)
+        expect(stream4.active).to.equal(true)
+        expect(stream3.active).to.equal(true)
+        expect(stream2.active).to.equal(true)
+        expect(stream1.active).to.equal(true)
+      }
+      next(x)
+    })
+
+    expect(next).to.have.been.called.with(1)
+    expect(next).to.have.been.called.with(2)
+    expect(next).to.have.been.called.with(3)
+    expect(next).to.have.been.called.with(4)
+    expect(next).to.have.been.called.exactly(4)
+
+    subscription.unsubscribe()
+    done()
+  })
+})
+
+describe('stream deactivation', () => {
+  describe('on last subscriber unsubscribe', () => {
+    it("should deactivate the itself if it has no dependents", () => {
+      const stream = interval(1)
+
+      const subscription = stream.subscribe(nx)
+
+      subscription.unsubscribe()
+
+      expect(stream.active).to.equal(false)
+    })
+
+    it("should deactivate itself if it has no active dependents", () => {
+      const stream1 = timer(1)
+
+      const stream2 = stream1.map(x => x)
+
+      const subscription1 = stream1.subscribe(nx)
+
+      subscription1.unsubscribe()
+
+      expect(stream1.active).to.equal(false)
+      expect(stream2.active).to.equal(false)
+    })
+
+    it("should not deactivate itself if it has active dependents", () => {
+      const stream1 = timer(1)
+
+      const stream2 = stream1.map(x => x)
+
+      const subscription1 = stream1.subscribe(nx)
+      const subscription2 = stream2.subscribe(nx)
+
+      subscription1.unsubscribe()
+
+      expect(stream1.active).to.equal(true)
+      expect(stream2.active).to.equal(true)
+
+      subscription2.unsubscribe()
+    })
+
+    it("should deactivate dependency", () => {
+      const stream1 = interval(1)
+      const stream2 = stream1.map(x => x * 2)
+
+      const subscription = stream2.subscribe(nx)
+
+      subscription.unsubscribe()
+
+      expect(stream1.active).to.equal(false)
+      expect(stream2.active).to.equal(false)
+    })
+
+    it("should deactivate nested dependencies", () => {
+      const stream1 = interval(1)
+      const stream2 = stream1.map(x => x * 2)
+      const stream3 = stream2.filter(x => x % 2 === 0)
+
+      const subscription = stream3.subscribe(nx)
+
+      subscription.unsubscribe()
+
+      expect(stream1.active).to.equal(false)
+      expect(stream2.active).to.equal(false)
+      expect(stream3.active).to.equal(false)
+    })
+
+    it("should not deactivate dependencies if they have other dependents", () => {
+      const stream1 = timer(1).filter(_ => true)
+
+      const stream2 = stream1.map(x => x)
+
+      const subscription1 = stream1.subscribe(nx)
+      const subscription2 = stream2.subscribe(nx)
+
+      subscription2.unsubscribe()
+
+      expect(stream1.active).to.equal(true)
+      expect(stream2.active).to.equal(false)
+
+      subscription1.unsubscribe()
+    })
+
+    it("should not deactivate dependencies if they have other subscribers", () => {
+      const stream1 = timer(1)
+
+      const stream2 = stream1.map(x => x)
+
+      const subscription1 = stream1.subscribe(nx)
+      const subscription2 = stream2.subscribe(nx)
+
+      subscription2.unsubscribe()
+
+      expect(stream1.active).to.equal(true)
+      expect(stream2.active).to.equal(false)
+
+      subscription1.unsubscribe()
+    })
+
+    it("should not deactivate dependents", () => {
+      const stream1 = timer(1)
+
+      const stream2 = stream1.map(x => x)
+
+      const subscription1 = stream1.subscribe(nx)
+      const subscription2 = stream2.subscribe(nx)
+
+      subscription1.unsubscribe()
+
+      expect(stream2.active).to.equal(true)
+
+      subscription2.unsubscribe()
+    })
+  })
+
+  describe('on complete', () => {
+    it("should propagate completion to subscribers", () => {
+      const complete = chai.spy()
+
+      of(1).subscribe(nx, err, complete)
+
+      expect(complete).to.have.been.called()
+    })
+
+    it("should deactivate the itself", (done) => {
+      const stream = of(1)
+      stream.subscribe(nx, err, () => {
+        expect(stream.active).to.equal(false)
+        done()
+      })
+    })
+
+    it("should deactivate dependency", (done) => {
+      const stream1 = timer(1)
+      const stream2 = stream1.take(1)
+
+      stream2.subscribe(nx, err, () => {
+        expect(stream2.active).to.equal(false)
+        expect(stream1.active).to.equal(false)
+        done()
+      })
+    })
+
+    it("should deactivate nested dependencies", (done) => {
+      const stream1 = interval(1)
+      const stream2 = stream1.map(x => x)
+      const stream3 = stream2.take(5)
+
+      stream3.subscribe(nx, err, () => {
+        expect(stream1.active).to.equal(false)
+        expect(stream2.active).to.equal(false)
+        expect(stream3.active).to.equal(false)
+        done()
+      })
+    })
+
+    it("should not deactivate dependencies if they have other subscribers", (done) => {
+      const stream1 = interval(1)
+      const stream2 = stream1.take(5)
+
+      const subscription1 = stream1.subscribe(nx)
+
+      stream2.subscribe(nx, err, () => {
+        expect(stream2.active).to.equal(false)
+        expect(stream1.active).to.equal(true)
+        subscription1.unsubscribe()
+        done()
+      })
+    })
+
+    it("should not deactivate dependencies if they have other dependents", (done) => {
+      const stream1 = interval(1)
+      const stream2 = stream1.map(x => x)
+      const stream3 = stream2.take(5)
+
+      const subscription2 = stream2.subscribe(nx)
+
+      stream3.subscribe(nx, err, () => {
+        expect(stream1.active).to.equal(true)
+        subscription2.unsubscribe()
+        done()
+      })
+    })
+
+    it("should propagate completion to deep subscribers", (done) => {
+      const stream1 = of(1)
+      const stream2 = stream1.map(x => x)
+      const stream3 = stream2.filter(_ => true)
+
+      stream3.subscribe(nx, err, done)
+    })
+
+    it("should propagate completion to dependents", (done) => {
+      const stream1 = of(1)
+      const stream2 = stream1.map(x => x)
+
+      stream2.subscribe(nx, err, () => {
+        expect(stream2.active).to.equal(false)
+        done()
+      })
+    })
+
+    it("should propagate completion to deep dependents", (done) => {
+      const stream1 = of(1)
+      const stream2 = stream1.map(x => x)
+      const stream3 = stream2.filter(_ => true)
+
+      stream3.subscribe(nx, err, () => {
+        expect(stream3.active).to.equal(false)
+        done()
+      })
+    })
+
+    it("should not propagate completion to dependents if they have other active dependencies", (done) => {
+      const stream1 = of(1)
+      const stream2 = interval(1)
+      const stream3 = staticMerge(stream1, stream2).filter(_ => true)
+
+      const subscription3 = stream3.subscribe(nx)
+
+      stream1.subscribe(nx, err, () => {
+        expect(stream1.active).to.equal(false)
+        expect(stream2.active).to.equal(true)
+        expect(stream3.active).to.equal(true)
+        subscription3.unsubscribe()
+        done()
+      })
+    })
+  })
+
+  describe('on error', () => {
+    it("should propagate error to subscribers", () => {
+      const _error = chai.spy()
+
+      error().subscribe(nx, _error)
+
+      expect(_error).to.have.been.called()
+    })
+
+    it("should deactivate the itself", (done) => {
+      const stream = error()
+      stream.subscribe(nx, _ => {
+        expect(stream.active).to.equal(false)
+        done()
+      })
+    })
+
+    it("should deactivate dependency", (done) => {
+      const stream1 = timer(1)
+      const stream2 = stream1.switchMap(error)
+
+      stream2.subscribe(nx, () => {
+        setTimeout(() => {
+          expect(stream1.active).to.equal(false)
+          done()
+        })
+      })
+    })
+
+    it("should deactivate nested dependencies", (done) => {
+      const stream1 = timer(1)
+      const stream2 = stream1.map(x => x)
+      const stream3 = stream1.switchMap(error)
+
+      stream3.subscribe(nx, () => {
+        setTimeout(() => {
+          expect(stream1.active).to.equal(false)
+          done()
+        })
+      })
+    })
+
+    it("should not deactivate dependencies if they have other subscribers", (done) => {
+      const stream1 = interval(1)
+      const stream2 = stream1.map(() => {throw 'bad'})
+
+      const subscription1 = stream1.subscribe(nx)
+
+      stream2.subscribe(nx, () => {
+        expect(stream2.active).to.equal(false)
+        expect(stream1.active).to.equal(true)
+        subscription1.unsubscribe()
+        done()
+      })
+    })
+
+    it("should not deactivate dependencies if they have other dependents", (done) => {
+      const stream1 = interval(1)
+      const stream2 = stream1.filter(_ => true)
+      const stream3 = stream2.map(() => {throw 'bad'})
+
+      const subscription2 = stream2.subscribe(nx)
+
+      stream3.subscribe(nx, _ => {
+        expect(stream1.active).to.equal(true)
+        subscription2.unsubscribe()
+        done()
+      })
+    })
+
+    it("should propagate error to deep subscribers", (done) => {
+      const stream1 = error()
+      const stream2 = stream1.map(x => x)
+      const stream3 = stream2.filter(_ => true)
+
+      stream3.subscribe(nx, _ => done())
+    })
+
+    it("should propagate error to dependents", (done) => {
+      const stream1 = error('bad')
+      const stream2 = stream1.map(x => x)
+
+      stream2.subscribe(nx, err => {
+        expect(err).to.equal('bad')
+        expect(stream2.active).to.equal(false)
+        done()
+      })
+    })
+
+    it("should propagate error to deep dependents", (done) => {
+      const stream1 = error('bad')
+      const stream2 = stream1.map(x => x)
+      const stream3 = stream2.filter(_ => true)
+
+      stream3.subscribe(nx, err => {
+        expect(err).to.equal('bad')
+        expect(stream3.active).to.equal(false)
+        done()
+      })
+    })
+  })
+})
+
 describe('generic', () => {
   it("should set stream's hasEmitted flag to true after that stream actually emitted", (done) => {
     const stream = of(1,2,3)
