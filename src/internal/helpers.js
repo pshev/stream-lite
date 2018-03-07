@@ -1,10 +1,6 @@
-import {fromPromise} from '../statics'
-
 export const isActive = s => s.active === true
 
 export const isInactive = s => !isActive(s)
-
-export const toStream = s => s.then ? fromPromise(s) : s
 
 export const hasNoSubscribers = s => s.subscribers.length === 0
 

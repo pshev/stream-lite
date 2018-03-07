@@ -1,5 +1,5 @@
 import {baseNext, Stream} from '../internal'
-import {toStream} from '../internal/helpers'
+import {toStream} from '../util/to-stream'
 import {_try, ERROR} from '../util/try'
 
 export const bufferWhen = fn => stream => {

@@ -1,5 +1,5 @@
 import {Stream, baseError} from '../internal'
-import {toStream} from '../internal/helpers'
+import {toStream} from '../util/to-stream'
 
 export const catchError = fn => stream => {
   let subscription

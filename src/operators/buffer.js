@@ -1,5 +1,5 @@
 import {baseNext, Stream} from '../internal'
-import {toStream} from '../internal/helpers'
+import {toStream} from '../util/to-stream'
 
 export const buffer = innerStream => stream => {
   let subscription = null
