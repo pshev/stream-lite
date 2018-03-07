@@ -31,7 +31,6 @@ const isRootStream = x => isStream(x) && x.dependencies.length === 0
 const nx = () => {}
 const err = () => {}
 
-//TODO: test default parameters
 describe('check statics and operators are available as methods', () => {
   const isFunction = x => typeof x === 'function'
   const isAvailableAsStatic = method => expect(isFunction(Stream[method])).to.equal(true)
@@ -3367,26 +3366,86 @@ describe('operators', () => {
   })
 
   describe('catchError', () => {
-    it("should catch and replace an error thrown in source stream", (done) => {
+    it("should call the given function with the caught error", () => {
+      const catchFn = chai.spy()
+
+      error('bad')
+        .catchError(err => {
+          catchFn(err)
+          return of(42)
+        })
+        .subscribe(nx)
+
+      expect(catchFn).to.have.been.called.with('bad')
+    })
+    it("should replace the upstream with the stream returned by the given function", () => {
       const next = chai.spy()
 
-      of(1,2,3)
-	      .map(x => {
-          if (x === 2)
-            throw new Error()
-          return x
-        })
-	      .catchError(err => of('number not processed'))
-	      .subscribe(next, err, () => {
-          expect(next).to.have.been.called.with(1)
-          expect(next).to.have.been.called.with('number not processed')
-          expect(next).to.not.have.been.called.with(3)
-          expect(next).to.have.been.called.twice()
+      error('bad')
+        .catchError(err => of(42))
+        .subscribe(next)
+
+      expect(next).to.have.been.called.with(42)
+    })
+    it("should not propagate error", () => {
+      const _error = chai.spy()
+
+      error('bad')
+        .catchError(err => of(42))
+        .subscribe(nx, _error)
+
+      expect(_error).to.not.have.been.called()
+    })
+    it('should unsubscribe from observable returned by the given function when unsubscribed explicitly', () => {
+      const stream1 = interval(1)
+
+      const stream2 = error().catchError(_ => stream1)
+
+      const subscription2 = stream2.subscribe(nx)
+
+      subscription2.unsubscribe()
+
+      expect(stream1.active).to.equal(false)
+      expect(stream2.active).to.equal(false)
+    })
+    it("should error if the given function errors", () => {
+      const _error = chai.spy()
+
+      error('bad')
+        .catchError(err => {throw 'also bad'})
+        .subscribe(nx, _error)
+
+      expect(_error).to.have.been.called.with('also bad')
+    })
+    it("should error if the stream returned by given function errors", () => {
+      const _error = chai.spy()
+
+      error('bad')
+        .catchError(err => error('also bad'))
+        .subscribe(nx, _error)
+
+      expect(_error).to.have.been.called.with('also bad')
+    })
+    it("should deal with resolved promises returned from the given function", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        .catchError(err => new Promise(resolve => resolve(42)))
+        .subscribe(next, err, () => {
+          expect(next).to.have.been.called.with(42)
           done()
         })
     })
-    //TODO: Actually there is a bunch more tests required for catchError
-    it('should unsubscribe from observable returned by the given function when unsubscribed explicitly')
+    it("should deal with rejected promises returned from the given function", (done) => {
+      const next = chai.spy()
+
+      error('bad')
+        .catchError(err => new Promise((resolve, reject) => reject('also bad')))
+        .subscribe(next, err => {
+          expect(err).to.equal('also bad')
+          done()
+        })
+    })
   })
 
   describe('merge', () => {
@@ -4192,3 +4251,4 @@ describe('generic', () => {
     })
   })
 })
+

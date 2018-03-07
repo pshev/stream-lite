@@ -1,17 +1,29 @@
 import {Stream, baseError} from '../internal'
-import {_try, ERROR} from '../util/try'
+import {toStream} from '../internal/helpers'
 
-export const catchError = fn => stream =>
-  Stream({
+export const catchError = fn => stream => {
+  let subscription
+
+  return Stream({
     error(error) {
-      const inner = _try(this, () => fn(error))
-      if (inner === ERROR) return
+      let inner
+      try {
+        inner = fn(error)
+      } catch (err) {
+        baseError(this, err)
+        return
+      }
 
-      inner.subscribe(
+      subscription = toStream(inner).subscribe(
         this.next.bind(this),
         baseError.bind(null, this),
         this.complete.bind(this)
       )
     },
+    onStop() {
+      subscription && subscription.unsubscribe()
+      subscription = null
+    },
     dependencies: [stream]
   })
+}
